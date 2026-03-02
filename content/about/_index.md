@@ -27,7 +27,7 @@ layout: "about"
 ### 📫 联系方式
 
 - **Email**: 1917980791@qq.com
-- **GitHub**: [github.com](https://github.com/)
+- **GitHub**: [github.com/sujian666666com-glitch](https://github.com/sujian666666com-glitch/)
 
 ### 💭 座右铭
 

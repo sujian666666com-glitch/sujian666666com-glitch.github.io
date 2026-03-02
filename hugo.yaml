@@ -65,6 +65,9 @@ menu:
     - name: 首页
       url: /
       weight: 10
+    - name: 每日新闻
+      url: /daily/
+      weight: 15
     - name: 博客
       url: /posts/
       weight: 20
