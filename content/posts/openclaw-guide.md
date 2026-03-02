@@ -145,25 +145,31 @@ openclaw message send --target +1234567890 --message "Hello from OpenClaw"
 
 OpenClaw 的核心架构如下：
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                   消息通道层                             │
-│  WhatsApp | Telegram | Discord | Slack | Signal | ...  │
-└────────────────────────┬────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│              Gateway (控制平面)                          │
-│            ws://127.0.0.1:18789                         │
-└────────────────────────┬────────────────────────────────┘
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-        ▼                ▼                ▼
-   ┌─────────┐     ┌──────────┐    ┌─────────────┐
-   │Pi Agent │     │   CLI    │    │ iOS/Android │
-   │  (RPC)  │     │(openclaw)│    │    Nodes    │
-   └─────────┘     └──────────┘    └─────────────┘
+```mermaid
+flowchart TB
+    subgraph Channels["📡 消息通道层"]
+        A1[WhatsApp]
+        A2[Telegram]
+        A3[Discord]
+        A4[Slack]
+        A5[Signal]
+        A6[更多...]
+    end
+
+    subgraph Gateway["🦞 Gateway 控制平面"]
+        G[ws://127.0.0.1:18789]
+    end
+
+    subgraph Agents["🤖 Agent 层"]
+        B1[Pi Agent<br/>RPC]
+        B2[CLI<br/>openclaw]
+        B3[iOS/Android<br/>Nodes]
+    end
+
+    Channels --> Gateway
+    Gateway --> B1
+    Gateway --> B2
+    Gateway --> B3
 ```
 
 **Gateway** 是 OpenClaw 的核心，它是：
