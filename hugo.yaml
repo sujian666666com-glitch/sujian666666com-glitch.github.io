@@ -65,15 +65,20 @@ menu:
     - name: 首页
       url: /
       weight: 10
+      identifier: home
     - name: 每日新闻
       url: /daily/
       weight: 15
+      identifier: daily
     - name: 博客
       url: /posts/
       weight: 20
+      identifier: posts
     - name: 相册
       url: /gallery/
       weight: 30
+      identifier: gallery
     - name: 搜索
       url: /search/
       weight: 40
+      identifier: search
