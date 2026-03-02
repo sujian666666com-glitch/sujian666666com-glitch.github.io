@@ -1,0 +1,129 @@
+/* 首页极简样式 - 标题 + 搜索框 */
+
+/* 隐藏头像 */
+.profile_inner .profile_image {
+  display: none;
+}
+
+/* 隐藏副标题 */
+.profile_subtitle {
+  display: none;
+}
+
+/* 隐藏按钮 */
+.profile_buttons {
+  display: none;
+}
+
+/* 隐藏社交图标 */
+.social-icons {
+  display: none;
+}
+
+/* 调整标题样式 - 往上移动 */
+.profile_inner {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 15vh;
+}
+
+/* 标题样式 - 更大更醒目 */
+.profile_inner .profile_title {
+  font-size: 4em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 60px;
+}
+
+/* 搜索框样式 */
+.home-search {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.home-search input {
+  width: 100%;
+  padding: 15px 25px;
+  font-size: 1.1em;
+  border-radius: 30px;
+  border: 2px solid var(--border);
+  background: var(--theme);
+  color: var(--content);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.home-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.home-search input::placeholder {
+  color: var(--content);
+  opacity: 0.5;
+}
+
+/* 首页整体布局 */
+.first-entry {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 右上角头像样式保留 */
+.nav-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-left: 15px;
+}
+
+.nav-avatar:hover {
+  transform: scale(1.15);
+}
+
+.nav-avatar img {
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .profile_inner .profile_title {
+    font-size: 3em;
+    margin-bottom: 40px;
+  }
+  
+  .home-search input {
+    padding: 12px 20px;
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile_inner .profile_title {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+  }
+  
+  .home-search {
+    max-width: 90%;
+  }
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] .nav-avatar img {
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .home-search input:focus {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}

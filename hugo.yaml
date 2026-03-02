@@ -1,0 +1,76 @@
+baseURL: https://sujian666666com-glitch.github.io/
+languageCode: zh-cn
+title: ""
+theme: PaperMod
+
+outputs:
+  home:
+    - HTML
+  page:
+    - HTML
+  section:
+    - HTML
+  taxonomy:
+    - HTML
+  term:
+    - HTML
+
+params:
+  env: production
+  author: "苏健"
+  description: "AI 工程师 | 记录技术、生活与思考"
+
+  # Profile 模式 - 极简设计
+  profileMode:
+    enabled: true
+    title: "Hello World 🌍"
+    subtitle: ""
+    imageUrl: ""
+    imageTitle: ""
+    imageWidth: 0
+    imageHeight: 0
+    buttons: []
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/"
+    - name: email
+      url: "mailto:1917980791@qq.com"
+    - name: rss
+      url: "/index.xml"
+
+  # 文章展示
+  ShowReadingTime: true
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowToc: true
+  TocOpen: false
+  ShowWordCount: true
+  ShowRssButtonInSectionTermList: true
+
+  # 首页文章列表
+  mainSections:
+    - posts
+
+  # 主题色
+  assets:
+    favicon: "/favicon.ico"
+    favicon16x16: "/favicon-16x16.png"
+    favicon32x32: "/favicon-32x32.png"
+
+menu:
+  main:
+    - name: 首页
+      url: /
+      weight: 10
+    - name: 博客
+      url: /posts/
+      weight: 20
+    - name: 相册
+      url: /gallery/
+      weight: 30
+    - name: 搜索
+      url: /search/
+      weight: 40

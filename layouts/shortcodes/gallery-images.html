@@ -1,0 +1,26 @@
+<div class="gallery-container">
+    <div class="gallery-grid">
+        {{ range (slice
+            (dict "src" "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800" "title" "山川" "description" "自然的壮美")
+            (dict "src" "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" "title" "森林" "description" "宁静的绿意")
+            (dict "src" "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800" "title" "林间小道" "description" "探索未知")
+            (dict "src" "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=800" "title" "瀑布" "description" "流水潺潺")
+            (dict "src" "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800" "title" "湖泊" "description" "静谧如镜")
+            (dict "src" "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800" "title" "晨雾" "description" "朦胧之美")
+            (dict "src" "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800" "title" "阳光" "description" "穿过树梢")
+            (dict "src" "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800" "title" "原野" "description" "广阔天地")
+            (dict "src" "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800" "title" "草地" "description" "生机盎然")
+            (dict "src" "/gallery/city-nightscape.png" "title" "城市" "description" "繁华夜景")
+            (dict "src" "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800" "title" "雪山" "description" "巍峨壮观")
+            (dict "src" "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=800" "title" "海滩" "description" "海天一色")
+        ) }}
+        <div class="gallery-item">
+            <img src="{{ .src }}" alt="{{ .title }}" loading="lazy">
+            <div class="gallery-overlay">
+                <h3>{{ .title }}</h3>
+                <p>{{ .description }}</p>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+</div>
