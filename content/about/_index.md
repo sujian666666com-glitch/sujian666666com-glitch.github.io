@@ -13,6 +13,7 @@ layout: "about"
 - 💻 热爱编程与开源
 - 📚 终身学习者
 - ✨ 喜欢探索新技术
+- 🎮 喜欢整点火影忍者
 
 ### 🛠️ 技术栈
 
@@ -26,7 +27,6 @@ layout: "about"
 ### 📫 联系方式
 
 - **Email**: 1917980791@qq.com
-- **Phone**: 19138299580
 - **GitHub**: [github.com](https://github.com/)
 
 ### 💭 座右铭
