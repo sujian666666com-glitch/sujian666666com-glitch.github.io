@@ -1,0 +1,51 @@
+/* 移动端菜单点击问题修复 */
+
+/* 在移动端，确保菜单项在头像之上 */
+@media (max-width: 768px) {
+    /* 调整头像的 z-index，确保不遮挡菜单 */
+    .nav-avatar {
+        z-index: 1 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* 确保菜单项可点击 */
+    #menu {
+        z-index: 100 !important;
+        position: relative !important;
+    }
+    
+    /* 确保菜单项的链接可点击 */
+    #menu a {
+        pointer-events: auto !important;
+        z-index: 101 !important;
+        position: relative !important;
+    }
+    
+    /* 确保 logo-switches 不会遮挡菜单 */
+    .logo-switches {
+        z-index: 1 !important;
+    }
+    
+    /* 确保 header 不会影响菜单点击 */
+    .header {
+        z-index: auto !important;
+    }
+    
+    /* 确保 nav 不会影响菜单点击 */
+    .nav {
+        position: relative !important;
+        z-index: auto !important;
+    }
+}
+
+/* 确保头像本身可点击 */
+.nav-avatar {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* 确保头像图片可点击 */
+.nav-avatar img {
+    pointer-events: auto !important;
+}
