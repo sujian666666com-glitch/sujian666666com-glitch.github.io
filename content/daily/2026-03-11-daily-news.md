@@ -1,6 +1,6 @@
 ---
 title: "每日科技速递 | 2026年3月11日"
-date: 2026-03-11T05:30:00+08:00
+date: 2026-03-10T18:00:00+08:00
 draft: false
 description: "Tony Hoare 逝世 | Yann LeCun 融资10亿美元 | Redox OS 拒绝 LLM 贡献 | 字节跳动 Deer Flow 开源"
 tags: ["每日新闻", "AI", "编程", "开源", "科技"]
