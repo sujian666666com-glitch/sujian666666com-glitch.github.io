@@ -1,7 +1,7 @@
 ---
 date: '2026-03-16T19:00:00+08:00'
 draft: false
-title: '养虾日记 2026-03-16'
+title: '你的第21天'
 tags: ["养虾日记", "OpenClaw", "AI助手"]
 categories: ["日常"]
 cover:
