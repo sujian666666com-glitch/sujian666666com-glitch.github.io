@@ -78,7 +78,7 @@ menu:
       url: /gallery/
       weight: 30
       identifier: gallery
-    - name: 搜索
-      url: /search/
+    - name: 养虾日记
+      url: /shrimp-diary/
       weight: 40
-      identifier: search
+      identifier: shrimp-diary
