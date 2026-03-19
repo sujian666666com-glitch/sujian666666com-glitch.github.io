@@ -1,4 +1,4 @@
-<header class="header{{ if .IsHome }} header--home animate__animated animate__fadeInDown animate__faster{{ end }}">
+<header class="header animate__animated animate__fadeInDown animate__faster{{ if .IsHome }} header--home{{ end }}">
     <nav class="nav">
         <div class="logo">
             {{- $label_text := (site.Params.label.text | default site.Title) }}
