@@ -1,0 +1,172 @@
+{{- /* Injects a small Three.js "earth" into the hero title on the homepage. */ -}}
+<script>
+(function () {
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const titleEl = document.querySelector('.blog-hero__title');
+  if (!titleEl) return;
+  if (!titleEl.textContent || titleEl.textContent.indexOf('🌍') === -1) return;
+  if (titleEl.dataset.earth3dInited === '1') return;
+  titleEl.dataset.earth3dInited = '1';
+
+  // Replace the last 🌍 in the rendered HTML with a canvas wrapper.
+  const earthMarkup =
+    '<span class="earth-3d-wrap" aria-hidden="true">' +
+      '<canvas class="earth-3d-canvas"></canvas>' +
+    '</span>';
+
+  const html = titleEl.innerHTML;
+  const lastIdx = html.lastIndexOf('🌍');
+  if (lastIdx < 0) return;
+  // '🌍' is 2 UTF-16 code units in JS, so we slice accordingly.
+  titleEl.innerHTML = html.slice(0, lastIdx) + earthMarkup + html.slice(lastIdx + 2);
+
+  const wrapEl = titleEl.querySelector('.earth-3d-wrap');
+  const canvasEl = titleEl.querySelector('canvas.earth-3d-canvas');
+  if (!wrapEl || !canvasEl) return;
+
+  function initEarth() {
+    const THREE_REF = window.THREE;
+    if (!THREE_REF) return;
+
+    const renderer = new THREE_REF.WebGLRenderer({
+      canvas: canvasEl,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'low-power'
+    });
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE_REF.Scene();
+    // 使用正交相机，彻底消除透视畸变，保证球体看起来是正圆
+    const camera = new THREE_REF.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+    camera.position.set(0, 0, 3.0);
+
+    const ambient = new THREE_REF.AmbientLight(0xffffff, 0.45);
+    scene.add(ambient);
+    const dir = new THREE_REF.DirectionalLight(0xffffff, 1.1);
+    dir.position.set(2.4, 2.0, 2.5);
+    scene.add(dir);
+
+    const earthGroup = new THREE_REF.Group();
+    scene.add(earthGroup);
+
+    const geometry = new THREE_REF.SphereGeometry(1, 64, 32);
+
+    // Fallback material (used if texture loading fails).
+    const fallbackMat = new THREE_REF.MeshPhongMaterial({
+      color: 0x1e90ff,
+      shininess: 20
+    });
+
+    const earthMesh = new THREE_REF.Mesh(geometry, fallbackMat);
+    earthGroup.add(earthMesh);
+
+    // Simple atmosphere shell.
+    const atmosphere = new THREE_REF.Mesh(
+      new THREE_REF.SphereGeometry(1.02, 64, 32),
+      new THREE_REF.MeshBasicMaterial({
+        color: 0x4aa3ff,
+        transparent: true,
+        opacity: reduceMotion ? 0.12 : 0.18,
+        side: THREE_REF.BackSide
+      })
+    );
+    earthGroup.add(atmosphere);
+
+    // Resize handling: keep renderer/camera in sync with the inline canvas size.
+    function resize() {
+      const rect = wrapEl.getBoundingClientRect();
+      const side = Math.max(1, Math.round(Math.min(rect.width, rect.height)));
+
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(side, side, false);
+
+      // 正交相机：更新 frustum 而非 aspect
+      camera.left = -1;
+      camera.right = 1;
+      camera.top = 1;
+      camera.bottom = -1;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+
+    let textureLoader = new THREE_REF.TextureLoader();
+    textureLoader.crossOrigin = 'anonymous';
+
+    // Use CDN textures from the official three.js examples.
+    const mapUrl = 'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg';
+    const normalUrl = 'https://threejs.org/examples/textures/planets/earth_normal_map_2048.jpg';
+    const specUrl = 'https://threejs.org/examples/textures/planets/earth_specular_2048.jpg';
+
+    const onTexturesReady = function (map, normalMap, specularMap) {
+      // 使用 Phong 让 specularMap 在不同 three.js 版本下更稳定生效。
+      const mat = new THREE_REF.MeshPhongMaterial({
+        map: map || null,
+        normalMap: normalMap || null,
+        specularMap: specularMap || null,
+        specular: 0x333333,
+        shininess: 30
+      });
+      earthMesh.material = mat;
+      earthMesh.material.needsUpdate = true;
+    };
+
+    Promise.all([
+      new Promise((resolve) => textureLoader.load(mapUrl, resolve, undefined, () => resolve(null))),
+      new Promise((resolve) => textureLoader.load(normalUrl, resolve, undefined, () => resolve(null))),
+      new Promise((resolve) => textureLoader.load(specUrl, resolve, undefined, () => resolve(null)))
+    ]).then((result) => onTexturesReady(result[0], result[1], result[2]));
+
+    let lastT = performance.now();
+    // 自转角速度（rad/s），适当降低以符合“慢一点”的视觉观感。
+    const ROT_Y_SPEED = reduceMotion ? 0 : 0.28;
+    function animate(t) {
+      const dt = Math.min(0.05, (t - lastT) / 1000);
+      lastT = t;
+
+      if (!reduceMotion) {
+        // Slow, constant rotation to mimic self-spin.
+        earthGroup.rotation.y += dt * ROT_Y_SPEED;
+      } else {
+        // When reduced motion is enabled, keep it static (render one frame below).
+      }
+
+      // Subtle bob to avoid "sticker" feel.
+      if (!reduceMotion) {
+        earthGroup.rotation.x = Math.sin(t * 0.0003) * 0.06;
+      }
+
+      renderer.render(scene, camera);
+      if (!reduceMotion) requestAnimationFrame(animate);
+    }
+
+    // Render once for reduced motion, or start loop otherwise.
+    if (reduceMotion) {
+      animate(performance.now());
+    } else {
+      requestAnimationFrame(animate);
+    }
+
+    // Best-effort resize observer: keep it sharp across responsive layouts.
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(() => resize());
+      ro.observe(wrapEl);
+    } else {
+      window.addEventListener('resize', resize, { passive: true });
+    }
+  }
+
+  if (window.THREE) {
+    initEarth();
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/three@0.160.0/build/three.min.js';
+  script.async = true;
+  script.onload = initEarth;
+  document.head.appendChild(script);
+})();
+</script>
+
