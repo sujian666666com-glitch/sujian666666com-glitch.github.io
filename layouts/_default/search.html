@@ -1,0 +1,69 @@
+{{- define "main" }}
+
+<header class="page-header">
+    <h1>{{- (printf "%s&nbsp;" .Title ) | htmlUnescape -}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+    </h1>
+    {{- if .Description }}
+    <div class="post-description">
+        {{ .Description }}
+    </div>
+    {{- end }}
+    {{- if not (.Param "hideMeta") }}
+    <div class="post-meta">
+        {{- partial "translation_list.html" . -}}
+    </div>
+    {{- end }}
+</header>
+
+<div id="searchbox">
+    <input id="searchInput" autofocus placeholder="{{ .Params.placeholder | default (printf "%s ↵" .Title) }}"
+        aria-label="search" type="search" autocomplete="off" maxlength="64">
+    <ul id="searchResults" aria-label="search results"></ul>
+</div>
+
+<script>
+    window.addEventListener("load", function () {
+        const params = new URLSearchParams(window.location.search);
+        const initialQuery = (params.get("query") || params.get("q") || "").trim();
+        const searchInput = document.getElementById("searchInput");
+
+        if (!initialQuery || !searchInput) {
+            return;
+        }
+
+        let attempts = 0;
+
+        const syncQuery = function () {
+            attempts += 1;
+            searchInput.value = initialQuery;
+            const keyupEvent = new KeyboardEvent("keyup", {
+                bubbles: true,
+                cancelable: true,
+                key: initialQuery.slice(-1) || "Enter"
+            });
+
+            if (typeof searchInput.onkeyup === "function") {
+                searchInput.onkeyup.call(searchInput, keyupEvent);
+            } else {
+                searchInput.dispatchEvent(keyupEvent);
+            }
+
+            if (document.querySelector("#searchResults li") || attempts >= 20) {
+                searchInput.focus();
+                searchInput.setSelectionRange(initialQuery.length, initialQuery.length);
+                return;
+            }
+
+            window.setTimeout(syncQuery, 150);
+        };
+
+        syncQuery();
+    });
+</script>
+
+{{- end }}{{/* end main */}}
