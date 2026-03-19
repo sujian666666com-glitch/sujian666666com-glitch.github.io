@@ -262,7 +262,6 @@
   z-index: 2;
   width: clamp(126px, 15vw, 168px);
   transform: rotate(8deg);
-  animation: hero-float 14s ease-in-out infinite;
 }
 
 .blog-hero__portrait img {

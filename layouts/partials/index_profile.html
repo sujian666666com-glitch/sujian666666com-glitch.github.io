@@ -39,7 +39,7 @@
         </section>
 
         <aside class="blog-hero__panel animate__animated animate__fadeInRight">
-            <div class="blog-hero__portrait animate__animated animate__zoomIn" style="--animate-delay: 180ms;">
+            <div class="blog-hero__portrait">
                 {{- if $img }}
                 <img draggable="false" src="{{ $img.Permalink }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
                     height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" loading="eager" />
