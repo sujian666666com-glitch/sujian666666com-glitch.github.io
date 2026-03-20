@@ -88,16 +88,23 @@
         {{- $currentPage := . }}
         <ul id="menu">
             {{- range site.Menus.main }}
+            {{- if not .Parent }}
             {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
             {{- $page_url:= $currentPage.Permalink | absLangURL }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
-            <li>
+            {{- $has_children := gt (len .Children) 0 }}
+            <li class="menu-item{{ if $has_children }} menu-item-has-children{{ end }}">
                 <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
                 {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
                     <span {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
                         {{- .Pre }}
                         {{- .Name -}}
                         {{ .Post -}}
+                        {{- if $has_children }}
+                        <svg class="menu-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                        {{- end }}
                     </span>
                     {{- if (findRE "://" .URL) }}&nbsp;
                     <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
@@ -108,7 +115,15 @@
                     </svg>
                     {{- end }}
                 </a>
+                {{- if $has_children }}
+                <ul class="sub-menu">
+                    {{- range .Children }}
+                    <li><a href="{{ .URL | absLangURL }}"><span>{{ .Name }}</span></a></li>
+                    {{- end }}
+                </ul>
+                {{- end }}
             </li>
+            {{- end }}
             {{- end }}
         </ul>
     </nav>

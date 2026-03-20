@@ -5,7 +5,16 @@
       "Bash(hugo:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(find /Users/ik/clawd/my-blog/themes -type f -name *.html)",
+      "Bash(find /Users/ik/clawd/my-blog/themes/PaperMod -name *.html -exec grep -l \"menu\\\\|nav\" {})",
+      "Bash(2)",
+      "Bash(find /Users/ik/clawd/my-blog -name *.css -type f)",
+      "Bash(cat:*)",
+      "Bash(grep -r \"categories\\\\|tags\" /Users/ik/clawd/my-blog/content/posts/*.md)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1313/)",
+      "Bash(curl -s http://localhost:1313/)",
+      "Bash(pkill -f \"hugo server\")"
     ]
   }
 }

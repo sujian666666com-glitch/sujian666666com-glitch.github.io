@@ -804,3 +804,127 @@
 [data-theme="dark"] .blog-hero__glow--two {
   background: rgba(45, 212, 191, 0.18);
 }
+
+/* ========== 下拉菜单样式 ========== */
+
+/* 菜单项容器 */
+.menu-item {
+  position: relative;
+}
+
+/* 下拉箭头 */
+.menu-arrow {
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+  vertical-align: middle;
+}
+
+/* 悬停时箭头旋转 */
+.menu-item:hover .menu-arrow {
+  transform: rotate(180deg);
+}
+
+/* 子菜单容器 */
+.sub-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 120px;
+  padding: 8px 0;
+  margin: 4px 0 0;
+  list-style: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+/* 首页 header 样式适配 */
+.header--home .sub-menu {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+/* 显示子菜单 */
+.menu-item:hover .sub-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 子菜单项 */
+.sub-menu li {
+  margin: 0;
+}
+
+.sub-menu li a {
+  display: block;
+  padding: 10px 18px;
+  color: rgb(51, 65, 85) !important;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sub-menu li a:hover {
+  background: rgba(14, 165, 233, 0.08);
+  color: rgb(14, 165, 233) !important;
+}
+
+.sub-menu li a span {
+  color: inherit;
+}
+
+/* 深色模式适配 */
+[data-theme="dark"] .sub-menu {
+  background: rgba(30, 41, 59, 0.96);
+  border-color: rgba(71, 85, 105, 0.3);
+  box-shadow: 0 14px 32px rgba(2, 6, 23, 0.32);
+}
+
+[data-theme="dark"] .sub-menu li a {
+  color: rgba(226, 232, 240, 0.9) !important;
+}
+
+[data-theme="dark"] .sub-menu li a:hover {
+  background: rgba(45, 212, 191, 0.12);
+  color: rgb(45, 212, 191) !important;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .sub-menu {
+    position: static;
+    transform: none;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    background: rgba(15, 23, 42, 0.04);
+    border: none;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    display: none;
+    backdrop-filter: none;
+  }
+
+  .menu-item-has-children:hover .sub-menu,
+  .menu-item-has-children.active .sub-menu {
+    display: block;
+  }
+
+  .sub-menu li a {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .menu-arrow {
+    display: inline-block;
+  }
+}

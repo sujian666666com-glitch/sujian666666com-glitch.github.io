@@ -76,11 +76,31 @@ menu:
       url: /posts/
       weight: 20
       identifier: posts
+    - name: 技术
+      url: /categories/技术/
+      weight: 21
+      parent: posts
+    - name: 生活
+      url: /categories/生活/
+      weight: 22
+      parent: posts
+    - name: 思考
+      url: /categories/思考/
+      weight: 23
+      parent: posts
     - name: 相册
       url: /gallery/
       weight: 30
       identifier: gallery
-    - name: 养虾日记
+    - name: 小虾
       url: /shrimp-diary/
       weight: 40
       identifier: shrimp-diary
+    - name: 周记
+      url: /shrimp-diary/weekly/
+      weight: 41
+      parent: shrimp-diary
+    - name: 日记
+      url: /shrimp-diary/daily/
+      weight: 42
+      parent: shrimp-diary
