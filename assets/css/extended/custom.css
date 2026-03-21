@@ -1,6 +1,7 @@
 .header--home {
   position: relative;
   z-index: 30;
+  overflow: visible;
 }
 
 .header--home .nav {
@@ -11,6 +12,39 @@
   background: rgba(255, 255, 255, 0.68);
   backdrop-filter: blur(18px);
   box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+  /* 与首页主内容区同宽，避免顶栏与 hero 错位 */
+  max-width: min(1180px + var(--gap) * 2, calc(100vw - var(--gap) * 2));
+}
+
+/* 首页主栏加宽，与 .blog-hero / 文章卡片栅格一致（避免窄栏 + 强行 breakout 不协调） */
+.main:has(.blog-hero) {
+  max-width: min(1180px + var(--gap) * 2, calc(100vw - var(--gap) * 2));
+}
+
+/* 覆盖主题 profile 的 flex 居中，避免与全宽 hero、负 margin breakout 打架 */
+.main .profile.blog-hero {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  text-align: initial;
+  align-items: stretch;
+  justify-content: flex-start;
+  min-height: 0;
+}
+
+/*
+ * PaperMod 默认 #menu { overflow-x: auto } 会触发「另一轴不可见则按 auto 计算」，
+ * 导致 overflow-y 实际为 auto，绝对定位的 .sub-menu 被裁成一条细线。
+ */
+@media (min-width: 769px) {
+  .header #menu {
+    overflow: visible;
+  }
+
+  .header .nav {
+    overflow: visible;
+  }
 }
 
 .header--home #menu a,
@@ -24,9 +58,11 @@
   position: relative;
   isolation: isolate;
   overflow: clip;
-  width: min(1180px, calc(100vw - (var(--gap) * 2)));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
   min-height: calc(100vh - var(--header-height) - var(--footer-height) - (var(--gap) * 2));
-  margin: 0 calc(50% - 50vw + var(--gap));
   padding: clamp(28px, 4vw, 44px);
   border-radius: 32px;
   border: 1px solid rgba(148, 163, 184, 0.2);
@@ -622,7 +658,8 @@
 
 @media (max-width: 720px) {
   .blog-hero {
-    width: calc(100vw - (var(--gap) * 2));
+    width: 100%;
+    max-width: none;
     min-height: auto;
     border-radius: 26px;
     padding: 22px;
@@ -812,6 +849,15 @@
   position: relative;
 }
 
+.menu-item-has-children {
+  z-index: 1;
+}
+
+.menu-item-has-children:hover,
+.menu-item-has-children:focus-within {
+  z-index: 200;
+}
+
 /* 下拉箭头 */
 .menu-arrow {
   margin-left: 4px;
@@ -820,7 +866,8 @@
 }
 
 /* 悬停时箭头旋转 */
-.menu-item:hover .menu-arrow {
+.menu-item:hover .menu-arrow,
+.menu-item:focus-within .menu-arrow {
   transform: rotate(180deg);
 }
 
@@ -842,8 +889,9 @@
   visibility: hidden;
   transform: translateX(-50%) translateY(-8px);
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
-  z-index: 100;
+  z-index: 300;
   backdrop-filter: blur(12px);
+  white-space: normal;
 }
 
 /* 首页 header 样式适配 */
@@ -853,7 +901,8 @@
 }
 
 /* 显示子菜单 */
-.menu-item:hover .sub-menu {
+.menu-item:hover .sub-menu,
+.menu-item:focus-within .sub-menu {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
