@@ -871,14 +871,14 @@
   transform: rotate(180deg);
 }
 
-/* 子菜单容器 */
+/* 子菜单容器：与触发项左缘对齐（比 50% 居中更稳定） */
 .sub-menu {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 120px;
-  padding: 8px 0;
+  left: 0;
+  right: auto;
+  min-width: max(100%, 9.5rem);
+  padding: 6px 0;
   margin: 4px 0 0;
   list-style: none;
   border-radius: 12px;
@@ -887,11 +887,13 @@
   box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%) translateY(-8px);
+  transform: translateY(-6px);
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
   z-index: 300;
   backdrop-filter: blur(12px);
   white-space: normal;
+  text-align: start;
+  line-height: normal;
 }
 
 /* 首页 header 样式适配 */
@@ -905,19 +907,36 @@
 .menu-item:focus-within .sub-menu {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
+}
+
+/*
+ * PaperMod：#menu li + li { margin-inline-start: var(--gap) } 本意是顶栏项间距，
+ * 但同样匹配子菜单里「第二个起的 li」，会把选项挤到右侧且看起来「没对齐」。
+ */
+#menu .sub-menu li + li {
+  margin-inline-start: 0;
 }
 
 /* 子菜单项 */
 .sub-menu li {
   margin: 0;
+  padding: 0;
+  display: block;
+  line-height: normal;
+  list-style: none;
 }
 
 .sub-menu li a {
   display: block;
-  padding: 10px 18px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 16px;
+  margin: 0;
   color: rgb(51, 65, 85) !important;
   font-size: 0.95rem;
+  line-height: 1.45;
+  text-align: start;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -928,6 +947,8 @@
 }
 
 .sub-menu li a span {
+  display: inline;
+  text-align: inherit;
   color: inherit;
 }
 
