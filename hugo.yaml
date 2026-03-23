@@ -3,6 +3,10 @@ languageCode: zh-cn
 title: "Jian の Blog"
 theme: PaperMod
 
+taxonomies:
+  category: categories
+  tag: tags
+
 outputs:
   home:
     - HTML
