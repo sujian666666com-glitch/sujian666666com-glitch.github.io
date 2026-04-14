@@ -3,6 +3,7 @@
   "private": true,
   "description": "Hugo blog + optional Cloudflare Worker for chat proxy",
   "scripts": {
+    "build:rag": "node scripts/build-rag.mjs",
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy",
     "worker:secret": "wrangler secret put DASHSCOPE_API_KEY"

@@ -1,3 +1,6 @@
+# RAG：CI/本地构建生成的向量索引（体积大，勿提交）
+static/rag-vectors.json
+
 # Hugo build output
 /public/
 /resources/_gen/

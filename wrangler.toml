@@ -9,3 +9,6 @@ compatibility_date = "2024-11-01"
 # 通用百炼 API（sk-）用 compatible-mode。Coding 域名仅部分 Coding Agents 场景，见 chat-worker 注释
 [vars]
 DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+# RAG：与 Hugo baseURL 一致，指向站内 /rag-vectors.json（先部署一次 Pages 生成文件后再生效）
+RAG_VECTORS_URL = "https://sujian666666com-glitch.github.io/rag-vectors.json"
+RAG_TOP_K = "4"

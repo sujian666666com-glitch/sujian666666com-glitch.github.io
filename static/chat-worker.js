@@ -3,6 +3,8 @@
  *
  * 环境变量（在 Cloudflare Dashboard 中配置）:
  *   DASHSCOPE_API_KEY  — DashScope API 密钥
+ *   RAG_VECTORS_URL（可选）— 站内 rag-vectors.json 的绝对 URL（见 scripts/build-rag.mjs）
+ *   RAG_TOP_K（可选）— 默认 4，命中片段条数上限
  *   DASHSCOPE_BASE_URL — 默认用北京兼容接口：
  *     https://dashscope.aliyuncs.com/compatible-mode/v1
  *     （配合控制台「通用」API Key，sk- 开头）
@@ -66,6 +68,139 @@ function handleOptions(request) {
   return new Response(null, { status: 200, headers: corsHeaders(request) });
 }
 
+// ── RAG（向量检索，与 scripts/build-rag.mjs 生成的 static/rag-vectors.json 配套）──
+const RAG_INDEX_CACHE_MS = 5 * 60 * 1000;
+let ragIndexCache = { url: '', data: null, expiresAt: 0 };
+
+function getLastUserContent(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') {
+      const c = messages[i].content;
+      return typeof c === 'string' ? c : '';
+    }
+  }
+  return '';
+}
+
+function cosineSimilarity(a, b) {
+  if (!a || !b || a.length !== b.length || a.length === 0) return -1;
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  const d = Math.sqrt(na) * Math.sqrt(nb);
+  return d === 0 ? -1 : dot / d;
+}
+
+async function fetchEmbeddingVector(env, baseURL, model, text) {
+  const apiKey = env.DASHSCOPE_API_KEY;
+  const url = `${baseURL.replace(/\/$/, '')}/embeddings`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      input: text.length > 8000 ? text.slice(0, 8000) : text,
+    }),
+  });
+  const raw = await res.text();
+  if (!res.ok) {
+    throw new Error(`embeddings ${res.status}: ${raw.slice(0, 200)}`);
+  }
+  const json = JSON.parse(raw);
+  const emb = json.data && json.data[0] && json.data[0].embedding;
+  if (!emb) throw new Error('no embedding in response');
+  return emb;
+}
+
+async function loadRagIndex(env) {
+  const url = (env.RAG_VECTORS_URL || '').trim();
+  if (!url) return null;
+  const now = Date.now();
+  if (ragIndexCache.url === url && ragIndexCache.data && now < ragIndexCache.expiresAt) {
+    return ragIndexCache.data;
+  }
+  const res = await fetch(url, { redirect: 'follow' });
+  if (!res.ok) {
+    console.warn('[RAG] index HTTP', res.status, url);
+    return null;
+  }
+  try {
+    const data = await res.json();
+    ragIndexCache = { url, data, expiresAt: now + RAG_INDEX_CACHE_MS };
+    return data;
+  } catch (e) {
+    console.warn('[RAG] parse JSON failed', e);
+    return null;
+  }
+}
+
+/**
+ * 用用户最后一轮问题量 embedding，与索引余弦相似度取 Top-K，拼入首条 system（或新建 system）
+ */
+async function enrichMessagesWithRag(body, env) {
+  const idx = await loadRagIndex(env);
+  if (!idx || !Array.isArray(idx.chunks) || idx.chunks.length === 0) {
+    return body;
+  }
+
+  const qText = getLastUserContent(body.messages).trim();
+  if (qText.length < 2) return body;
+
+  const baseURL =
+    env.DASHSCOPE_BASE_URL ||
+    'https://dashscope.aliyuncs.com/compatible-mode/v1';
+  const embedModel = idx.embeddingModel || 'text-embedding-v4';
+  let qVec;
+  try {
+    qVec = await fetchEmbeddingVector(env, baseURL, embedModel, qText);
+  } catch (e) {
+    console.warn('[RAG] query embedding failed', e);
+    return body;
+  }
+
+  const topK = Math.min(
+    8,
+    Math.max(1, parseInt(String(env.RAG_TOP_K || '4'), 10) || 4),
+  );
+  const scored = [];
+  for (const c of idx.chunks) {
+    if (!c.embedding || !c.text) continue;
+    const s = cosineSimilarity(qVec, c.embedding);
+    scored.push({ s, c });
+  }
+  scored.sort((a, b) => b.s - a.s);
+  const top = scored.slice(0, topK);
+  if (top.length === 0) return body;
+
+  const ragBlock =
+    '【以下为根据用户最后一句话从本站文章检索到的参考片段，请结合回答；若与问题无关请忽略。】\n' +
+    top
+      .map(
+        (t, n) =>
+          `[片段${n + 1} · ${t.c.source}]\n${t.c.text}`,
+      )
+      .join('\n\n---\n\n');
+
+  const messages = body.messages.map((m) => ({ ...m }));
+  const si = messages.findIndex((m) => m.role === 'system');
+  if (si >= 0) {
+    const prev =
+      typeof messages[si].content === 'string' ? messages[si].content : '';
+    messages[si] = { ...messages[si], content: `${prev}\n\n${ragBlock}` };
+  } else {
+    messages.unshift({ role: 'system', content: ragBlock });
+  }
+  return { ...body, messages };
+}
+
 // ── 主处理逻辑 ──────────────────────────────────────────────
 async function handleRequest(request, env) {
   // CORS 预检
@@ -111,6 +246,12 @@ async function handleRequest(request, env) {
   // 模型白名单校验
   if (!ALLOWED_MODELS.has(body.model)) {
     return jsonError(400, `Model not allowed: ${body.model}`, request);
+  }
+
+  try {
+    body = await enrichMessagesWithRag(body, env);
+  } catch (e) {
+    console.warn('[RAG] enrich failed', e);
   }
 
   // 构造转发请求

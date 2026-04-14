@@ -1,3 +1,11 @@
+/*
+ * 首页主内容 + 顶栏「自适应填充」：随视口变宽，但设上限避免超宽屏一行过长。
+ * 需要更窄/更宽时只改这一处（单位支持 px 或 clamp）。
+ */
+:root {
+  --blog-layout-max: min(1440px, calc(100vw - var(--gap) * 2));
+}
+
 .header--home {
   position: relative;
   z-index: 30;
@@ -13,12 +21,12 @@
   backdrop-filter: blur(18px);
   box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
   /* 与首页主内容区同宽，避免顶栏与 hero 错位 */
-  max-width: min(1180px + var(--gap) * 2, calc(100vw - var(--gap) * 2));
+  max-width: calc(var(--blog-layout-max) + var(--gap) * 2);
 }
 
 /* 首页主栏加宽，与 .blog-hero / 文章卡片栅格一致（避免窄栏 + 强行 breakout 不协调） */
 .main:has(.blog-hero) {
-  max-width: min(1180px + var(--gap) * 2, calc(100vw - var(--gap) * 2));
+  max-width: calc(var(--blog-layout-max) + var(--gap) * 2);
 }
 
 /* 覆盖主题 profile 的 flex 居中，避免与全宽 hero、负 margin breakout 打架 */
@@ -60,7 +68,7 @@
   overflow: clip;
   box-sizing: border-box;
   width: 100%;
-  max-width: 1180px;
+  max-width: var(--blog-layout-max);
   margin-inline: auto;
   min-height: calc(100vh - var(--header-height) - var(--footer-height) - (var(--gap) * 2));
   padding: clamp(28px, 4vw, 44px);

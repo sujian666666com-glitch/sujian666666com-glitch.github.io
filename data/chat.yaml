@@ -1,4 +1,9 @@
 # 聊天组件模型配置（id 须与 DashScope 兼容接口模型名一致，且落在 static/chat-worker.js 白名单内）
+
+# 统一系统提示词：对当前选中的任意模型都会作为第一条 system 消息发送。留空字符串则不注入。
+# 多行可用 YAML 块：systemPrompt: | 然后缩进写多行
+systemPrompt: ""
+
 defaultModel: qwen3.6-plus
 
 models:

@@ -2,6 +2,7 @@
 {{- $chat := site.Data.chat -}}
 {{- $proxyURL := site.Params.chat.proxyURL | default (getenv "HUGO_CHAT_PROXY_URL") | default "" -}}
 {{- $defaultModel := $chat.defaultModel | default "qwen3.6-plus" -}}
+{{- $systemPrompt := index $chat "systemPrompt" | default "" -}}
 
 <!-- 气泡按钮 -->
 <button class="chat-bubble" id="chatBubble" aria-label="打开聊天">
@@ -52,6 +53,7 @@
   // ── 配置 ───────────────────────────────────────────────
   var PROXY_URL = {{ $proxyURL | jsonify | safeJS }};
   var DEFAULT_MODEL = {{ $defaultModel | jsonify | safeJS }};
+  var SYSTEM_PROMPT = {{ $systemPrompt | jsonify | safeJS }};
   var HISTORY_KEY = 'chat_history';
   var HISTORY_LIMIT = 100;
 
@@ -238,12 +240,15 @@
     scrollToBottom();
     saveHistory();
 
-    // 构建 API 消息列表（最近 messages 传给 API）
+    // 构建 API 消息列表（user/assistant）；若配置了 SYSTEM_PROMPT 则在最前插入一条 system
     var apiMessages = messages.filter(function (m) {
       return m.role === 'user' || m.role === 'assistant';
     }).map(function (m) {
       return { role: m.role, content: m.content };
     });
+    if (SYSTEM_PROMPT && String(SYSTEM_PROMPT).trim()) {
+      apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }].concat(apiMessages);
+    }
 
     var reqBody = {
       model: getSelectedModel(),
