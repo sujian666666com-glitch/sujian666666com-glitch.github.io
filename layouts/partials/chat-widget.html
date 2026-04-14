@@ -50,8 +50,8 @@
   'use strict';
 
   // ── 配置 ───────────────────────────────────────────────
-  var PROXY_URL = {{ $proxyURL | jsonify }};
-  var DEFAULT_MODEL = {{ $defaultModel | jsonify }};
+  var PROXY_URL = {{ $proxyURL | jsonify | safeJS }};
+  var DEFAULT_MODEL = {{ $defaultModel | jsonify | safeJS }};
   var HISTORY_KEY = 'chat_history';
   var HISTORY_LIMIT = 100;
 
@@ -198,6 +198,28 @@
     return thinkToggle.checked;
   }
 
+  /** DashScope / OpenAI 风格：error 常为 { message, code } 对象，不能直接当字符串展示 */
+  function formatApiError(errBody) {
+    if (!errBody) return '';
+    try {
+      var data = JSON.parse(errBody);
+      var e = data.error;
+      if (typeof e === 'string') return e;
+      if (e && typeof e === 'object') {
+        var msg = e.message || e.code || '';
+        if (e.param) msg = (msg ? msg + ' ' : '') + 'param: ' + e.param;
+        if (msg) {
+          if (data.request_id) msg += ' [request_id: ' + data.request_id + ']';
+          return msg;
+        }
+      }
+      if (data.message) return data.message;
+      return JSON.stringify(data);
+    } catch (_) {
+      return errBody;
+    }
+  }
+
   async function sendMessage() {
     var text = inputEl.value.trim();
     if (!text || isStreaming) return;
@@ -253,10 +275,8 @@
           ? '请求过于频繁，请稍后再试'
           : '请求失败 (' + resp.status + ')';
         if (errBody) {
-          try {
-            var errJson = JSON.parse(errBody);
-            if (errJson.error) errMsg = errJson.error;
-          } catch (_) {}
+          var formatted = formatApiError(errBody);
+          if (formatted) errMsg = formatted;
         }
         showError(errMsg);
         setStreaming(false);

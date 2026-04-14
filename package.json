@@ -1,0 +1,13 @@
+{
+  "name": "my-blog",
+  "private": true,
+  "description": "Hugo blog + optional Cloudflare Worker for chat proxy",
+  "scripts": {
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy",
+    "worker:secret": "wrangler secret put DASHSCOPE_API_KEY"
+  },
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  }
+}

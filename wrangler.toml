@@ -1,0 +1,11 @@
+# 博客聊天代理 — Cloudflare Worker
+# 部署：npm install && npx wrangler secret put DASHSCOPE_API_KEY && npx wrangler deploy
+# 详见 static/chat-worker.js 底部注释
+
+name = "blog-chat-proxy"
+main = "static/chat-worker.js"
+compatibility_date = "2024-11-01"
+
+# 通用百炼 API（sk-）用 compatible-mode。Coding 域名仅部分 Coding Agents 场景，见 chat-worker 注释
+[vars]
+DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"

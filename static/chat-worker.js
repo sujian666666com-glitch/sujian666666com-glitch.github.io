@@ -3,13 +3,18 @@
  *
  * 环境变量（在 Cloudflare Dashboard 中配置）:
  *   DASHSCOPE_API_KEY  — DashScope API 密钥
- *   DASHSCOPE_BASE_URL — DashScope API 基础 URL（默认 https://dashscope.aliyuncs.com/compatible-mode/v1）
+ *   DASHSCOPE_BASE_URL — 默认用北京兼容接口：
+ *     https://dashscope.aliyuncs.com/compatible-mode/v1
+ *     （配合控制台「通用」API Key，sk- 开头）
+ *     coding.dashscope 域名仅面向部分 Coding Agents；若报 “only available for Coding Agents” 请勿用该域名。
  *
  * 部署步骤见文件底部注释。
  */
 
 // ── 模型白名单 ──────────────────────────────────────────────
 const ALLOWED_MODELS = new Set([
+  'qwen-plus',
+  'qwen-plus-latest',
   'qwen3.6-plus',
   'qwen3.5-plus',
   'qwen3-max-2026-01-23',
@@ -114,8 +119,10 @@ async function handleRequest(request, env) {
     return jsonError(500, 'Server configuration error: missing API key', request);
   }
 
-  const baseURL = env.DASHSCOPE_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
-  const targetURL = `${baseURL}/chat/completions`;
+  const baseURL =
+    env.DASHSCOPE_BASE_URL ||
+    'https://dashscope.aliyuncs.com/compatible-mode/v1';
+  const targetURL = `${baseURL.replace(/\/$/, '')}/chat/completions`;
 
   // 始终启用流式
   const forwardBody = {
@@ -202,9 +209,9 @@ export default {
  *      wrangler secret put DASHSCOPE_API_KEY
  *      # 输入你的 DashScope API Key
  *
- *      wrangler secret put DASHSCOPE_BASE_URL
- *      # 输入: https://dashscope.aliyuncs.com/compatible-mode/v1
- *      # （或你的自定义 endpoint）
+ *      wrangler secret put DASHSCOPE_BASE_URL（可选，也可用 wrangler.toml [vars]）
+ *      # 通用 sk-： https://dashscope.aliyuncs.com/compatible-mode/v1
+ *      # Coding sk-sp-： https://coding.dashscope.aliyuncs.com/v1
  *
  * 5. 部署:
  *      wrangler deploy

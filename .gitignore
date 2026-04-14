@@ -20,6 +20,7 @@ node_modules/
 
 # Environment variables
 .env
+.dev.vars
 
 # OpenSpec run artifacts
 openspec/changes/*/.runs/
