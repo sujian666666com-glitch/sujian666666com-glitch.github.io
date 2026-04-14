@@ -27,6 +27,47 @@ const MIN_CHUNK_LEN = 80
 /** 只索引正文目录，避免 daily/ 新闻量过大；可自行改 */
 const CONTENT_ROOTS = [join(REPO_ROOT, 'content/posts')]
 
+/** 读取 hugo.yaml 的 baseURL（无尾部 /），用于生成每篇文章 canonical 链接 */
+async function readSiteBaseFromHugo() {
+  try {
+    const p = join(REPO_ROOT, 'hugo.yaml')
+    const raw = await readFile(p, 'utf8')
+    const m = raw.match(/^baseURL:\s*(.+)$/m)
+    if (!m) return ''
+    return m[1].trim().replace(/^["']|["']$/g, '').replace(/\/$/, '')
+  } catch {
+    return ''
+  }
+}
+
+/** content/posts/分类/slug.md → 站点文章 URL（默认 Hugo pretty URL） */
+function postUrlFromRelative(relPath, siteBase) {
+  const base = (siteBase || '').replace(/\/$/, '')
+  const m = relPath.replace(/\\/g, '/').match(/^content\/posts\/(.+)\.md$/i)
+  if (!base || !m) return ''
+  return `${base}/posts/${m[1]}/`
+}
+
+function extractTitleFromFrontMatter(raw) {
+  if (!raw.startsWith('---')) return ''
+  const end = raw.indexOf('\n---\n', 3)
+  if (end === -1) return ''
+  const fm = raw.slice(3, end)
+  for (const line of fm.split(/\r?\n/)) {
+    const mat = line.match(/^\s*title:\s*(.*)$/)
+    if (!mat) continue
+    let v = mat[1].trim()
+    if (
+      (v.startsWith('"') && v.endsWith('"')) ||
+      (v.startsWith("'") && v.endsWith("'"))
+    ) {
+      v = v.slice(1, -1).replace(/\\"/g, '"')
+    }
+    return v.trim()
+  }
+  return ''
+}
+
 function stripFrontMatter(raw) {
   if (!raw.startsWith('---')) return raw
   const rest = raw.slice(3)
@@ -107,11 +148,14 @@ async function embedBatch(apiKey, inputs) {
 async function main() {
   const apiKey = process.env.DASHSCOPE_API_KEY || ''
   const outPath = join(REPO_ROOT, 'static/rag-vectors.json')
+  const siteBase = await readSiteBaseFromHugo()
 
   const stub = {
     version: 1,
     embeddingModel: EMBEDDING_MODEL,
     baseUrl: BASE_URL,
+    /** 与 hugo baseURL 一致，供 Worker 补全旧索引链接 */
+    siteBaseUrl: siteBase,
     generatedAt: new Date().toISOString(),
     chunks: [],
   }
@@ -133,10 +177,12 @@ async function main() {
   const plainChunks = []
   for (const file of files) {
     const raw = await readFile(file, 'utf8')
+    const title = extractTitleFromFrontMatter(raw)
     const body = stripMarkdownNoise(stripFrontMatter(raw))
     const rel = relative(REPO_ROOT, file).replace(/\\/g, '/')
+    const url = postUrlFromRelative(rel, siteBase)
     for (const piece of chunkText(body)) {
-      plainChunks.push({ source: rel, text: piece })
+      plainChunks.push({ source: rel, text: piece, title, url })
     }
   }
 
@@ -158,10 +204,13 @@ async function main() {
   const chunks = plainChunks.map((c, i) => ({
     source: c.source,
     text: c.text,
+    title: c.title || '',
+    url: c.url || '',
     embedding: embeddings[i],
   }))
 
   stub.chunks = chunks
+  stub.siteBaseUrl = siteBase
   stub.generatedAt = new Date().toISOString()
 
   await writeFile(outPath, JSON.stringify(stub), 'utf8')

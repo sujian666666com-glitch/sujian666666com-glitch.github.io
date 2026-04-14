@@ -117,6 +117,30 @@
     return d.innerHTML;
   }
 
+  /** 助理回复：转义后再把 https?:// 转为安全可点链接（便于展示 RAG 给出的文章 URL） */
+  function formatAssistantHtml(raw) {
+    if (!raw) return '';
+    var parts = String(raw).split(/(https?:\/\/[^\s]+)/g);
+    var out = '';
+    for (var pi = 0; pi < parts.length; pi++) {
+      var part = parts[pi];
+      if (/^https?:\/\//.test(part)) {
+        var u = part.replace(/[。，、！？;；:：）\]」】'"´‘]+$/g, '');
+        var tail = part.slice(u.length);
+        out +=
+          '<a href="' +
+          escapeHtml(u) +
+          '" target="_blank" rel="noopener noreferrer">' +
+          escapeHtml(u) +
+          '</a>' +
+          escapeHtml(tail);
+      } else {
+        out += escapeHtml(part);
+      }
+    }
+    return out;
+  }
+
   function createMsgEl(role, content, thinking) {
     var div = document.createElement('div');
     div.className = 'chat-msg chat-msg-' + role;
@@ -140,7 +164,8 @@
 
     var textSpan = document.createElement('span');
     textSpan.className = 'chat-msg-text';
-    textSpan.innerHTML = escapeHtml(content || '');
+    textSpan.innerHTML =
+      role === 'assistant' ? formatAssistantHtml(content || '') : escapeHtml(content || '');
     div.appendChild(textSpan);
     return div;
   }
@@ -348,7 +373,7 @@
             var contentText = delta.content || '';
             if (contentText) {
               assistantMsg.content += contentText;
-              textSpan.innerHTML = escapeHtml(assistantMsg.content);
+              textSpan.innerHTML = formatAssistantHtml(assistantMsg.content);
             }
           } catch (_) { /* 忽略解析错误 */ }
         }

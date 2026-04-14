@@ -5,6 +5,7 @@
  *   DASHSCOPE_API_KEY  — DashScope API 密钥
  *   RAG_VECTORS_URL（可选）— 站内 rag-vectors.json 的绝对 URL（见 scripts/build-rag.mjs）
  *   RAG_TOP_K（可选）— 默认 4，命中片段条数上限
+ *   BLOG_PUBLIC_BASE_URL（可选）— 站点根 URL 无尾斜杠，如 https://xxx.github.io ，用于旧索引补全文章链接
  *   DASHSCOPE_BASE_URL — 默认用北京兼容接口：
  *     https://dashscope.aliyuncs.com/compatible-mode/v1
  *     （配合控制台「通用」API Key，sk- 开头）
@@ -120,6 +121,15 @@ async function fetchEmbeddingVector(env, baseURL, model, text) {
   return emb;
 }
 
+/** content/posts/.../*.md → 文章 URL（依赖 BLOG_PUBLIC_BASE_URL 或索引内 siteBaseUrl） */
+function postUrlFromSource(source, baseRaw) {
+  const base = (baseRaw && String(baseRaw).replace(/\/$/, '')) || ''
+  const norm = String(source || '').replace(/\\/g, '/')
+  const m = norm.match(/^content\/posts\/(.+)\.md$/i)
+  if (!base || !m) return ''
+  return `${base}/posts/${m[1]}/`
+}
+
 async function loadRagIndex(env) {
   const url = (env.RAG_VECTORS_URL || '').trim();
   if (!url) return null;
@@ -180,14 +190,29 @@ async function enrichMessagesWithRag(body, env) {
   const top = scored.slice(0, topK);
   if (top.length === 0) return body;
 
+  const publicBase =
+    (env.BLOG_PUBLIC_BASE_URL || '').trim() ||
+    (idx.siteBaseUrl || '').trim() ||
+    ''
+
   const ragBlock =
-    '【以下为根据用户最后一句话从本站文章检索到的参考片段，请结合回答；若与问题无关请忽略。】\n' +
+    '【本站 RAG：以下为从博文中检索到的片段，含标题与页面链接。】\n' +
+    '请据此回答与博主文章相关的问题：归纳观点时注明出处；并输出「完整 https 链接」方便用户点击（不要用省略号截断 URL）。\n' +
+    '若片段与用户问题无关，可说明并忽略。\n' +
     top
-      .map(
-        (t, n) =>
-          `[片段${n + 1} · ${t.c.source}]\n${t.c.text}`,
-      )
-      .join('\n\n---\n\n');
+      .map((t, n) => {
+        const c = t.c
+        const title = c.title || '（未命名文章）'
+        let link = (c.url || '').trim()
+        if (!link && publicBase) {
+          link = postUrlFromSource(c.source, publicBase) || ''
+        }
+        let block = `[片段${n + 1}] 《${title}》\n`
+        if (link) block += `页面链接（请原样提供给用户，便于点击）：${link}\n`
+        block += `正文节选：\n${c.text}`
+        return block
+      })
+      .join('\n\n---\n\n')
 
   const messages = body.messages.map((m) => ({ ...m }));
   const si = messages.findIndex((m) => m.role === 'system');

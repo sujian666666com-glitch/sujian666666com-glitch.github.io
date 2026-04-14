@@ -12,3 +12,4 @@ DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 # RAG：与 Hugo baseURL 一致，指向站内 /rag-vectors.json（先部署一次 Pages 生成文件后再生效）
 RAG_VECTORS_URL = "https://sujian666666com-glitch.github.io/rag-vectors.json"
 RAG_TOP_K = "4"
+BLOG_PUBLIC_BASE_URL = "https://sujian666666com-glitch.github.io"

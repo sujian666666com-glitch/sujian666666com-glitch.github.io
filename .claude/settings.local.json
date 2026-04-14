@@ -14,7 +14,8 @@
       "Bash(grep -r \"categories\\\\|tags\" /Users/ik/clawd/my-blog/content/posts/*.md)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1313/)",
       "Bash(curl -s http://localhost:1313/)",
-      "Bash(pkill -f \"hugo server\")"
+      "Bash(pkill -f \"hugo server\")",
+      "Bash(git rm:*)"
     ]
   }
 }
