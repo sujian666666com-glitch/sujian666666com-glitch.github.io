@@ -1,0 +1,363 @@
+{{- /* Chat Widget — 全局浮窗聊天组件 */ -}}
+{{- $chat := site.Data.chat -}}
+{{- $proxyURL := site.Params.chat.proxyURL | default (getenv "HUGO_CHAT_PROXY_URL") | default "" -}}
+{{- $defaultModel := $chat.defaultModel | default "qwen3.6-plus" -}}
+
+<!-- 气泡按钮 -->
+<button class="chat-bubble" id="chatBubble" aria-label="打开聊天">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/></svg>
+</button>
+
+<!-- 聊天面板 -->
+<div class="chat-panel" id="chatPanel">
+  <!-- 头部 -->
+  <div class="chat-header">
+    <span class="chat-header-title">AI 助手</span>
+    <div class="chat-header-actions">
+      <!-- 模型选择 -->
+      <select class="chat-model-select" id="chatModelSelect">
+        {{- range $chat.models }}
+        <option value="{{ .id }}" {{ if eq .id $defaultModel }}selected{{ end }}>{{ .label }}</option>
+        {{- end }}
+      </select>
+      <!-- 思考模式 -->
+      <label class="chat-think-toggle" title="启用后可查看模型思考过程">
+        <input type="checkbox" id="chatThinkToggle">思考
+      </label>
+      <!-- 清除 -->
+      <button class="chat-header-btn" id="chatClearBtn" title="清除对话">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
+      </button>
+      <!-- 关闭 -->
+      <button class="chat-header-btn" id="chatCloseBtn" title="关闭">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 消息区域 -->
+  <div class="chat-messages" id="chatMessages"></div>
+
+  <!-- 输入区域 -->
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="输入消息…" rows="1"></textarea>
+    <button class="chat-send-btn" id="chatSendBtn">发送</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── 配置 ───────────────────────────────────────────────
+  var PROXY_URL = {{ $proxyURL | jsonify }};
+  var DEFAULT_MODEL = {{ $defaultModel | jsonify }};
+  var HISTORY_KEY = 'chat_history';
+  var HISTORY_LIMIT = 100;
+
+  // ── DOM ────────────────────────────────────────────────
+  var bubble = document.getElementById('chatBubble');
+  var panel = document.getElementById('chatPanel');
+  var messagesEl = document.getElementById('chatMessages');
+  var inputEl = document.getElementById('chatInput');
+  var sendBtn = document.getElementById('chatSendBtn');
+  var closeBtn = document.getElementById('chatCloseBtn');
+  var clearBtn = document.getElementById('chatClearBtn');
+  var modelSelect = document.getElementById('chatModelSelect');
+  var thinkToggle = document.getElementById('chatThinkToggle');
+
+  // ── 状态 ────────────────────────────────────────────────
+  var messages = [];   // { role, content, thinking? }
+  var isStreaming = false;
+  var abortCtrl = null;
+
+  // ── 面板开关 ────────────────────────────────────────────
+  bubble.addEventListener('click', function () {
+    var isOpen = panel.classList.toggle('open');
+    if (isOpen && messagesEl.children.length === 0 && messages.length > 0) {
+      renderAllMessages();
+    }
+    if (isOpen) inputEl.focus();
+  });
+  closeBtn.addEventListener('click', function () {
+    panel.classList.remove('open');
+  });
+
+  // ── localStorage 持久化 ────────────────────────────────
+  function saveHistory() {
+    try {
+      var data = messages.slice(-HISTORY_LIMIT);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(data));
+    } catch (_) { /* quota exceeded — ignore */ }
+  }
+
+  function loadHistory() {
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      if (raw) {
+        messages = JSON.parse(raw);
+        if (!Array.isArray(messages)) messages = [];
+      }
+    } catch (_) { messages = []; }
+  }
+
+  function clearHistory() {
+    messages = [];
+    messagesEl.innerHTML = '';
+    localStorage.removeItem(HISTORY_KEY);
+  }
+  clearBtn.addEventListener('click', clearHistory);
+
+  // ── 渲染 ──────────────────────────────────────────────
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(str));
+    return d.innerHTML;
+  }
+
+  function createMsgEl(role, content, thinking) {
+    var div = document.createElement('div');
+    div.className = 'chat-msg chat-msg-' + role;
+
+    if (role === 'assistant' && thinking) {
+      var thinkBlock = document.createElement('div');
+      thinkBlock.className = 'chat-thinking-block';
+      var toggle = document.createElement('div');
+      toggle.className = 'chat-thinking-toggle';
+      toggle.textContent = '思考过程';
+      toggle.addEventListener('click', function () {
+        thinkBlock.classList.toggle('open');
+      });
+      var thinkContent = document.createElement('div');
+      thinkContent.className = 'chat-thinking-content';
+      thinkContent.textContent = thinking;
+      thinkBlock.appendChild(toggle);
+      thinkBlock.appendChild(thinkContent);
+      div.appendChild(thinkBlock);
+    }
+
+    var textSpan = document.createElement('span');
+    textSpan.className = 'chat-msg-text';
+    textSpan.innerHTML = escapeHtml(content || '');
+    div.appendChild(textSpan);
+    return div;
+  }
+
+  function renderAllMessages() {
+    messagesEl.innerHTML = '';
+    for (var i = 0; i < messages.length; i++) {
+      var m = messages[i];
+      messagesEl.appendChild(createMsgEl(m.role, m.content, m.thinking));
+    }
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function showError(text) {
+    var div = document.createElement('div');
+    div.className = 'chat-msg chat-msg-error';
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    scrollToBottom();
+  }
+
+  function showLoading() {
+    var div = document.createElement('div');
+    div.className = 'chat-loading';
+    div.id = 'chatLoading';
+    for (var i = 0; i < 3; i++) {
+      var dot = document.createElement('span');
+      dot.className = 'chat-loading-dot';
+      div.appendChild(dot);
+    }
+    messagesEl.appendChild(div);
+    scrollToBottom();
+    return div;
+  }
+
+  function removeLoading() {
+    var el = document.getElementById('chatLoading');
+    if (el) el.remove();
+  }
+
+  // ── 发送消息 ──────────────────────────────────────────
+  function setStreaming(v) {
+    isStreaming = v;
+    sendBtn.disabled = v;
+    inputEl.disabled = v;
+  }
+
+  function getSelectedModel() {
+    return modelSelect.value || DEFAULT_MODEL;
+  }
+
+  function isThinkingEnabled() {
+    return thinkToggle.checked;
+  }
+
+  async function sendMessage() {
+    var text = inputEl.value.trim();
+    if (!text || isStreaming) return;
+
+    if (!PROXY_URL) {
+      showError('聊天功能未配置：缺少代理地址 (CHAT_PROXY_URL)');
+      return;
+    }
+
+    // 添加用户消息
+    var userMsg = { role: 'user', content: text };
+    messages.push(userMsg);
+    messagesEl.appendChild(createMsgEl('user', text));
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    scrollToBottom();
+    saveHistory();
+
+    // 构建 API 消息列表（最近 messages 传给 API）
+    var apiMessages = messages.filter(function (m) {
+      return m.role === 'user' || m.role === 'assistant';
+    }).map(function (m) {
+      return { role: m.role, content: m.content };
+    });
+
+    var reqBody = {
+      model: getSelectedModel(),
+      messages: apiMessages,
+      stream: true,
+    };
+    if (isThinkingEnabled()) {
+      reqBody.enable_thinking = true;
+    }
+
+    setStreaming(true);
+    var loadingEl = showLoading();
+    abortCtrl = new AbortController();
+
+    try {
+      var resp = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reqBody),
+        signal: abortCtrl.signal,
+      });
+
+      removeLoading();
+
+      if (!resp.ok) {
+        var errBody = '';
+        try { errBody = await resp.text(); } catch (_) {}
+        var errMsg = resp.status === 429
+          ? '请求过于频繁，请稍后再试'
+          : '请求失败 (' + resp.status + ')';
+        if (errBody) {
+          try {
+            var errJson = JSON.parse(errBody);
+            if (errJson.error) errMsg = errJson.error;
+          } catch (_) {}
+        }
+        showError(errMsg);
+        setStreaming(false);
+        return;
+      }
+
+      // 流式读取 SSE
+      var assistantMsg = { role: 'assistant', content: '', thinking: '' };
+      messages.push(assistantMsg);
+
+      var msgEl = createMsgEl('assistant', '', '');
+      messagesEl.appendChild(msgEl);
+      var textSpan = msgEl.querySelector('.chat-msg-text');
+      var thinkBlock = null;
+      var thinkContent = null;
+
+      var reader = resp.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+
+      while (true) {
+        var result = await reader.read();
+        if (result.done) break;
+        buffer += decoder.decode(result.value, { stream: true });
+
+        var lines = buffer.split('\n');
+        buffer = lines.pop(); // 保留不完整的最后一行
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (!line.startsWith('data: ')) continue;
+          var data = line.slice(6);
+          if (data === '[DONE]') continue;
+
+          try {
+            var chunk = JSON.parse(data);
+            var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
+            if (!delta) continue;
+
+            // 思考内容
+            var thinkText = delta.reasoning_content || delta.thinking || '';
+            if (thinkText) {
+              assistantMsg.thinking += thinkText;
+              // 动态创建思考块
+              if (!thinkBlock) {
+                thinkBlock = document.createElement('div');
+                thinkBlock.className = 'chat-thinking-block open';
+                var toggle = document.createElement('div');
+                toggle.className = 'chat-thinking-toggle';
+                toggle.textContent = '思考过程';
+                toggle.addEventListener('click', function () {
+                  thinkBlock.classList.toggle('open');
+                });
+                thinkContent = document.createElement('div');
+                thinkContent.className = 'chat-thinking-content';
+                thinkBlock.appendChild(toggle);
+                thinkBlock.appendChild(thinkContent);
+                msgEl.insertBefore(thinkBlock, textSpan);
+              }
+              thinkContent.textContent = assistantMsg.thinking;
+            }
+
+            // 正文内容
+            var contentText = delta.content || '';
+            if (contentText) {
+              assistantMsg.content += contentText;
+              textSpan.innerHTML = escapeHtml(assistantMsg.content);
+            }
+          } catch (_) { /* 忽略解析错误 */ }
+        }
+        scrollToBottom();
+      }
+
+      saveHistory();
+    } catch (err) {
+      removeLoading();
+      if (err.name !== 'AbortError') {
+        showError('连接失败，请检查网络');
+      }
+    } finally {
+      setStreaming(false);
+      abortCtrl = null;
+    }
+  }
+
+  // ── 事件绑定 ──────────────────────────────────────────
+  sendBtn.addEventListener('click', sendMessage);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // 自动调整输入框高度
+  inputEl.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+  });
+
+  // ── 初始化 ────────────────────────────────────────────
+  loadHistory();
+})();
+</script>

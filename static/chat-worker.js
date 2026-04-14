@@ -1,0 +1,217 @@
+/**
+ * Cloudflare Worker — DashScope Chat API Proxy
+ *
+ * 环境变量（在 Cloudflare Dashboard 中配置）:
+ *   DASHSCOPE_API_KEY  — DashScope API 密钥
+ *   DASHSCOPE_BASE_URL — DashScope API 基础 URL（默认 https://dashscope.aliyuncs.com/compatible-mode/v1）
+ *
+ * 部署步骤见文件底部注释。
+ */
+
+// ── 模型白名单 ──────────────────────────────────────────────
+const ALLOWED_MODELS = new Set([
+  'qwen3.6-plus',
+  'qwen3.5-plus',
+  'qwen3-max-2026-01-23',
+  'qwen3-coder-plus',
+  'qwen3-coder-next',
+  'glm-4.7',
+  'glm-5',
+  'kimi-k2.5',
+  'MiniMax-M2.5',
+]);
+
+// ── 速率限制配置 ────────────────────────────────────────────
+const RATE_LIMIT_MAX = 30;          // 每 IP 每窗口最大请求数
+const RATE_LIMIT_WINDOW_MS = 60000; // 窗口大小（ms）
+
+// 简单内存存储：{ ip: { count, resetAt } }
+// 注意：Cloudflare Worker 实例是短暂的，每个 isolate 独立计数
+// 生产环境建议升级为 Durable Objects 或 KV
+const rateLimitMap = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  let entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(ip, entry);
+  }
+  entry.count++;
+  rateLimitMap.set(ip, entry);
+  if (entry.count > RATE_LIMIT_MAX) {
+    const retryAfter = Math.ceil((entry.resetAt - now) / 1000);
+    return { limited: true, retryAfter };
+  }
+  return { limited: false };
+}
+
+// ── CORS Headers ────────────────────────────────────────────
+function corsHeaders(request) {
+  const origin = request.headers.get('Origin') || '*';
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400',
+  };
+}
+
+function handleOptions(request) {
+  return new Response(null, { status: 200, headers: corsHeaders(request) });
+}
+
+// ── 主处理逻辑 ──────────────────────────────────────────────
+async function handleRequest(request, env) {
+  // CORS 预检
+  if (request.method === 'OPTIONS') {
+    return handleOptions(request);
+  }
+
+  // 仅允许 POST
+  if (request.method !== 'POST') {
+    return jsonError(405, 'Method Not Allowed', request);
+  }
+
+  // 速率限制
+  const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const rl = checkRateLimit(clientIP);
+  if (rl.limited) {
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+      status: 429,
+      headers: {
+        ...corsHeaders(request),
+        'Content-Type': 'application/json',
+        'Retry-After': String(rl.retryAfter),
+      },
+    });
+  }
+
+  // 解析请求体
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonError(400, 'Invalid JSON body', request);
+  }
+
+  // 校验必需字段
+  if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
+    return jsonError(400, 'Field "messages" is required and must be a non-empty array', request);
+  }
+  if (!body.model || typeof body.model !== 'string') {
+    return jsonError(400, 'Field "model" is required and must be a string', request);
+  }
+
+  // 模型白名单校验
+  if (!ALLOWED_MODELS.has(body.model)) {
+    return jsonError(400, `Model not allowed: ${body.model}`, request);
+  }
+
+  // 构造转发请求
+  const apiKey = env.DASHSCOPE_API_KEY;
+  if (!apiKey) {
+    return jsonError(500, 'Server configuration error: missing API key', request);
+  }
+
+  const baseURL = env.DASHSCOPE_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+  const targetURL = `${baseURL}/chat/completions`;
+
+  // 始终启用流式
+  const forwardBody = {
+    model: body.model,
+    messages: body.messages,
+    stream: true,
+  };
+
+  // 可选：思考模式
+  if (body.enable_thinking === true) {
+    forwardBody.enable_thinking = true;
+  }
+  if (typeof body.thinking_budget === 'number') {
+    forwardBody.thinking_budget = body.thinking_budget;
+  }
+
+  const upstream = await fetch(targetURL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(forwardBody),
+  });
+
+  // 如果上游返回错误，直接转发状态码和消息
+  if (!upstream.ok) {
+    const errText = await upstream.text();
+    return new Response(errText, {
+      status: upstream.status,
+      headers: {
+        ...corsHeaders(request),
+        'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+      },
+    });
+  }
+
+  // 流式转发 SSE
+  return new Response(upstream.body, {
+    status: 200,
+    headers: {
+      ...corsHeaders(request),
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
+}
+
+function jsonError(status, message, request) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: {
+      ...corsHeaders(request),
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+// ── Worker 入口 ─────────────────────────────────────────────
+export default {
+  async fetch(request, env) {
+    return handleRequest(request, env);
+  },
+};
+
+/*
+ * ══════════════════════════════════════════════════════════════
+ * 部署说明
+ * ══════════════════════════════════════════════════════════════
+ *
+ * 1. 安装 Wrangler CLI:
+ *      npm install -g wrangler
+ *
+ * 2. 登录 Cloudflare:
+ *      wrangler login
+ *
+ * 3. 在项目根目录创建 wrangler.toml（或使用现有的）:
+ *      name = "blog-chat-proxy"
+ *      main = "static/chat-worker.js"
+ *      compatibility_date = "2024-01-01"
+ *
+ * 4. 设置环境变量（Secret）:
+ *      wrangler secret put DASHSCOPE_API_KEY
+ *      # 输入你的 DashScope API Key
+ *
+ *      wrangler secret put DASHSCOPE_BASE_URL
+ *      # 输入: https://dashscope.aliyuncs.com/compatible-mode/v1
+ *      # （或你的自定义 endpoint）
+ *
+ * 5. 部署:
+ *      wrangler deploy
+ *
+ * 6. 记录 Worker URL（形如 https://blog-chat-proxy.<your-subdomain>.workers.dev）
+ *    将该 URL 填入博客 .env 的 CHAT_PROXY_URL 变量。
+ *
+ * 回滚：在 Cloudflare Dashboard 删除 Worker 即可。
+ * ══════════════════════════════════════════════════════════════
+ */
