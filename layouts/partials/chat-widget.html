@@ -5,6 +5,7 @@
 {{- $systemPrompt := index $chat "systemPrompt" | default "" -}}
 {{- $suggestedPrompts := $chat.suggestedPrompts | default (slice) -}}
 {{- $assistantAvatar := $chat.assistantAvatarLabel | default "兴旺" -}}
+{{- $assistantAvatarImage := $chat.assistantAvatarImage | default "" -}}
 {{- $userAvatar := $chat.userAvatarLabel | default "我" -}}
 
 <!-- Bubble Button -->
@@ -19,6 +20,7 @@
   data-system-prompt="{{ $systemPrompt }}"
   data-suggested-prompts="{{ $suggestedPrompts | jsonify }}"
   data-assistant-avatar="{{ $assistantAvatar }}"
+  data-assistant-avatar-image="{{ $assistantAvatarImage }}"
   data-user-avatar="{{ $userAvatar }}">
   <!-- Header -->
   <div class="chat-header">

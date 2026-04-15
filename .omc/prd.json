@@ -1,0 +1,76 @@
+{
+  "title": "Frontend Refinement & Chat Widget Redesign",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Chat Visual Redesign with Glassmorphism",
+      "priority": 1,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Chat bubble uses glassmorphism with backdrop-filter blur and warm gradient background",
+        "Chat panel has frosted glass effect (rgba(255,255,255,0.82) light / rgba(15,23,42,0.88) dark) with backdrop-filter: blur(24px)",
+        "User messages use warm dark gradient matching hero primary action style",
+        "Assistant messages use frosted glass card style with subtle border",
+        "Input area has rounded textarea with glass background and gradient send button",
+        "Dark mode fully supported with warm dark palette for all chat elements",
+        "Mobile responsive: chat goes full-screen below 767px"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Markdown Rendering in Chat Messages",
+      "priority": 2,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Bold **text** renders as <strong> in assistant messages",
+        "Italic *text* renders as <em> in assistant messages",
+        "Inline `code` renders as styled <code> with background",
+        "Fenced code blocks with ``` render as <pre><code> with dark background and monospace font",
+        "Links [text](url) render as clickable <a> tags",
+        "Bare URLs still auto-detected and rendered as links (existing behavior preserved)",
+        "Code blocks have copy button in top-right corner",
+        "XSS-safe: only allowed HTML tags pass through (strong, em, code, pre, a, br, p)"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Chat Welcome Screen with Suggested Prompts",
+      "priority": 3,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Welcome screen visible when chat opens with no message history",
+        "Welcome shows greeting text and 3-4 clickable suggested prompt chips",
+        "Suggested prompts read from data/chat.yaml suggestedPrompts array",
+        "Clicking a prompt chip populates input and triggers sendMessage()",
+        "Welcome screen hides permanently after first user message is sent",
+        "Prompt chips styled as pill buttons matching blog's quicklink aesthetic"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Chat Animations",
+      "priority": 4,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Panel open/close uses CSS transitions (transform scale + translateY + opacity) instead of display toggle",
+        "Panel transition uses smooth 280ms cubic-bezier easing",
+        "New messages slide in from bottom with fade animation (0.3s ease)",
+        "Loading indicator uses refined gradient shimmer/pulse instead of bouncing dots",
+        "Thinking block expand/collapse animates height smoothly",
+        "All animations respect prefers-reduced-motion media query"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Frontend Polish (Non-Chat)",
+      "priority": 5,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Card hover transitions use smoother easing curve",
+        "Smooth scroll behavior added for page navigation",
+        "Footer/pagination spacing normalized",
+        "No regressions to existing hero, card, or navigation styles"
+      ]
+    }
+  ]
+}

@@ -15,7 +15,14 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1313/)",
       "Bash(curl -s http://localhost:1313/)",
       "Bash(pkill -f \"hugo server\")",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(node --check scripts/build-rag.mjs)",
+      "Bash(node --check static/chat-worker.js)",
+      "Bash(chmod +x /Users/ik/clawd/my-blog/scripts/update-rag.sh)",
+      "mcp__plugin_oh-my-claudecode_t__state_clear",
+      "Bash(grep -E '\\\\.\\(html|css|js\\)$')",
+      "Bash(node -c /Users/ik/clawd/my-blog/static/chat-ui.js)",
+      "mcp__plugin_oh-my-claudecode_t__state_list_active"
     ]
   }
 }

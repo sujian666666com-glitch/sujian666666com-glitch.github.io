@@ -17,7 +17,23 @@
     if (sp) SUGGESTED_PROMPTS = JSON.parse(sp);
   } catch (_) {}
   var ASSISTANT_LABEL = panel.getAttribute('data-assistant-avatar') || '兴旺';
+  var ASSISTANT_AVATAR_IMAGE = panel.getAttribute('data-assistant-avatar-image') || '';
   var USER_LABEL = panel.getAttribute('data-user-avatar') || '我';
+
+  function makeAvatarEl(role) {
+    var el = document.createElement('div');
+    el.className = 'chat-msg-avatar chat-msg-avatar--' + role;
+    el.setAttribute('aria-hidden', 'true');
+    if (role === 'assistant' && ASSISTANT_AVATAR_IMAGE) {
+      var img = document.createElement('img');
+      img.src = ASSISTANT_AVATAR_IMAGE;
+      img.alt = ASSISTANT_LABEL;
+      el.appendChild(img);
+    } else {
+      el.textContent = role === 'assistant' ? ASSISTANT_LABEL : USER_LABEL;
+    }
+    return el;
+  }
   var HISTORY_KEY = 'chat_history';
   var HISTORY_LIMIT = 100;
 
@@ -269,10 +285,7 @@
     var row = document.createElement('div');
     row.className = 'chat-msg-row chat-msg-row--' + role;
 
-    var avatar = document.createElement('div');
-    avatar.className = 'chat-msg-avatar chat-msg-avatar--' + role;
-    avatar.setAttribute('aria-hidden', 'true');
-    avatar.textContent = role === 'assistant' ? ASSISTANT_LABEL : USER_LABEL;
+    var avatar = makeAvatarEl(role);
 
     var body = document.createElement('div');
     body.className = 'chat-msg-body';
@@ -325,10 +338,7 @@
     var row = document.createElement('div');
     row.className = 'chat-loading-row';
     row.id = 'chatLoading';
-    var avatar = document.createElement('div');
-    avatar.className = 'chat-msg-avatar chat-msg-avatar--assistant';
-    avatar.setAttribute('aria-hidden', 'true');
-    avatar.textContent = ASSISTANT_LABEL;
+    var avatar = makeAvatarEl('assistant');
     var inner = document.createElement('div');
     inner.className = 'chat-loading';
     for (var i = 0; i < 3; i++) {
