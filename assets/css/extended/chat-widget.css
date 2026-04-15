@@ -13,6 +13,10 @@
   --chat-glass: rgba(255, 255, 255, 0.78);
   --chat-glass-border: rgba(148, 163, 184, 0.22);
   --chat-user-bg: linear-gradient(135deg, rgb(15, 23, 42), rgb(51, 65, 85));
+  --chat-assistant-bubble-bg: #f0f0f0;
+  --chat-assistant-bubble-fg: rgb(30, 41, 59);
+  --chat-avatar-assistant: linear-gradient(135deg, #7b61ff 0%, #3bc4c4 100%);
+  --chat-avatar-user: linear-gradient(135deg, #2563eb 0%, #0d9488 100%);
   --chat-assistant-bg: rgba(255, 255, 255, 0.62);
   --chat-assistant-border: rgba(148, 163, 184, 0.18);
   --chat-accent: rgb(14, 165, 233);
@@ -28,6 +32,8 @@
 [data-theme="dark"] {
   --chat-glass: rgba(15, 23, 42, 0.88);
   --chat-glass-border: rgba(100, 116, 139, 0.3);
+  --chat-assistant-bubble-bg: rgba(39, 39, 42, 0.92);
+  --chat-assistant-bubble-fg: rgba(241, 245, 249, 0.96);
   --chat-assistant-bg: rgba(30, 41, 59, 0.6);
   --chat-assistant-border: rgba(100, 116, 139, 0.26);
   --chat-text: rgba(241, 245, 249, 0.96);
@@ -222,16 +228,28 @@
   scroll-behavior: smooth;
 }
 
-/* ── Message Bubbles ────────────────────────────────────── */
-.chat-msg {
-  max-width: 85%;
-  padding: 10px 14px;
-  border-radius: var(--chat-msg-radius);
+/* ── Message rows (avatar + bubble, ref: agent 左对齐头像行) ─ */
+.chat-msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
   font-size: 14px;
   line-height: 1.6;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
   animation: chatMsgIn 0.3s ease both;
+}
+
+.chat-msg-row--assistant {
+  align-self: flex-start;
+  max-width: 92%;
+}
+
+.chat-msg-row--user {
+  flex-direction: row-reverse;
+  align-self: flex-end;
+  margin-left: auto;
+  max-width: 92%;
 }
 
 @keyframes chatMsgIn {
@@ -245,29 +263,70 @@
   }
 }
 
-/* User messages — warm dark gradient */
-.chat-msg-user {
-  align-self: flex-end;
-  background: var(--chat-user-bg);
+.chat-msg-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
   color: #fff;
-  border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+  user-select: none;
 }
 
-/* Assistant messages — frosted glass card */
-.chat-msg-assistant {
-  align-self: flex-start;
-  background: var(--chat-assistant-bg);
-  color: var(--chat-text);
-  border: 1px solid var(--chat-assistant-border);
-  border-bottom-left-radius: 4px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.chat-msg-avatar--assistant {
+  background: var(--chat-avatar-assistant);
+}
+
+.chat-msg-avatar--user {
+  background: var(--chat-avatar-user);
+}
+
+.chat-msg-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-msg-row--user .chat-msg-body {
+  flex: 0 1 auto;
+  align-items: flex-end;
+}
+
+.chat-msg-bubble {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  border-radius: 14px;
+  padding: 10px 16px;
+}
+
+/* Assistant：浅灰圆角气泡（与参考图一致） */
+.chat-msg-bubble--assistant {
+  background: var(--chat-assistant-bubble-bg);
+  color: var(--chat-assistant-bubble-fg);
+  border: none;
+}
+
+/* User：深色渐变气泡，与头像区分 */
+.chat-msg-bubble--user {
+  background: var(--chat-user-bg);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
 }
 
 /* Error messages */
 .chat-msg-error {
   align-self: center;
+  max-width: 90%;
+  padding: 10px 14px;
   background: #fef2f2;
   color: #b91c1c;
   font-size: 13px;
@@ -433,12 +492,22 @@
 }
 
 /* ── Loading Indicator — Gradient Shimmer ───────────────── */
+.chat-loading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 92%;
+}
+
 .chat-loading {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px 0;
-  align-self: flex-start;
+  flex: 1;
+  min-width: 0;
 }
 
 .chat-loading-bar {
@@ -652,7 +721,7 @@
   .chat-panel {
     transition: none;
   }
-  .chat-msg {
+  .chat-msg-row {
     animation: none;
   }
   .chat-loading-bar {

@@ -16,6 +16,8 @@
     var sp = panel.getAttribute('data-suggested-prompts');
     if (sp) SUGGESTED_PROMPTS = JSON.parse(sp);
   } catch (_) {}
+  var ASSISTANT_LABEL = panel.getAttribute('data-assistant-avatar') || '兴旺';
+  var USER_LABEL = panel.getAttribute('data-user-avatar') || '我';
   var HISTORY_KEY = 'chat_history';
   var HISTORY_LIMIT = 100;
 
@@ -264,18 +266,39 @@
   }
 
   function createMsgEl(role, content, thinking) {
-    var div = document.createElement('div');
-    div.className = 'chat-msg chat-msg-' + role;
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row chat-msg-row--' + role;
 
-    if (role === 'assistant' && thinking) {
-      createThinkingBlock(div, null, thinking);
-    }
+    var avatar = document.createElement('div');
+    avatar.className = 'chat-msg-avatar chat-msg-avatar--' + role;
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = role === 'assistant' ? ASSISTANT_LABEL : USER_LABEL;
+
+    var body = document.createElement('div');
+    body.className = 'chat-msg-body';
+
+    var bubble = document.createElement('div');
+    bubble.className = 'chat-msg-bubble chat-msg-bubble--' + role;
 
     var textSpan = document.createElement('div');
     textSpan.className = 'chat-msg-text';
     textSpan.innerHTML = role === 'assistant' ? renderMarkdown(content || '') : escapeHtml(content || '');
-    div.appendChild(textSpan);
-    return div;
+    bubble.appendChild(textSpan);
+
+    if (role === 'assistant' && thinking) {
+      createThinkingBlock(body, bubble, thinking);
+    }
+    body.appendChild(bubble);
+
+    if (role === 'user') {
+      row.appendChild(body);
+      row.appendChild(avatar);
+    } else {
+      row.appendChild(avatar);
+      row.appendChild(body);
+    }
+
+    return row;
   }
 
   function renderAllMessages() {
@@ -299,15 +322,23 @@
   }
 
   function showLoading() {
-    var div = document.createElement('div');
-    div.className = 'chat-loading';
-    div.id = 'chatLoading';
+    var row = document.createElement('div');
+    row.className = 'chat-loading-row';
+    row.id = 'chatLoading';
+    var avatar = document.createElement('div');
+    avatar.className = 'chat-msg-avatar chat-msg-avatar--assistant';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = ASSISTANT_LABEL;
+    var inner = document.createElement('div');
+    inner.className = 'chat-loading';
     for (var i = 0; i < 3; i++) {
       var bar = document.createElement('span');
       bar.className = 'chat-loading-bar';
-      div.appendChild(bar);
+      inner.appendChild(bar);
     }
-    messagesEl.appendChild(div);
+    row.appendChild(avatar);
+    row.appendChild(inner);
+    messagesEl.appendChild(row);
     scrollToBottom();
   }
 
@@ -422,9 +453,13 @@
             if (thinkText) {
               assistantMsg.thinking += thinkText;
               if (!thinkBlock) {
-                thinkBlock = createThinkingBlock(msgEl, textSpan, null);
+                var bodyEl = msgEl.querySelector('.chat-msg-body');
+                var bubbleEl = msgEl.querySelector('.chat-msg-bubble');
+                if (bodyEl && bubbleEl) {
+                  thinkBlock = createThinkingBlock(bodyEl, bubbleEl, null);
+                }
               }
-              var inner = thinkBlock.querySelector('.chat-thinking-inner');
+              var inner = thinkBlock && thinkBlock.querySelector('.chat-thinking-inner');
               if (inner) inner.textContent = assistantMsg.thinking;
             }
 

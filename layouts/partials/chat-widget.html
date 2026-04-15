@@ -4,6 +4,8 @@
 {{- $defaultModel := $chat.defaultModel | default "qwen3.6-plus" -}}
 {{- $systemPrompt := index $chat "systemPrompt" | default "" -}}
 {{- $suggestedPrompts := $chat.suggestedPrompts | default (slice) -}}
+{{- $assistantAvatar := $chat.assistantAvatarLabel | default "兴旺" -}}
+{{- $userAvatar := $chat.userAvatarLabel | default "我" -}}
 
 <!-- Bubble Button -->
 <button class="chat-bubble chat-bubble--pulse" id="chatBubble" aria-label="打开聊天">
@@ -15,7 +17,9 @@
   data-proxy="{{ $proxyURL }}"
   data-model="{{ $defaultModel }}"
   data-system-prompt="{{ $systemPrompt }}"
-  data-suggested-prompts="{{ $suggestedPrompts | jsonify }}">
+  data-suggested-prompts="{{ $suggestedPrompts | jsonify }}"
+  data-assistant-avatar="{{ $assistantAvatar }}"
+  data-user-avatar="{{ $userAvatar }}">
   <!-- Header -->
   <div class="chat-header">
     <span class="chat-header-title">AI 助手</span>
