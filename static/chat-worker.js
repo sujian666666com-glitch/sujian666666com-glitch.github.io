@@ -121,13 +121,13 @@ async function fetchEmbeddingVector(env, baseURL, model, text) {
   return emb;
 }
 
-/** content/posts/.../*.md → 文章 URL（依赖 BLOG_PUBLIC_BASE_URL 或索引内 siteBaseUrl） */
-function postUrlFromSource(source, baseRaw) {
+/** content/.../*.md → 页面 URL */
+function contentUrlFromSource(source, baseRaw) {
   const base = (baseRaw && String(baseRaw).replace(/\/$/, '')) || ''
   const norm = String(source || '').replace(/\\/g, '/')
-  const m = norm.match(/^content\/posts\/(.+)\.md$/i)
+  const m = norm.match(/^content\/(.+)\.md$/i)
   if (!base || !m) return ''
-  return `${base}/posts/${m[1]}/`
+  return `${base}/${m[1]}/`
 }
 
 async function loadRagIndex(env) {
@@ -205,7 +205,7 @@ async function enrichMessagesWithRag(body, env) {
         const title = c.title || '（未命名文章）'
         let link = (c.url || '').trim()
         if (!link && publicBase) {
-          link = postUrlFromSource(c.source, publicBase) || ''
+          link = contentUrlFromSource(c.source, publicBase) || ''
         }
         let block = `[片段${n + 1}] 《${title}》\n`
         if (link) block += `页面链接（请原样提供给用户，便于点击）：${link}\n`

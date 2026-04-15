@@ -11,6 +11,7 @@
  */
 
 import { readFile, writeFile, readdir } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -24,8 +25,15 @@ const BASE_URL =
 const CHUNK_SIZE = 900
 const CHUNK_OVERLAP = 120
 const MIN_CHUNK_LEN = 80
-/** 只索引正文目录，避免 daily/ 新闻量过大；可自行改 */
-const CONTENT_ROOTS = [join(REPO_ROOT, 'content/posts')]
+const CONTENT_ROOTS = [
+  join(REPO_ROOT, 'content/posts'),
+  join(REPO_ROOT, 'content/daily'),
+  join(REPO_ROOT, 'content/shrimp-diary'),
+]
+
+function sha256(text) {
+  return createHash('sha256').update(text).digest('hex')
+}
 
 /** 读取 hugo.yaml 的 baseURL（无尾部 /），用于生成每篇文章 canonical 链接 */
 async function readSiteBaseFromHugo() {
@@ -40,12 +48,12 @@ async function readSiteBaseFromHugo() {
   }
 }
 
-/** content/posts/分类/slug.md → 站点文章 URL（默认 Hugo pretty URL） */
-function postUrlFromRelative(relPath, siteBase) {
+/** content/任意路径.md → 站点 URL（Hugo 默认 pretty URL） */
+function contentUrlFromRelative(relPath, siteBase) {
   const base = (siteBase || '').replace(/\/$/, '')
-  const m = relPath.replace(/\\/g, '/').match(/^content\/posts\/(.+)\.md$/i)
+  const m = relPath.replace(/\\/g, '/').match(/^content\/(.+)\.md$/i)
   if (!base || !m) return ''
-  return `${base}/posts/${m[1]}/`
+  return `${base}/${m[1]}/`
 }
 
 function extractTitleFromFrontMatter(raw) {
@@ -168,53 +176,91 @@ async function main() {
     return
   }
 
+  // ── 加载旧索引（增量构建） ──
+  let oldMap = new Map() // source → { hash, chunks[] }
+  try {
+    const oldRaw = await readFile(outPath, 'utf8')
+    const oldData = JSON.parse(oldRaw)
+    if (oldData && Array.isArray(oldData.chunks)) {
+      for (const c of oldData.chunks) {
+        if (!c.source || !c.contentHash) continue
+        if (!oldMap.has(c.source)) {
+          oldMap.set(c.source, { hash: c.contentHash, chunks: [] })
+        }
+        oldMap.get(c.source).chunks.push(c)
+      }
+    }
+  } catch {
+    // 无旧索引或解析失败 → 全量构建
+  }
+
   const files = []
   for (const root of CONTENT_ROOTS) {
     await walkMarkdownFiles(root, files)
   }
   files.sort()
 
-  const plainChunks = []
+  const reusedChunks = []
+  const plainChunks = [] // 仅新增/修改的文件
+
   for (const file of files) {
     const raw = await readFile(file, 'utf8')
+    const rel = relative(REPO_ROOT, file).replace(/\\/g, '/')
+    const hash = sha256(raw)
+
+    // 文件内容未变 → 复用旧向量
+    const old = oldMap.get(rel)
+    if (old && old.hash === hash) {
+      reusedChunks.push(...old.chunks)
+      continue
+    }
+
+    // 新增或修改的文件
     const title = extractTitleFromFrontMatter(raw)
     const body = stripMarkdownNoise(stripFrontMatter(raw))
-    const rel = relative(REPO_ROOT, file).replace(/\\/g, '/')
-    const url = postUrlFromRelative(rel, siteBase)
+    const url = contentUrlFromRelative(rel, siteBase)
     for (const piece of chunkText(body)) {
-      plainChunks.push({ source: rel, text: piece, title, url })
+      plainChunks.push({ source: rel, text: piece, title, url, contentHash: hash })
     }
   }
 
-  console.log(`[build-rag] ${plainChunks.length} 个文本块，正在请求 Embedding（${EMBEDDING_MODEL}）…`)
+  console.log(
+    `[build-rag] 复用 ${reusedChunks.length} 条旧向量，` +
+    `${plainChunks.length} 个文本块需要重新 Embedding（${EMBEDDING_MODEL}）…`,
+  )
 
   const embeddings = []
-  const batchSize = 8
-  for (let i = 0; i < plainChunks.length; i += batchSize) {
-    const batch = plainChunks.slice(i, i + batchSize)
-    const texts = batch.map((c) => c.text)
-    const vecs = await embedBatch(apiKey, texts)
-    if (vecs.length !== batch.length) {
-      throw new Error('embedding 返回条数与请求不一致')
+  if (plainChunks.length > 0) {
+    const batchSize = 8
+    for (let i = 0; i < plainChunks.length; i += batchSize) {
+      const batch = plainChunks.slice(i, i + batchSize)
+      const texts = batch.map((c) => c.text)
+      const vecs = await embedBatch(apiKey, texts)
+      if (vecs.length !== batch.length) {
+        throw new Error('embedding 返回条数与请求不一致')
+      }
+      embeddings.push(...vecs)
+      await new Promise((r) => setTimeout(r, 120))
     }
-    embeddings.push(...vecs)
-    await new Promise((r) => setTimeout(r, 120))
   }
 
-  const chunks = plainChunks.map((c, i) => ({
+  const newChunks = plainChunks.map((c, i) => ({
     source: c.source,
     text: c.text,
     title: c.title || '',
     url: c.url || '',
+    contentHash: c.contentHash,
     embedding: embeddings[i],
   }))
+
+  const chunks = [...reusedChunks, ...newChunks]
 
   stub.chunks = chunks
   stub.siteBaseUrl = siteBase
   stub.generatedAt = new Date().toISOString()
 
   await writeFile(outPath, JSON.stringify(stub), 'utf8')
-  console.log(`[build-rag] 已写入 ${outPath}（${chunks.length} 条向量）`)
+  console.log(`[build-rag] 已写入 ${outPath}（${chunks.length} 条向量，其中 ${reusedChunks.length} 条复用）`)
 }
 
 main().catch((e) => {

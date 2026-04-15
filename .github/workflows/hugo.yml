@@ -47,11 +47,6 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Build RAG vector index
-        env:
-          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: node scripts/build-rag.mjs
-
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
