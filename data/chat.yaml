@@ -34,3 +34,10 @@ models:
     label: Kimi K2.5
   - id: MiniMax-M2.5
     label: MiniMax M2.5
+
+# 欢迎页建议提示词（点击后直接发送）
+suggestedPrompts:
+  - 这个博客主要聊什么话题？
+  - 帮我总结一下最新的一篇文章
+  - 介绍一下博主
+  - 推荐几篇值得读的文章
