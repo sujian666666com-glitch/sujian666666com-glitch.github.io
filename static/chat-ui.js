@@ -46,6 +46,7 @@
   var clearBtn = document.getElementById('chatClearBtn');
   var modelSelect = document.getElementById('chatModelSelect');
   var thinkToggle = document.getElementById('chatThinkToggle');
+  var ragToggle = document.getElementById('chatRagToggle');
 
   // ── State ────────────────────────────────────────────────
   var messages = [];
@@ -362,6 +363,7 @@
   function setStreaming(v) { isStreaming = v; sendBtn.disabled = v; inputEl.disabled = v; }
   function getSelectedModel() { return modelSelect.value || DEFAULT_MODEL; }
   function isThinkingEnabled() { return thinkToggle.checked; }
+  function isRagEnabled() { return ragToggle ? ragToggle.checked : true; }
 
   function formatApiError(errBody) {
     if (!errBody) return '';
@@ -405,6 +407,7 @@
     var reqBody = { model: getSelectedModel(), messages: apiMessages, stream: true };
     var captureThinking = isThinkingEnabled();
     if (captureThinking) reqBody.enable_thinking = true;
+    reqBody.enable_rag = isRagEnabled();
 
     setStreaming(true);
     showLoading();

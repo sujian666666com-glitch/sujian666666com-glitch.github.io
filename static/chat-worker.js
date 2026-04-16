@@ -274,7 +274,9 @@ async function handleRequest(request, env) {
   }
 
   try {
-    body = await enrichMessagesWithRag(body, env);
+    if (body.enable_rag !== false) {
+      body = await enrichMessagesWithRag(body, env);
+    }
   } catch (e) {
     console.warn('[RAG] enrich failed', e);
   }
