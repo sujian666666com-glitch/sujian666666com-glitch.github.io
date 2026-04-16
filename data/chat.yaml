@@ -1,7 +1,7 @@
 # 聊天组件模型配置（id 须与 DashScope 兼容接口模型名一致，且落在 static/chat-worker.js 白名单内）
 
 # 消息行头像上的短文案（各 1～2 个汉字为宜，与侧边栏气泡布局配套）
-assistantAvatarLabel: 兴旺
+assistantAvatarLabel: 小k
 assistantAvatarImage: /avatar.png
 userAvatarLabel: 我
 
