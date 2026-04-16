@@ -1,9 +1,12 @@
 # 聊天组件模型配置（id 须与 DashScope 兼容接口模型名一致，且落在 static/chat-worker.js 白名单内）
 
-# 消息行头像上的短文案（各 1～2 个汉字为宜，与侧边栏气泡布局配套）
+# 侧栏标题（聊天面板左上角）
+panelTitle: 小k助手
+
+# 消息行头像上的短文案（各 1～2 个汉字为宜；用户侧留空则不显示文字）
 assistantAvatarLabel: 小k
 assistantAvatarImage: /avatar.png
-userAvatarLabel: 我
+userAvatarLabel: ""
 
 # 统一系统提示词：对当前选中的任意模型都会作为第一条 system 消息发送（RAG 片段由 Worker 追加在同一条 system 之后）。
 # 多行用 YAML 块 systemPrompt: |

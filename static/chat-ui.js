@@ -18,7 +18,9 @@
   } catch (_) {}
   var ASSISTANT_LABEL = panel.getAttribute('data-assistant-avatar') || '兴旺';
   var ASSISTANT_AVATAR_IMAGE = panel.getAttribute('data-assistant-avatar-image') || '';
-  var USER_LABEL = panel.getAttribute('data-user-avatar') || '我';
+  // data-user-avatar 可为空；勿用 ||「我」否则无法清空
+  var USER_LABEL = panel.getAttribute('data-user-avatar');
+  if (USER_LABEL === null) USER_LABEL = '';
 
   function makeAvatarEl(role) {
     var el = document.createElement('div');
@@ -30,7 +32,8 @@
       img.alt = ASSISTANT_LABEL;
       el.appendChild(img);
     } else {
-      el.textContent = role === 'assistant' ? ASSISTANT_LABEL : USER_LABEL;
+      var label = role === 'assistant' ? ASSISTANT_LABEL : USER_LABEL;
+      if (label) el.textContent = label;
     }
     return el;
   }

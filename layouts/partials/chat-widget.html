@@ -6,7 +6,9 @@
 {{- $suggestedPrompts := $chat.suggestedPrompts | default (slice) -}}
 {{- $assistantAvatar := $chat.assistantAvatarLabel | default "兴旺" -}}
 {{- $assistantAvatarImage := $chat.assistantAvatarImage | default "" -}}
-{{- $userAvatar := $chat.userAvatarLabel | default "我" -}}
+{{- /* 留空表示用户头像不显示文字；勿用 default「我」否则无法清空 */ -}}
+{{- $userAvatar := index $chat "userAvatarLabel" | default "" -}}
+{{- $panelTitle := $chat.panelTitle | default "小k助手" -}}
 
 <!-- Bubble Button -->
 <button class="chat-bubble chat-bubble--pulse" id="chatBubble" aria-label="打开聊天">
@@ -24,7 +26,7 @@
   data-user-avatar="{{ $userAvatar }}">
   <!-- Header -->
   <div class="chat-header">
-    <span class="chat-header-title">AI 助手</span>
+    <span class="chat-header-title">{{ $panelTitle }}</span>
     <div class="chat-header-actions">
       <select class="chat-model-select" id="chatModelSelect">
         {{- range $chat.models }}

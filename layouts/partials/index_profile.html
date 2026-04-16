@@ -2,11 +2,6 @@
     {{- with site.Params.profileMode }}
     {{- $heroTitle := .title | default site.Title -}}
     {{- $heroSubtitle := .subtitle | default site.Params.description -}}
-    {{- $heroImage := .imageUrl | default "/avatar.png" -}}
-    {{- $img := "" -}}
-    {{- if and $heroImage (not (urls.Parse $heroImage).IsAbs) }}
-        {{- $img = resources.Get $heroImage }}
-    {{- end }}
     {{- $mainSections := site.Params.mainSections | default (slice "posts") -}}
     {{- $postCount := len (where site.RegularPages "Section" "in" $mainSections) -}}
     <div class="blog-hero__backdrop" aria-hidden="true">
@@ -39,16 +34,6 @@
         </section>
 
         <aside class="blog-hero__panel animate__animated animate__fadeInRight">
-            <div class="blog-hero__portrait">
-                {{- if $img }}
-                <img draggable="false" src="{{ $img.Permalink }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
-                    height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" loading="eager" />
-                {{- else }}
-                <img draggable="false" src="{{ $heroImage | absURL }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
-                    height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" loading="eager" />
-                {{- end }}
-                <span class="blog-hero__portrait-tag">Personal logbook</span>
-            </div>
             <div class="blog-hero__panel-card animate__animated animate__fadeInUp animate__fast" style="--animate-delay: 260ms;">
                 <span class="blog-hero__panel-label">EXPLORE</span>
                 <h2>从首页直接检索内容</h2>

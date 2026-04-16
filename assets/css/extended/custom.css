@@ -305,7 +305,7 @@
 .blog-hero__panel-card {
   position: relative;
   width: min(100%, 460px);
-  padding: 92px 28px 30px;
+  padding: 28px 28px 30px;
   border-radius: 28px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   background:
@@ -322,41 +322,6 @@
   border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.55);
   pointer-events: none;
-}
-
-.blog-hero__portrait {
-  position: absolute;
-  top: 0;
-  right: 24px;
-  z-index: 2;
-  width: clamp(126px, 15vw, 168px);
-  transform: rotate(8deg);
-}
-
-.blog-hero__portrait img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 646 / 822;
-  object-fit: cover;
-  border-radius: 26px;
-  border: 8px solid rgba(255, 255, 255, 0.88);
-  box-shadow: 0 26px 50px rgba(15, 23, 42, 0.2);
-}
-
-.blog-hero__portrait-tag {
-  position: absolute;
-  left: -18px;
-  bottom: 20px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.84);
-  color: rgba(255, 255, 255, 0.96);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.2);
 }
 
 .blog-hero__panel-label {
@@ -700,25 +665,6 @@
     width: 100%;
   }
 
-  .blog-hero__portrait {
-    position: relative;
-    top: auto;
-    right: auto;
-    width: min(170px, 42vw);
-    margin-left: auto;
-    margin-right: 6px;
-  }
-
-  .blog-hero__panel-card {
-    padding-top: 28px;
-  }
-
-  .blog-hero__portrait-tag {
-    left: auto;
-    right: -10px;
-    bottom: -10px;
-  }
-
   .blog-hero__search-form {
     grid-template-columns: 1fr;
   }
@@ -750,8 +696,7 @@
 @media (prefers-reduced-motion: reduce) {
   .blog-hero__grid,
   .blog-hero__glow--one,
-  .blog-hero__glow--two,
-  .blog-hero__portrait {
+  .blog-hero__glow--two {
     animation: none;
   }
 }
@@ -836,7 +781,6 @@
   color: rgba(203, 213, 225, 0.82);
 }
 
-[data-theme="dark"] .blog-hero__portrait img,
 [data-theme="dark"] .nav-avatar img {
   border-color: rgba(15, 23, 42, 0.76);
   box-shadow: 0 18px 34px rgba(2, 6, 23, 0.34);
