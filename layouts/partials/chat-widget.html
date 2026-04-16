@@ -8,7 +8,7 @@
 {{- $assistantAvatarImage := $chat.assistantAvatarImage | default "" -}}
 {{- /* 留空表示用户头像不显示文字；勿用 default「我」否则无法清空 */ -}}
 {{- $userAvatar := index $chat "userAvatarLabel" | default "" -}}
-{{- $panelTitle := $chat.panelTitle | default "小k助手" -}}
+{{- $panelTitle := $chat.panelTitle | default "小k" -}}
 
 <!-- Bubble Button -->
 <button class="chat-bubble chat-bubble--pulse" id="chatBubble" aria-label="打开聊天">
