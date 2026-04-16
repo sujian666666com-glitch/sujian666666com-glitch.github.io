@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776243066183,
+  "lastScanned": 1776329638773,
   "projectRoot": "/Users/ik/clawd/my-blog",
   "techStack": {
     "languages": [
@@ -55,7 +55,7 @@
       "path": "archetypes",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776243065561,
+      "lastAccessed": 1776329638760,
       "keyFiles": [
         "default.md"
       ]
@@ -64,21 +64,21 @@
       "path": "assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1776243065561,
+      "lastAccessed": 1776329638764,
       "keyFiles": []
     },
     "content": {
       "path": "content",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776243065562,
+      "lastAccessed": 1776329638764,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 1,
-      "lastAccessed": 1776243065564,
+      "lastAccessed": 1776329638765,
       "keyFiles": [
         "chat.yaml"
       ]
@@ -87,21 +87,21 @@
       "path": "i18n",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776243065634,
+      "lastAccessed": 1776329638765,
       "keyFiles": []
     },
     "layouts": {
       "path": "layouts",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776243065634,
+      "lastAccessed": 1776329638765,
       "keyFiles": []
     },
     "openspec": {
       "path": "openspec",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776243065635,
+      "lastAccessed": 1776329638765,
       "keyFiles": [
         "config.yaml"
       ]
@@ -109,28 +109,28 @@
     "public": {
       "path": "public",
       "purpose": "Public files",
-      "fileCount": 13,
-      "lastAccessed": 1776243065642,
+      "fileCount": 14,
+      "lastAccessed": 1776329638766,
       "keyFiles": [
         "404.html",
         "avatar.png",
+        "chat-redesign-preview.html",
         "chat-ui.js",
-        "chat-worker.js",
-        "favicon-16x16.png"
+        "chat-worker.js"
       ]
     },
     "resources": {
       "path": "resources",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776243065643,
+      "lastAccessed": 1776329638766,
       "keyFiles": []
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1776243065657,
+      "lastAccessed": 1776329638766,
       "keyFiles": [
         "build-rag.mjs",
         "update-rag.sh"
@@ -139,36 +139,48 @@
     "static": {
       "path": "static",
       "purpose": "Static files",
-      "fileCount": 8,
-      "lastAccessed": 1776243065672,
+      "fileCount": 9,
+      "lastAccessed": 1776329638767,
       "keyFiles": [
         "avatar.png",
+        "chat-redesign-preview.html",
         "chat-ui.js",
         "chat-worker.js",
-        "favicon-16x16.png",
-        "favicon-32x32.png"
+        "favicon-16x16.png"
       ]
     },
     "themes": {
       "path": "themes",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776243065673,
+      "lastAccessed": 1776329638767,
       "keyFiles": []
     },
     "public/assets": {
       "path": "public/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1776243065791,
+      "lastAccessed": 1776329638768,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
       "path": "layouts/partials/chat-widget.html",
-      "accessCount": 15,
-      "lastAccessed": 1776232592265,
+      "accessCount": 24,
+      "lastAccessed": 1776333714235,
+      "type": "file"
+    },
+    {
+      "path": "static/chat-ui.js",
+      "accessCount": 12,
+      "lastAccessed": 1776332995500,
+      "type": "file"
+    },
+    {
+      "path": "assets/css/extended/chat-widget.css",
+      "accessCount": 11,
+      "lastAccessed": 1776333700057,
       "type": "file"
     },
     {
@@ -178,27 +190,15 @@
       "type": "file"
     },
     {
-      "path": "static/chat-ui.js",
+      "path": "data/chat.yaml",
       "accessCount": 7,
-      "lastAccessed": 1776232674288,
-      "type": "file"
-    },
-    {
-      "path": "assets/css/extended/chat-widget.css",
-      "accessCount": 6,
-      "lastAccessed": 1776232592316,
+      "lastAccessed": 1776332556209,
       "type": "file"
     },
     {
       "path": "static/chat-worker.js",
-      "accessCount": 4,
-      "lastAccessed": 1776230662121,
-      "type": "file"
-    },
-    {
-      "path": "data/chat.yaml",
-      "accessCount": 4,
-      "lastAccessed": 1776232505668,
+      "accessCount": 7,
+      "lastAccessed": 1776332997193,
       "type": "file"
     },
     {
@@ -214,15 +214,15 @@
       "type": "file"
     },
     {
-      "path": "README.md",
-      "accessCount": 2,
-      "lastAccessed": 1776230321781,
+      "path": "hugo.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1776329838827,
       "type": "file"
     },
     {
-      "path": "hugo.yaml",
+      "path": "README.md",
       "accessCount": 2,
-      "lastAccessed": 1776230645137,
+      "lastAccessed": 1776230321781,
       "type": "file"
     },
     {
@@ -238,6 +238,18 @@
       "type": "file"
     },
     {
+      "path": "layouts/partials/extend_footer.html",
+      "accessCount": 2,
+      "lastAccessed": 1776329831135,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 2,
+      "lastAccessed": 1776333060954,
+      "type": "directory"
+    },
+    {
       "path": ".cursor/plans/expand_rag_indexing_0cfb769d.plan.md",
       "accessCount": 1,
       "lastAccessed": 1776225327890,
@@ -247,12 +259,6 @@
       "path": "assets/css/extended/gallery.css",
       "accessCount": 1,
       "lastAccessed": 1776230655769,
-      "type": "file"
-    },
-    {
-      "path": "layouts/partials/extend_footer.html",
-      "accessCount": 1,
-      "lastAccessed": 1776230662069,
       "type": "file"
     },
     {
@@ -283,6 +289,30 @@
       "path": "layouts/shortcodes/gallery-images.html",
       "accessCount": 1,
       "lastAccessed": 1776230798548,
+      "type": "file"
+    },
+    {
+      "path": "themes/PaperMod/layouts/_default/baseof.html",
+      "accessCount": 1,
+      "lastAccessed": 1776329824909,
+      "type": "file"
+    },
+    {
+      "path": "themes/PaperMod/layouts/partials/footer.html",
+      "accessCount": 1,
+      "lastAccessed": 1776329828098,
+      "type": "file"
+    },
+    {
+      "path": "themes/PaperMod/layouts/partials/head.html",
+      "accessCount": 1,
+      "lastAccessed": 1776329843848,
+      "type": "file"
+    },
+    {
+      "path": "chat-designs-preview.html",
+      "accessCount": 1,
+      "lastAccessed": 1776332150658,
       "type": "file"
     }
   ],

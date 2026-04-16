@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Widget Design Preview</title>
+<style>
+/* ── Page Layout ────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #e8e8ed;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 40px;
+}
+.preview-header {
+  text-align: center;
+  padding: 32px 20px 24px;
+}
+.preview-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 6px;
+}
+.preview-header p {
+  font-size: 14px;
+  color: #86868b;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.tab-btn {
+  padding: 8px 20px;
+  border: 1.5px solid #d2d2d7;
+  border-radius: 999px;
+  background: #fff;
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn:hover { border-color: #86868b; }
+.tab-btn.active {
+  background: #1d1d1f;
+  color: #fff;
+  border-color: #1d1d1f;
+}
+.design-panel {
+  display: none;
+  justify-content: center;
+  padding: 0 20px;
+}
+.design-panel.active { display: flex; }
+.design-meta {
+  max-width: 260px;
+  margin-right: 32px;
+  padding-top: 12px;
+}
+.design-meta h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+}
+.design-meta .tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.design-meta p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #6e6e73;
+  margin-bottom: 12px;
+}
+.design-meta .colors {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.design-meta .swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+@media (max-width: 800px) {
+  .design-panel.active { flex-direction: column-reverse; align-items: center; }
+  .design-meta { margin-right: 0; margin-bottom: 20px; max-width: 100%; text-align: center; }
+  .design-meta .colors { justify-content: center; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DESIGN 1 — Claude (Anthropic)
+   Warm parchment, terracotta, serif, literary
+   ══════════════════════════════════════════════════════════════ */
+.d1-widget {
+  width: 400px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: rgba(0,0,0,0.06) 0px 8px 40px;
+  border: 1px solid #e8e6dc;
+  background: #faf9f5;
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.d1-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0eee6;
+  background: #faf9f5;
+}
+.d1-header-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #141413;
+  font-family: Georgia, serif;
+}
+.d1-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.d1-model-select {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid #e8e6dc;
+  border-radius: 8px;
+  background: #f5f4ed;
+  color: #5e5d59;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  outline: none;
+}
+.d1-think-label {
+  font-size: 11px;
+  color: #87867f;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.d1-think-label input { accent-color: #c96442; }
+.d1-header-btn {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #87867f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.d1-header-btn:hover { background: #f0eee6; color: #5e5d59; }
+
+.d1-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f5f4ed;
+}
+.d1-msg {
+  display: flex;
+  gap: 10px;
+  max-width: 90%;
+}
+.d1-msg--user { flex-direction: row-reverse; align-self: flex-end; }
+.d1-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #faf9f5;
+  font-family: Arial, sans-serif;
+}
+.d1-avatar--ai { background: #c96442; }
+.d1-avatar--user { background: #5e5d59; }
+.d1-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  font-family: Arial, sans-serif;
+}
+.d1-bubble--ai {
+  background: #faf9f5;
+  color: #141413;
+  border: 1px solid #f0eee6;
+  border-top-left-radius: 4px;
+}
+.d1-bubble--user {
+  background: #30302e;
+  color: #faf9f5;
+  border-top-right-radius: 4px;
+}
+.d1-input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 14px;
+  gap: 10px;
+  border-top: 1px solid #f0eee6;
+  background: #faf9f5;
+}
+.d1-input {
+  flex: 1;
+  resize: none;
+  border: 1px solid #e8e6dc;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  background: #f5f4ed;
+  color: #141413;
+  outline: none;
+  min-height: 40px;
+  max-height: 80px;
+  line-height: 1.4;
+}
+.d1-input:focus { border-color: #c96442; }
+.d1-input::placeholder { color: #87867f; }
+.d1-send {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: none;
+  background: #c96442;
+  color: #faf9f5;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+}
+.d1-send:hover { transform: scale(1.04); }
+.d1-send svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ══════════════════════════════════════════════════════════════
+   DESIGN 2 — Vercel
+   Monochrome, shadow-as-border, developer
+   ══════════════════════════════════════════════════════════════ */
+.d2-widget {
+  width: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    rgba(0,0,0,0.08) 0px 0px 0px 1px,
+    rgba(0,0,0,0.04) 0px 2px 2px,
+    rgba(0,0,0,0.04) 0px 8px 8px -8px,
+    #fafafa 0px 0px 0px 1px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+.d2-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ebebeb;
+}
+.d2-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.d2-header-logo {
+  width: 22px; height: 22px;
+  background: #171717;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.d2-header-logo svg { width: 14px; height: 14px; fill: #fff; }
+.d2-header-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #171717;
+  letter-spacing: -0.01em;
+}
+.d2-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.d2-model-select {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ebf5ff;
+  color: #0068d6;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+.d2-think-label {
+  font-size: 11px;
+  color: #808080;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.d2-think-label input { accent-color: #0072f5; }
+.d2-header-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #808080;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.d2-header-btn:hover { background: #fafafa; color: #171717; }
+
+.d2-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+}
+.d2-msg {
+  display: flex;
+  gap: 10px;
+  max-width: 88%;
+}
+.d2-msg--user { flex-direction: row-reverse; align-self: flex-end; }
+.d2-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  background: #171717;
+  color: #fff;
+  box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px;
+}
+.d2-avatar--user {
+  background: #fafafa;
+  color: #171717;
+  box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px;
+}
+.d2-bubble {
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #171717;
+}
+.d2-bubble--ai {
+  background: transparent;
+  padding: 8px 0;
+}
+.d2-bubble--user {
+  background: #171717;
+  color: #fff;
+  border-radius: 8px;
+}
+.d2-input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 14px;
+  gap: 8px;
+  border-top: 1px solid #ebebeb;
+  background: #fff;
+}
+.d2-input {
+  flex: 1;
+  resize: none;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fafafa;
+  color: #171717;
+  outline: none;
+  min-height: 40px;
+  max-height: 80px;
+  line-height: 1.4;
+  box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px;
+}
+.d2-input:focus { box-shadow: rgba(0,0,0,0.16) 0px 0px 0px 1px; }
+.d2-input::placeholder { color: #808080; }
+.d2-send {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  border: none;
+  background: #171717;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+}
+.d2-send:hover { transform: scale(1.04); }
+.d2-send svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ══════════════════════════════════════════════════════════════
+   DESIGN 3 — Apple
+   Clean minimal, single blue accent, cinematic
+   ══════════════════════════════════════════════════════════════ */
+.d3-widget {
+  width: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: rgba(0,0,0,0.22) 3px 5px 30px 0px;
+  background: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  font-family: -apple-system, SF Pro Text, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.d3-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  color: #fff;
+}
+.d3-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.d3-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.d3-model-select {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 980px;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  font-weight: 400;
+}
+.d3-think-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.d3-think-label input { accent-color: #2997ff; }
+.d3-header-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.d3-header-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.d3-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f5f5f7;
+}
+.d3-msg {
+  display: flex;
+  gap: 10px;
+  max-width: 90%;
+}
+.d3-msg--user { flex-direction: row-reverse; align-self: flex-end; }
+.d3-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+}
+.d3-avatar--ai {
+  background: #000;
+  color: #fff;
+}
+.d3-avatar--user {
+  background: #0071e3;
+  color: #fff;
+}
+.d3-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.47;
+  letter-spacing: -0.15px;
+  color: #1d1d1f;
+}
+.d3-bubble--ai {
+  background: #fff;
+  border-bottom-left-radius: 4px;
+}
+.d3-bubble--user {
+  background: #0071e3;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.d3-input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 14px;
+  gap: 10px;
+  border-top: 1px solid rgba(0,0,0,0.04);
+  background: #f5f5f7;
+}
+.d3-input {
+  flex: 1;
+  resize: none;
+  border-radius: 18px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+  color: #1d1d1f;
+  outline: none;
+  min-height: 40px;
+  max-height: 80px;
+  line-height: 1.4;
+  box-shadow: rgba(0,0,0,0.04) 0px 0px 0px 1px;
+  letter-spacing: -0.2px;
+}
+.d3-input:focus { box-shadow: 0 0 0 2px #0071e3; }
+.d3-input::placeholder { color: rgba(0,0,0,0.3); }
+.d3-send {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #0071e3;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s;
+  font-size: 16px;
+}
+.d3-send:hover { transform: scale(1.06); }
+.d3-send svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ══════════════════════════════════════════════════════════════
+   DESIGN 4 — Spotify
+   Dark immersive, green accent, pill shapes
+   ══════════════════════════════════════════════════════════════ */
+.d4-widget {
+  width: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: rgba(0,0,0,0.5) 0px 8px 24px;
+  background: #181818;
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  color: #fff;
+}
+.d4-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #181818;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.d4-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.d4-header-icon {
+  width: 28px; height: 28px;
+  background: #1ed760;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.d4-header-icon svg { width: 16px; height: 16px; fill: #000; }
+.d4-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.d4-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.d4-model-select {
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #1f1f1f;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.d4-think-label {
+  font-size: 11px;
+  color: #b3b3b3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-weight: 400;
+}
+.d4-think-label input { accent-color: #1ed760; }
+.d4-header-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #b3b3b3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.d4-header-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+.d4-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #121212;
+}
+.d4-msg {
+  display: flex;
+  gap: 10px;
+  max-width: 88%;
+}
+.d4-msg--user { flex-direction: row-reverse; align-self: flex-end; }
+.d4-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+}
+.d4-avatar--ai { background: #1ed760; }
+.d4-avatar--user { background: #272727; color: #fff; }
+.d4-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.d4-bubble--ai {
+  background: #1f1f1f;
+  color: #fff;
+  border-bottom-left-radius: 4px;
+}
+.d4-bubble--user {
+  background: #1ed760;
+  color: #000;
+  font-weight: 500;
+  border-bottom-right-radius: 4px;
+}
+.d4-input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 10px 12px;
+  gap: 8px;
+  background: #181818;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.d4-input {
+  flex: 1;
+  resize: none;
+  border-radius: 500px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #1f1f1f;
+  color: #fff;
+  outline: none;
+  min-height: 40px;
+  max-height: 80px;
+  line-height: 1.4;
+  border: none;
+  box-shadow: rgb(18,18,18) 0px 1px 0px, rgba(255,255,255,0.08) 0px 0px 0px 1px inset;
+}
+.d4-input:focus { box-shadow: rgb(18,18,18) 0px 1px 0px, rgba(255,255,255,0.15) 0px 0px 0px 1px inset; }
+.d4-input::placeholder { color: #b3b3b3; }
+.d4-send {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #1ed760;
+  color: #000;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background 0.15s;
+}
+.d4-send:hover { transform: scale(1.06); background: #1fdf64; }
+.d4-send svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* ── Code block in bubbles ── */
+.mini-code {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, monospace;
+}
+.d1 .mini-code { background: rgba(201,100,66,0.1); color: #c96442; }
+.d2 .mini-code { background: #f5f5f5; color: #171717; border: 1px solid #ebebeb; }
+.d3 .mini-code { background: rgba(0,0,0,0.05); color: #1d1d1f; }
+.d4 .mini-code { background: rgba(255,255,255,0.08); color: #1ed760; }
+
+/* ── Welcome chip ── */
+.welcome-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1>Chat Widget Design Preview</h1>
+  <p>4 种设计风格对比 — 选择一个应用到博客</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab(0)">Claude · 温暖文艺</button>
+  <button class="tab-btn" onclick="switchTab(1)">Vercel · 极简开发者</button>
+  <button class="tab-btn" onclick="switchTab(2)">Apple · 清爽简约</button>
+  <button class="tab-btn" onclick="switchTab(3)">Spotify · 沉浸暗色</button>
+</div>
+
+<!-- ════════════ DESIGN 1 — Claude ════════════ -->
+<div class="design-panel active" id="panel-0">
+  <div class="design-meta">
+    <h2>Claude 风格</h2>
+    <span class="tag" style="background:#f5f4ed;color:#c96442;border:1px solid #e8e6dc;">温暖 · 文艺 · 舒适</span>
+    <p>灵感来自 Anthropic Claude 的设计语言。羊皮纸般的暖色调底色搭配赤陶色点缀，营造阅读沙龙般的聊天体验。</p>
+    <div class="colors">
+      <div class="swatch" style="background:#f5f4ed" title="Parchment"></div>
+      <div class="swatch" style="background:#c96442" title="Terracotta"></div>
+      <div class="swatch" style="background:#141413" title="Near Black"></div>
+      <div class="swatch" style="background:#5e5d59" title="Olive Gray"></div>
+      <div class="swatch" style="background:#30302e" title="Dark Surface"></div>
+    </div>
+  </div>
+  <div class="d1">
+    <div class="d1-widget">
+      <div class="d1-header">
+        <span class="d1-header-title">AI 助手</span>
+        <div class="d1-header-actions">
+          <select class="d1-model-select">
+            <option>Qwen 3.6 Plus</option>
+            <option>GLM 5</option>
+            <option>Kimi K2.5</option>
+          </select>
+          <label class="d1-think-label"><input type="checkbox">思考</label>
+          <button class="d1-header-btn">🗑</button>
+          <button class="d1-header-btn">✕</button>
+        </div>
+      </div>
+      <div class="d1-messages">
+        <div class="d1-msg d1-msg--ai">
+          <div class="d1-avatar d1-avatar--ai">兴</div>
+          <div class="d1-bubble d1-bubble--ai">你好！我是这个博客的 AI 助手「兴旺」。有什么我可以帮你的吗？你可以问我关于博客文章的任何问题。</div>
+        </div>
+        <div class="d1-msg d1-msg--user">
+          <div class="d1-avatar d1-avatar--user">我</div>
+          <div class="d1-bubble d1-bubble--user">介绍一下博主</div>
+        </div>
+        <div class="d1-msg d1-msg--ai">
+          <div class="d1-avatar d1-avatar--ai">兴</div>
+          <div class="d1-bubble d1-bubble--ai">博主是一位热爱技术与写作的开发者。在博客中主要分享前端开发、<span class="mini-code">AI</span> 应用实践、以及编程心得。文章风格注重实操与深度并重，追求让读者能真正上手实践。</div>
+        </div>
+        <div class="d1-msg d1-msg--user">
+          <div class="d1-avatar d1-avatar--user">我</div>
+          <div class="d1-bubble d1-bubble--user">推荐几篇文章</div>
+        </div>
+        <div class="d1-msg d1-msg--ai">
+          <div class="d1-avatar d1-avatar--ai">兴</div>
+          <div class="d1-bubble d1-bubble--ai">以下是几篇值得阅读的文章：<br><br>1. <strong>Hugo 博客搭建指南</strong> — 从零开始<br>2. <strong>Cloudflare Worker 实践</strong> — 边缘计算<br>3. <strong>AI 聊天组件开发</strong> — 本站同款 ✨</div>
+        </div>
+      </div>
+      <div class="d1-input-area">
+        <textarea class="d1-input" placeholder="输入消息…" rows="1"></textarea>
+        <button class="d1-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ DESIGN 2 — Vercel ════════════ -->
+<div class="design-panel" id="panel-1">
+  <div class="design-meta">
+    <h2>Vercel 风格</h2>
+    <span class="tag" style="background:#171717;color:#fff;">极简 · 开发者 · 几何</span>
+    <p>灵感来自 Vercel 的设计系统。纯白画布上近乎黑的文字，用 shadow-as-border 技术替代传统边框，呈现开发者工具般的精密感。</p>
+    <div class="colors">
+      <div class="swatch" style="background:#171717" title="Vercel Black"></div>
+      <div class="swatch" style="background:#ffffff;border-color:#ddd" title="White"></div>
+      <div class="swatch" style="background:#4d4d4d" title="Gray 600"></div>
+      <div class="swatch" style="background:#ebebeb" title="Gray 100"></div>
+      <div class="swatch" style="background:#0072f5" title="Link Blue"></div>
+    </div>
+  </div>
+  <div class="d2">
+    <div class="d2-widget">
+      <div class="d2-header">
+        <div class="d2-header-left">
+          <div class="d2-header-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 19.5h20L12 2z"/></svg></div>
+          <span class="d2-header-title">AI 助手</span>
+        </div>
+        <div class="d2-header-actions">
+          <select class="d2-model-select">
+            <option>Qwen 3.6 Plus</option>
+            <option>GLM 5</option>
+          </select>
+          <label class="d2-think-label"><input type="checkbox">思考</label>
+          <button class="d2-header-btn">🗑</button>
+          <button class="d2-header-btn">✕</button>
+        </div>
+      </div>
+      <div class="d2-messages">
+        <div class="d2-msg d2-msg--ai">
+          <div class="d2-avatar d2-avatar--ai">兴</div>
+          <div class="d2-bubble d2-bubble--ai">你好！我是这个博客的 AI 助手「兴旺」。有什么我可以帮你的吗？你可以问我关于博客文章的任何问题。</div>
+        </div>
+        <div class="d2-msg d2-msg--user">
+          <div class="d2-avatar d2-avatar--user">我</div>
+          <div class="d2-bubble d2-bubble--user">介绍一下博主</div>
+        </div>
+        <div class="d2-msg d2-msg--ai">
+          <div class="d2-avatar d2-avatar--ai">兴</div>
+          <div class="d2-bubble d2-bubble--ai">博主是一位热爱技术与写作的开发者。在博客中主要分享前端开发、<span class="mini-code">AI</span> 应用实践、以及编程心得。文章风格注重实操与深度并重。</div>
+        </div>
+        <div class="d2-msg d2-msg--user">
+          <div class="d2-avatar d2-avatar--user">我</div>
+          <div class="d2-bubble d2-bubble--user">推荐几篇文章</div>
+        </div>
+        <div class="d2-msg d2-msg--ai">
+          <div class="d2-avatar d2-avatar--ai">兴</div>
+          <div class="d2-bubble d2-bubble--ai">以下是几篇值得阅读的文章：<br><br>1. <strong>Hugo 博客搭建指南</strong><br>2. <strong>Cloudflare Worker 实践</strong><br>3. <strong>AI 聊天组件开发</strong></div>
+        </div>
+      </div>
+      <div class="d2-input-area">
+        <textarea class="d2-input" placeholder="输入消息…" rows="1"></textarea>
+        <button class="d2-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ DESIGN 3 — Apple ════════════ -->
+<div class="design-panel" id="panel-2">
+  <div class="design-meta">
+    <h2>Apple 风格</h2>
+    <span class="tag" style="background:#0071e3;color:#fff;">清爽 · 简约 · 电影感</span>
+    <p>灵感来自 Apple 的设计哲学。浅灰底色搭配单一蓝色点缀，毛玻璃导航栏和精准的字间距控制，营造清爽利落的聊天体验。</p>
+    <div class="colors">
+      <div class="swatch" style="background:#f5f5f7" title="Light Gray"></div>
+      <div class="swatch" style="background:#0071e3" title="Apple Blue"></div>
+      <div class="swatch" style="background:#1d1d1f" title="Near Black"></div>
+      <div class="swatch" style="background:#ffffff;border-color:#ddd" title="White"></div>
+      <div class="swatch" style="background:#000" title="Black"></div>
+    </div>
+  </div>
+  <div class="d3">
+    <div class="d3-widget">
+      <div class="d3-header">
+        <span class="d3-header-title">AI 助手</span>
+        <div class="d3-header-actions">
+          <select class="d3-model-select">
+            <option>Qwen 3.6 Plus</option>
+            <option>GLM 5</option>
+          </select>
+          <label class="d3-think-label"><input type="checkbox">思考</label>
+          <button class="d3-header-btn">🗑</button>
+          <button class="d3-header-btn">✕</button>
+        </div>
+      </div>
+      <div class="d3-messages">
+        <div class="d3-msg d3-msg--ai">
+          <div class="d3-avatar d3-avatar--ai">兴</div>
+          <div class="d3-bubble d3-bubble--ai">你好！我是这个博客的 AI 助手「兴旺」。有什么我可以帮你的吗？</div>
+        </div>
+        <div class="d3-msg d3-msg--user">
+          <div class="d3-avatar d3-avatar--user">我</div>
+          <div class="d3-bubble d3-bubble--user">介绍一下博主</div>
+        </div>
+        <div class="d3-msg d3-msg--ai">
+          <div class="d3-avatar d3-avatar--ai">兴</div>
+          <div class="d3-bubble d3-bubble--ai">博主是一位热爱技术与写作的开发者。主要分享前端开发、<span class="mini-code">AI</span> 应用实践、以及编程心得。文章风格注重实操与深度并重。</div>
+        </div>
+        <div class="d3-msg d3-msg--user">
+          <div class="d3-avatar d3-avatar--user">我</div>
+          <div class="d3-bubble d3-bubble--user">推荐几篇文章</div>
+        </div>
+        <div class="d3-msg d3-msg--ai">
+          <div class="d3-avatar d3-avatar--ai">兴</div>
+          <div class="d3-bubble d3-bubble--ai">以下是几篇值得阅读的文章：<br><br>1. <strong>Hugo 博客搭建指南</strong><br>2. <strong>Cloudflare Worker 实践</strong><br>3. <strong>AI 聊天组件开发</strong></div>
+        </div>
+      </div>
+      <div class="d3-input-area">
+        <textarea class="d3-input" placeholder="输入消息…" rows="1"></textarea>
+        <button class="d3-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ DESIGN 4 — Spotify ════════════ -->
+<div class="design-panel" id="panel-3">
+  <div class="design-meta">
+    <h2>Spotify 风格</h2>
+    <span class="tag" style="background:#1ed760;color:#000;">沉浸 · 暗色 · 药丸形</span>
+    <p>灵感来自 Spotify 的暗色沉浸设计。接近黑色的背景上，绿色作为唯一功能性点缀色，药丸形按钮与圆形控制元素，营造专注的对话氛围。</p>
+    <div class="colors">
+      <div class="swatch" style="background:#121212" title="Near Black"></div>
+      <div class="swatch" style="background:#1ed760" title="Spotify Green"></div>
+      <div class="swatch" style="background:#181818" title="Dark Surface"></div>
+      <div class="swatch" style="background:#1f1f1f" title="Mid Dark"></div>
+      <div class="swatch" style="background:#b3b3b3" title="Silver"></div>
+    </div>
+  </div>
+  <div class="d4">
+    <div class="d4-widget">
+      <div class="d4-header">
+        <div class="d4-header-left">
+          <div class="d4-header-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+          <span class="d4-header-title">AI 助手</span>
+        </div>
+        <div class="d4-header-actions">
+          <select class="d4-model-select">
+            <option>QWEN 3.6</option>
+            <option>GLM 5</option>
+          </select>
+          <label class="d4-think-label"><input type="checkbox">思考</label>
+          <button class="d4-header-btn">🗑</button>
+          <button class="d4-header-btn">✕</button>
+        </div>
+      </div>
+      <div class="d4-messages">
+        <div class="d4-msg d4-msg--ai">
+          <div class="d4-avatar d4-avatar--ai">兴</div>
+          <div class="d4-bubble d4-bubble--ai">你好！我是这个博客的 AI 助手「兴旺」。有什么我可以帮你的吗？你可以问我关于博客文章的任何问题。</div>
+        </div>
+        <div class="d4-msg d4-msg--user">
+          <div class="d4-avatar d4-avatar--user">我</div>
+          <div class="d4-bubble d4-bubble--user">介绍一下博主</div>
+        </div>
+        <div class="d4-msg d4-msg--ai">
+          <div class="d4-avatar d4-avatar--ai">兴</div>
+          <div class="d4-bubble d4-bubble--ai">博主是一位热爱技术与写作的开发者。在博客中主要分享前端开发、<span class="mini-code">AI</span> 应用实践、以及编程心得。文章风格注重实操与深度并重。</div>
+        </div>
+        <div class="d4-msg d4-msg--user">
+          <div class="d4-avatar d4-avatar--user">我</div>
+          <div class="d4-bubble d4-bubble--user">推荐几篇文章</div>
+        </div>
+        <div class="d4-msg d4-msg--ai">
+          <div class="d4-avatar d4-avatar--ai">兴</div>
+          <div class="d4-bubble d4-bubble--ai">以下是几篇值得阅读的文章：<br><br>1. <strong>Hugo 博客搭建指南</strong><br>2. <strong>Cloudflare Worker 实践</strong><br>3. <strong>AI 聊天组件开发</strong></div>
+        </div>
+      </div>
+      <div class="d4-input-area">
+        <textarea class="d4-input" placeholder="输入消息…" rows="1"></textarea>
+        <button class="d4-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(index) {
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
+  document.querySelectorAll('.design-panel').forEach((panel, i) => {
+    panel.classList.toggle('active', i === index);
+  });
+}
+</script>
+</body>
+</html>
