@@ -23,6 +23,10 @@
   if (USER_LABEL === null) USER_LABEL = '';
 
   function makeAvatarEl(role) {
+    // 用户侧无文案时不渲染头像（避免出现空灰圈）
+    if (role === 'user' && !String(USER_LABEL).trim()) {
+      return null;
+    }
     var el = document.createElement('div');
     el.className = 'chat-msg-avatar chat-msg-avatar--' + role;
     el.setAttribute('aria-hidden', 'true');
@@ -310,7 +314,7 @@
 
     if (role === 'user') {
       row.appendChild(body);
-      row.appendChild(avatar);
+      if (avatar) row.appendChild(avatar);
     } else {
       row.appendChild(avatar);
       row.appendChild(body);
