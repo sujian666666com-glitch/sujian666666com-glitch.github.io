@@ -264,7 +264,8 @@
   // ── Render Messages ──────────────────────────────────────
   function createThinkingBlock(parent, beforeEl, thinking) {
     var thinkBlock = document.createElement('div');
-    thinkBlock.className = 'chat-thinking-block' + (thinking ? '' : ' open');
+    // 默认折叠；流式阶段不再自动展开（避免干扰阅读）
+    thinkBlock.className = 'chat-thinking-block';
     var toggle = document.createElement('div');
     toggle.className = 'chat-thinking-toggle';
     toggle.innerHTML = CHEVRON_SVG + '<span>思考过程</span>';
@@ -402,7 +403,8 @@
     }
 
     var reqBody = { model: getSelectedModel(), messages: apiMessages, stream: true };
-    if (isThinkingEnabled()) reqBody.enable_thinking = true;
+    var captureThinking = isThinkingEnabled();
+    if (captureThinking) reqBody.enable_thinking = true;
 
     setStreaming(true);
     showLoading();
@@ -459,7 +461,10 @@
             var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
             if (!delta) continue;
 
-            var thinkText = delta.reasoning_content || delta.thinking || '';
+            // 未勾选「思考」时不展示/保存推理（上游仍可能返回 reasoning_content）
+            var thinkText = captureThinking
+              ? (delta.reasoning_content || delta.thinking || '')
+              : '';
             if (thinkText) {
               assistantMsg.thinking += thinkText;
               if (!thinkBlock) {
