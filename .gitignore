@@ -27,3 +27,7 @@ node_modules/
 
 # OpenSpec run artifacts
 openspec/changes/*/.runs/
+
+# OMC 插件本地运行时状态（勿提交）
+.omc/state/
+.omc/sessions/
