@@ -69,6 +69,56 @@ function handleOptions(request) {
   return new Response(null, { status: 200, headers: corsHeaders(request) });
 }
 
+/**
+ * 在转发上游 SSE 时定期写入注释帧（RFC 8895 comment），避免客户端↔边缘之间
+ * 长时间无数据被中间网络/负载均衡 RST（尤其「思考」模型长时间无 token 时）。
+ * 前端只解析 data: 行，会自然忽略 : 注释。
+ */
+function withSseHeartbeats(upstreamBody, intervalMs = 20000) {
+  if (!upstreamBody) {
+    return upstreamBody;
+  }
+  const reader = upstreamBody.getReader();
+  const enc = new TextEncoder();
+  let inflight = reader.read();
+
+  return new ReadableStream({
+    async start(controller) {
+      try {
+        for (;;) {
+          let timeoutId;
+          const hb = new Promise((resolve) => {
+            timeoutId = setTimeout(() => resolve('hb'), intervalMs);
+          });
+          const outcome = await Promise.race([
+            inflight.then((r) => ({ kind: 'read', r })),
+            hb.then(() => ({ kind: 'hb' })),
+          ]);
+          clearTimeout(timeoutId);
+
+          if (outcome.kind === 'hb') {
+            controller.enqueue(enc.encode(': keep-alive\n\n'));
+            continue;
+          }
+
+          const { r } = outcome;
+          if (r.done) {
+            controller.close();
+            return;
+          }
+          controller.enqueue(r.value);
+          inflight = reader.read();
+        }
+      } catch (err) {
+        controller.error(err);
+      }
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
+}
+
 // ── RAG（向量检索，与 scripts/build-rag.mjs 生成的 static/rag-vectors.json 配套）──
 const RAG_INDEX_CACHE_MS = 5 * 60 * 1000;
 let ragIndexCache = { url: '', data: null, expiresAt: 0 };
@@ -328,14 +378,16 @@ async function handleRequest(request, env) {
     });
   }
 
-  // 流式转发 SSE
-  return new Response(upstream.body, {
+  // 流式转发 SSE（带心跳，降低连接被中间设备重置的概率）
+  const outBody = withSseHeartbeats(upstream.body);
+  return new Response(outBody, {
     status: 200,
     headers: {
       ...corsHeaders(request),
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no',
+      Connection: 'keep-alive',
     },
   });
 }

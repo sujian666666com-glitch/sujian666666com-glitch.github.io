@@ -10,6 +10,7 @@
 - [x] 2.2 在 Worker 中实现 CORS 处理（OPTIONS 预检 + POST 响应头）
 - [x] 2.3 在 Worker 中实现请求体校验（必需字段 messages、model）和模型白名单校验
 - [x] 2.4 在 Worker 中实现基于 IP 的速率限制（默认 30 req/min）
+- [x] 2.5 SSE 转发增加周期性 `: keep-alive` 注释帧与 `no-transform` / `X-Accel-Buffering` 响应头，缓解长连接被 RST（尤其思考模式长时间无 token）
 
 ## 3. 前端聊天组件 — 样式
 
