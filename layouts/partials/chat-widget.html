@@ -1,6 +1,7 @@
 {{- /* Chat Widget — HTML shell, JS in static/chat-ui.js */ -}}
 {{- $chat := site.Data.chat -}}
 {{- $proxyURL := site.Params.chat.proxyURL | default (getenv "HUGO_CHAT_PROXY_URL") | default "" -}}
+{{- $proxyFallback := site.Params.chat.proxyFallbackURL | default (getenv "HUGO_CHAT_PROXY_FALLBACK_URL") | default "" -}}
 {{- $defaultModel := $chat.defaultModel | default "qwen3.6-plus" -}}
 {{- $systemPrompt := index $chat "systemPrompt" | default "" -}}
 {{- $suggestedPrompts := $chat.suggestedPrompts | default (slice) -}}
@@ -18,6 +19,7 @@
 <!-- Chat Panel -->
 <div class="chat-panel" id="chatPanel"
   data-proxy="{{ $proxyURL }}"
+  data-proxy-fallback="{{ $proxyFallback }}"
   data-model="{{ $defaultModel }}"
   data-system-prompt="{{ $systemPrompt }}"
   data-suggested-prompts="{{ $suggestedPrompts | jsonify }}"
@@ -38,6 +40,9 @@
       </label>
       <label class="chat-think-toggle" title="启用后会检索博客文章内容来回答">
         <input type="checkbox" id="chatRagToggle" checked>RAG
+      </label>
+      <label class="chat-think-toggle" title="网络不稳或连接被重置时勾选：单次返回全文（非流式），可多试几次">
+        <input type="checkbox" id="chatCompatToggle">兼容
       </label>
       <button class="chat-header-btn" id="chatClearBtn" title="清除对话">
         <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>

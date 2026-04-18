@@ -69,6 +69,8 @@ params:
   # 聊天组件
   chat:
     proxyURL: "https://blog-chat-proxy.ikkkk-blog.workers.dev" # Cloudflare Worker；也可用 HUGO_CHAT_PROXY_URL 覆盖
+    # 可选：将 Worker 绑到自有域名后填此处；弱网/流式失败时前端会依次尝试主地址与此地址（HUGO_CHAT_PROXY_FALLBACK_URL）
+    proxyFallbackURL: ""
 
 menu:
   main:

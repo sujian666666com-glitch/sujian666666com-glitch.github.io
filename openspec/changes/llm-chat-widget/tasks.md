@@ -11,6 +11,7 @@
 - [x] 2.3 在 Worker 中实现请求体校验（必需字段 messages、model）和模型白名单校验
 - [x] 2.4 在 Worker 中实现基于 IP 的速率限制（默认 30 req/min）
 - [x] 2.5 SSE 转发增加周期性 `: keep-alive` 注释帧与 `no-transform` / `X-Accel-Buffering` 响应头，缓解长连接被 RST（尤其思考模式长时间无 token）
+- [x] 2.6 支持请求体 `stream: false`，上游单次 JSON 返回，供弱网/非流式降级
 
 ## 3. 前端聊天组件 — 样式
 
@@ -25,11 +26,13 @@
 - [x] 4.3 实现对话历史 localStorage 持久化（保存/恢复/清除），设置 100 条上限
 - [x] 4.4 实现模型选择下拉框，从 Hugo data 读取模型列表并渲染
 - [x] 4.5 实现思考模式开关，控制请求 enable_thinking 参数，解析并展示思考过程
+- [x] 4.6 「兼容」开关与自动重试：流式失败时尝试非流式；支持 `proxyFallbackURL` / `data-proxy-fallback` 第二代理地址
 
 ## 5. Hugo 集成
 
 - [x] 5.1 在 `layouts/partials/extend_footer.html` 中引入 chat-widget partial
 - [x] 5.2 在 `hugo.yaml` 中添加 chat 相关 params（proxyURL 从环境变量读取）
+- [x] 5.3 `params.chat.proxyFallbackURL` / `HUGO_CHAT_PROXY_FALLBACK_URL` 备用 Worker 地址
 
 ## 6. 验证与文档
 

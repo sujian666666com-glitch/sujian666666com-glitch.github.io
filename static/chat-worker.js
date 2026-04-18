@@ -342,11 +342,13 @@ async function handleRequest(request, env) {
     'https://dashscope.aliyuncs.com/compatible-mode/v1';
   const targetURL = `${baseURL.replace(/\/$/, '')}/chat/completions`;
 
-  // 始终启用流式
+  /** 默认流式；显式 `"stream": false` 时走单次 JSON，利于弱网/对流式不友好的路径 */
+  const wantStream = body.stream !== false;
+
   const forwardBody = {
     model: body.model,
     messages: body.messages,
-    stream: true,
+    stream: wantStream,
   };
 
   // 可选：思考模式
@@ -374,6 +376,18 @@ async function handleRequest(request, env) {
       headers: {
         ...corsHeaders(request),
         'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+      },
+    });
+  }
+
+  if (!wantStream) {
+    const text = await upstream.text();
+    return new Response(text, {
+      status: 200,
+      headers: {
+        ...corsHeaders(request),
+        'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+        'Cache-Control': 'no-store',
       },
     });
   }

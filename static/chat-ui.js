@@ -9,6 +9,7 @@
 
   // ── Configuration from Hugo data attributes ──────────────
   var PROXY_URL = panel.getAttribute('data-proxy') || '';
+  var PROXY_FALLBACK = (panel.getAttribute('data-proxy-fallback') || '').trim();
   var DEFAULT_MODEL = panel.getAttribute('data-model') || 'qwen3.6-plus';
   var SYSTEM_PROMPT = panel.getAttribute('data-system-prompt') || '';
   var SUGGESTED_PROMPTS = [];
@@ -54,6 +55,7 @@
   var modelSelect = document.getElementById('chatModelSelect');
   var thinkToggle = document.getElementById('chatThinkToggle');
   var ragToggle = document.getElementById('chatRagToggle');
+  var compatToggle = document.getElementById('chatCompatToggle');
 
   // ── State ────────────────────────────────────────────────
   var messages = [];
@@ -372,6 +374,103 @@
   function isThinkingEnabled() { return thinkToggle.checked; }
   function isRagEnabled() { return ragToggle ? ragToggle.checked : true; }
 
+  function isAbortError(err) {
+    return !!(err && err.name === 'AbortError');
+  }
+
+  /** 此类状态码直接展示错误，不再换端点/非流式重试 */
+  function shouldStopRetryOnStatus(status) {
+    return status === 400 || status === 401 || status === 403 || status === 429;
+  }
+
+  async function consumeSseStream(resp, assistantMsg, msgEl, captureThinking) {
+    var textSpan = msgEl.querySelector('.chat-msg-text');
+    var thinkBlock = null;
+    var reader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer = '';
+    while (true) {
+      var result = await reader.read();
+      if (result.done) break;
+      buffer += decoder.decode(result.value, { stream: true });
+
+      var lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line.startsWith('data: ')) continue;
+        var data = line.slice(6);
+        if (data === '[DONE]') continue;
+
+        try {
+          var chunk = JSON.parse(data);
+          var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
+          if (!delta) continue;
+
+          var thinkText = captureThinking
+            ? (delta.reasoning_content || delta.thinking || '')
+            : '';
+          if (thinkText) {
+            assistantMsg.thinking += thinkText;
+            if (!thinkBlock) {
+              var bodyEl = msgEl.querySelector('.chat-msg-body');
+              var bubbleEl = msgEl.querySelector('.chat-msg-bubble');
+              if (bodyEl && bubbleEl) {
+                thinkBlock = createThinkingBlock(bodyEl, bubbleEl, null);
+              }
+            }
+            var inner = thinkBlock && thinkBlock.querySelector('.chat-thinking-inner');
+            if (inner) inner.textContent = assistantMsg.thinking;
+          }
+
+          var contentText = delta.content || '';
+          if (contentText) {
+            assistantMsg.content += contentText;
+            textSpan.innerHTML = renderMarkdown(assistantMsg.content);
+          }
+        } catch (_) {}
+      }
+      scrollToBottom();
+    }
+  }
+
+  async function consumeJsonCompletion(resp, assistantMsg, msgEl, captureThinking) {
+    var raw = await resp.text();
+    var data;
+    try {
+      data = JSON.parse(raw);
+    } catch (_) {
+      throw new Error('响应不是合法 JSON');
+    }
+    if (data.error) {
+      var em = formatApiError(raw);
+      throw new Error(em || '上游返回错误');
+    }
+    var choice = data.choices && data.choices[0];
+    var msg = choice && choice.message;
+    if (!msg) throw new Error('响应格式异常');
+
+    var thinkText = captureThinking
+      ? (msg.reasoning_content || msg.thinking || '')
+      : '';
+    var contentText = msg.content || '';
+
+    assistantMsg.thinking = thinkText;
+    assistantMsg.content = contentText;
+
+    var textSpan = msgEl.querySelector('.chat-msg-text');
+    if (thinkText) {
+      var bodyEl = msgEl.querySelector('.chat-msg-body');
+      var bubbleEl = msgEl.querySelector('.chat-msg-bubble');
+      if (bodyEl && bubbleEl) {
+        createThinkingBlock(bodyEl, bubbleEl, thinkText);
+      }
+    }
+    textSpan.innerHTML = renderMarkdown(contentText);
+    scrollToBottom();
+  }
+
   function formatApiError(errBody) {
     if (!errBody) return '';
     try {
@@ -411,97 +510,106 @@
       apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }].concat(apiMessages);
     }
 
-    var reqBody = { model: getSelectedModel(), messages: apiMessages, stream: true };
     var captureThinking = isThinkingEnabled();
-    if (captureThinking) reqBody.enable_thinking = true;
-    reqBody.enable_rag = isRagEnabled();
+    var baseBody = {
+      model: getSelectedModel(),
+      messages: apiMessages,
+      enable_rag: isRagEnabled(),
+    };
+    if (captureThinking) baseBody.enable_thinking = true;
+
+    var endpoints = [PROXY_URL];
+    if (PROXY_FALLBACK && PROXY_FALLBACK !== PROXY_URL) {
+      endpoints.push(PROXY_FALLBACK);
+    }
+
+    var wantStreamModes = (compatToggle && compatToggle.checked) ? [false] : [true, false];
 
     setStreaming(true);
     showLoading();
     abortCtrl = new AbortController();
 
+    var done = false;
+    var aborted = false;
+    var lastFailMsg = '';
+
     try {
-      var resp = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reqBody),
-        signal: abortCtrl.signal,
-      });
-
-      removeLoading();
-
-      if (!resp.ok) {
-        var errBody = '';
-        try { errBody = await resp.text(); } catch (_) {}
-        var errMsg = resp.status === 429 ? '请求过于频繁，请稍后再试' : '请求失败 (' + resp.status + ')';
-        if (errBody) { var formatted = formatApiError(errBody); if (formatted) errMsg = formatted; }
-        showError(errMsg);
-        setStreaming(false);
-        return;
-      }
-
-      var assistantMsg = { role: 'assistant', content: '', thinking: '' };
-      messages.push(assistantMsg);
-
-      var msgEl = createMsgEl('assistant', '', '');
-      messagesEl.appendChild(msgEl);
-      var textSpan = msgEl.querySelector('.chat-msg-text');
-      var thinkBlock = null;
-
-      var reader = resp.body.getReader();
-      var decoder = new TextDecoder();
-      var buffer = '';
-
-      while (true) {
-        var result = await reader.read();
-        if (result.done) break;
-        buffer += decoder.decode(result.value, { stream: true });
-
-        var lines = buffer.split('\n');
-        buffer = lines.pop();
-
-        for (var i = 0; i < lines.length; i++) {
-          var line = lines[i].trim();
-          if (!line.startsWith('data: ')) continue;
-          var data = line.slice(6);
-          if (data === '[DONE]') continue;
-
+      outer:
+      for (var ei = 0; ei < endpoints.length; ei++) {
+        for (var si = 0; si < wantStreamModes.length; si++) {
+          var useStream = wantStreamModes[si];
+          var reqBody = Object.assign({}, baseBody, { stream: useStream });
           try {
-            var chunk = JSON.parse(data);
-            var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
-            if (!delta) continue;
+            var resp = await fetch(endpoints[ei], {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(reqBody),
+              signal: abortCtrl.signal,
+              cache: 'no-store',
+            });
+            removeLoading();
 
-            // 未勾选「思考」时不展示/保存推理（上游仍可能返回 reasoning_content）
-            var thinkText = captureThinking
-              ? (delta.reasoning_content || delta.thinking || '')
-              : '';
-            if (thinkText) {
-              assistantMsg.thinking += thinkText;
-              if (!thinkBlock) {
-                var bodyEl = msgEl.querySelector('.chat-msg-body');
-                var bubbleEl = msgEl.querySelector('.chat-msg-bubble');
-                if (bodyEl && bubbleEl) {
-                  thinkBlock = createThinkingBlock(bodyEl, bubbleEl, null);
+            if (!resp.ok) {
+              var errBody = '';
+              try { errBody = await resp.text(); } catch (_) {}
+              if (shouldStopRetryOnStatus(resp.status)) {
+                var errMsg = resp.status === 429 ? '请求过于频繁，请稍后再试' : '请求失败 (' + resp.status + ')';
+                if (errBody) {
+                  var formatted = formatApiError(errBody);
+                  if (formatted) errMsg = formatted;
                 }
+                showError(errMsg);
+                break outer;
               }
-              var inner = thinkBlock && thinkBlock.querySelector('.chat-thinking-inner');
-              if (inner) inner.textContent = assistantMsg.thinking;
+              lastFailMsg = 'HTTP ' + resp.status;
+              showLoading();
+              continue;
             }
 
-            var contentText = delta.content || '';
-            if (contentText) {
-              assistantMsg.content += contentText;
-              textSpan.innerHTML = renderMarkdown(assistantMsg.content);
+            var assistantMsg = { role: 'assistant', content: '', thinking: '' };
+            messages.push(assistantMsg);
+            var msgEl = createMsgEl('assistant', '', '');
+            messagesEl.appendChild(msgEl);
+
+            try {
+              if (useStream) {
+                await consumeSseStream(resp, assistantMsg, msgEl, captureThinking);
+              } else {
+                await consumeJsonCompletion(resp, assistantMsg, msgEl, captureThinking);
+              }
+            } catch (consumeErr) {
+              messages.pop();
+              msgEl.remove();
+              if (isAbortError(consumeErr)) {
+                aborted = true;
+                break outer;
+              }
+              lastFailMsg = consumeErr.message || String(consumeErr);
+              showLoading();
+              continue;
             }
-          } catch (_) {}
+
+            saveHistory();
+            done = true;
+            break outer;
+          } catch (err) {
+            removeLoading();
+            if (isAbortError(err)) {
+              aborted = true;
+              break outer;
+            }
+            lastFailMsg = err.message || '连接失败';
+            if (ei < endpoints.length - 1 || si < wantStreamModes.length - 1) {
+              showLoading();
+            }
+          }
         }
-        scrollToBottom();
       }
 
-      saveHistory();
-    } catch (err) {
-      removeLoading();
-      if (err.name !== 'AbortError') showError('连接失败，请检查网络');
+      if (!done && !aborted) {
+        var hint = '可勾选面板「兼容」改用非流式；或为 Worker 绑定自有域名，在 hugo.yaml 的 proxyFallbackURL 填写备用地址。';
+        showError(lastFailMsg ? (lastFailMsg + '。' + hint) : ('连接失败，请检查网络。' + hint));
+      }
     } finally {
       setStreaming(false);
       abortCtrl = null;
