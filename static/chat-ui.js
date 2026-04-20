@@ -383,6 +383,31 @@
     return status === 400 || status === 401 || status === 403 || status === 429;
   }
 
+  function isWorkersDevUrl(url) {
+    return /(^https?:\/\/)?[^/]+\.workers\.dev(\/|$)/i.test(String(url || '').trim());
+  }
+
+  function buildFetchFailureHint() {
+    var hints = [];
+
+    if (compatToggle && !compatToggle.checked) {
+      hints.push('可勾选面板「兼容」改用非流式');
+    } else {
+      hints.push('当前已是非流式模式，可多试几次');
+    }
+
+    if (PROXY_FALLBACK) {
+      hints.push('当前已配置备用地址，前端会自动切换主/备代理');
+    } else if (isWorkersDevUrl(PROXY_URL)) {
+      hints.push('当前代理使用 workers.dev，在部分网络环境下可能被浏览器直接拦截；建议为 Worker 绑定自有域名，并在 hugo.yaml 的 proxyFallbackURL 填写备用地址');
+    } else {
+      hints.push('可在 hugo.yaml 的 proxyFallbackURL 填写备用地址');
+    }
+
+    hints.push('当前代理地址：' + PROXY_URL);
+    return hints.join('；');
+  }
+
   async function consumeSseStream(resp, assistantMsg, msgEl, captureThinking) {
     var textSpan = msgEl.querySelector('.chat-msg-text');
     var thinkBlock = null;
@@ -607,7 +632,7 @@
       }
 
       if (!done && !aborted) {
-        var hint = '可勾选面板「兼容」改用非流式；或为 Worker 绑定自有域名，在 hugo.yaml 的 proxyFallbackURL 填写备用地址。';
+        var hint = buildFetchFailureHint();
         showError(lastFailMsg ? (lastFailMsg + '。' + hint) : ('连接失败，请检查网络。' + hint));
       }
     } finally {
