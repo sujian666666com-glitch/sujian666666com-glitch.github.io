@@ -36,73 +36,154 @@
   box-shadow: 0 30px 90px rgba(2, 6, 23, 0.34);
 }
 
-.where-map {
+.where-globe {
   position: relative;
   display: grid;
   place-items: center;
   aspect-ratio: 1;
   min-height: 320px;
+  perspective: 1000px;
+}
+
+.where-globe__sphere {
+  position: relative;
+  width: min(88%, 520px);
+  aspect-ratio: 1;
+  overflow: visible;
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, rgba(15, 23, 42, 0.08) 0 31%, transparent 32%),
-    radial-gradient(circle at center, rgba(45, 212, 191, 0.16), transparent 62%);
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.36), transparent 14%),
+    radial-gradient(circle at 35% 36%, rgba(45, 212, 191, 0.34), transparent 24%),
+    radial-gradient(circle at 62% 60%, rgba(14, 116, 144, 0.52), transparent 36%),
+    radial-gradient(circle at 72% 72%, rgba(2, 6, 23, 0.88), transparent 58%),
+    linear-gradient(145deg, rgb(14, 165, 233), rgb(15, 23, 42) 68%);
+  box-shadow:
+    inset -48px -34px 74px rgba(2, 6, 23, 0.72),
+    inset 18px 16px 44px rgba(255, 255, 255, 0.16),
+    0 0 0 1px rgba(125, 211, 252, 0.16),
+    0 28px 90px rgba(8, 145, 178, 0.18);
+  transform: rotateX(8deg) rotateY(-18deg);
 }
 
-.where-map__grid {
+.where-globe__sphere::before {
+  content: "";
   position: absolute;
-  inset: 10%;
+  inset: -2%;
   border-radius: 50%;
   background:
-    linear-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.16) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(circle, #000 0 58%, transparent 72%);
+    radial-gradient(circle at 28% 24%, transparent 0 44%, rgba(45, 212, 191, 0.2) 68%, transparent 72%),
+    radial-gradient(circle at 50% 50%, transparent 58%, rgba(125, 211, 252, 0.32) 73%, transparent 74%);
+  pointer-events: none;
 }
 
-.where-map__orbit {
+.where-globe__sphere::after {
+  content: "";
   position: absolute;
-  border: 1px solid rgba(203, 213, 225, 0.2);
+  inset: 0;
   border-radius: 50%;
+  background:
+    radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.22), transparent 18%),
+    linear-gradient(110deg, transparent 0 46%, rgba(2, 6, 23, 0.22) 66%, rgba(2, 6, 23, 0.64));
+  pointer-events: none;
 }
 
-.where-map__orbit--outer {
-  inset: 8%;
-}
-
-.where-map__orbit--inner {
-  inset: 24%;
-  transform: rotateX(64deg) rotateZ(-18deg);
-}
-
-.where-map__pin {
+.where-globe__texture,
+.where-globe__clouds,
+.where-globe__lat,
+.where-globe__lng {
   position: absolute;
-  left: 58%;
-  top: 48%;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.where-globe__texture {
+  opacity: 0.62;
+  background:
+    radial-gradient(ellipse at 34% 42%, rgba(22, 163, 74, 0.72) 0 8%, transparent 9%),
+    radial-gradient(ellipse at 45% 57%, rgba(34, 197, 94, 0.6) 0 11%, transparent 12%),
+    radial-gradient(ellipse at 61% 38%, rgba(132, 204, 22, 0.42) 0 7%, transparent 8%),
+    radial-gradient(ellipse at 68% 62%, rgba(21, 128, 61, 0.48) 0 10%, transparent 11%);
+  filter: blur(0.2px);
+}
+
+.where-globe__clouds {
+  opacity: 0.22;
+  background:
+    radial-gradient(ellipse at 35% 28%, rgba(255, 255, 255, 0.86) 0 7%, transparent 8%),
+    radial-gradient(ellipse at 54% 48%, rgba(255, 255, 255, 0.72) 0 6%, transparent 7%),
+    radial-gradient(ellipse at 63% 34%, rgba(255, 255, 255, 0.58) 0 5%, transparent 6%);
+  mix-blend-mode: screen;
+}
+
+.where-globe__lat {
+  border: 1px solid rgba(191, 219, 254, 0.2);
+  transform: rotateX(68deg);
+}
+
+.where-globe__lat--north {
+  inset: 22% 8%;
+}
+
+.where-globe__lat--center {
+  inset: 42% 3%;
+}
+
+.where-globe__lat--south {
+  inset: 62% 8%;
+}
+
+.where-globe__lng {
+  border: 1px solid rgba(191, 219, 254, 0.18);
+}
+
+.where-globe__lng--left {
+  transform: rotateY(68deg);
+}
+
+.where-globe__lng--center {
+  transform: rotateY(0deg);
+}
+
+.where-globe__lng--right {
+  transform: rotateY(-68deg);
+}
+
+.where-globe__pin {
+  position: absolute;
+  left: 61%;
+  top: 45%;
+  z-index: 4;
   width: 16px;
   height: 16px;
   border: 3px solid rgb(15, 23, 42);
   border-radius: 50%;
   background: rgb(45, 212, 191);
+  transform: translate(-50%, -50%);
   box-shadow:
     0 0 0 8px rgba(45, 212, 191, 0.18),
     0 0 34px rgba(45, 212, 191, 0.7);
 }
 
-.where-map__pulse {
+.where-globe__pulse {
   position: absolute;
-  left: calc(58% - 34px);
-  top: calc(48% - 34px);
+  left: 61%;
+  top: 45%;
+  z-index: 3;
   width: 84px;
   height: 84px;
   border: 1px solid rgba(45, 212, 191, 0.42);
   border-radius: 50%;
+  transform: translate(-50%, -50%);
   animation: where-pulse 2.8s ease-out infinite;
 }
 
-.where-map__label {
+.where-globe__label {
   position: absolute;
-  left: calc(58% + 26px);
-  top: calc(48% - 14px);
+  left: calc(61% + 22px);
+  top: calc(45% - 15px);
+  z-index: 5;
   padding: 8px 12px;
   border: 1px solid rgba(45, 212, 191, 0.34);
   border-radius: 999px;
@@ -111,6 +192,16 @@
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+.where-globe__shadow {
+  position: absolute;
+  bottom: 8%;
+  width: 58%;
+  height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(2, 6, 23, 0.52), transparent 70%);
+  filter: blur(8px);
 }
 
 .where-kicker {
@@ -216,12 +307,12 @@
 @keyframes where-pulse {
   from {
     opacity: 0.9;
-    transform: scale(0.72);
+    transform: translate(-50%, -50%) scale(0.72);
   }
 
   to {
     opacity: 0;
-    transform: scale(1.35);
+    transform: translate(-50%, -50%) scale(1.35);
   }
 }
 

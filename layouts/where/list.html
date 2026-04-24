@@ -1,12 +1,20 @@
 {{ define "main" }}
 <section class="where-page">
-  <div class="where-map" aria-hidden="true">
-    <span class="where-map__grid"></span>
-    <span class="where-map__orbit where-map__orbit--outer"></span>
-    <span class="where-map__orbit where-map__orbit--inner"></span>
-    <span class="where-map__pin"></span>
-    <span class="where-map__pulse"></span>
-    <span class="where-map__label">Shenzhen</span>
+  <div class="where-globe" aria-hidden="true">
+    <div class="where-globe__sphere">
+      <span class="where-globe__texture"></span>
+      <span class="where-globe__lat where-globe__lat--north"></span>
+      <span class="where-globe__lat where-globe__lat--center"></span>
+      <span class="where-globe__lat where-globe__lat--south"></span>
+      <span class="where-globe__lng where-globe__lng--left"></span>
+      <span class="where-globe__lng where-globe__lng--center"></span>
+      <span class="where-globe__lng where-globe__lng--right"></span>
+      <span class="where-globe__clouds"></span>
+      <span class="where-globe__pin"></span>
+      <span class="where-globe__pulse"></span>
+      <span class="where-globe__label">Shenzhen</span>
+    </div>
+    <span class="where-globe__shadow"></span>
   </div>
 
   <div class="where-copy">
