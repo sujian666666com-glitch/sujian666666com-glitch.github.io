@@ -23,6 +23,7 @@ outputs:
 
 params:
   env: production
+  defaultTheme: dark
   author: "苏健"
   description: "AI 工程师 | 记录技术、生活与思考"
 
