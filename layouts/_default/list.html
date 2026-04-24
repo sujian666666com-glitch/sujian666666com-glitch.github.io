@@ -38,11 +38,15 @@
 </div>
 {{- end }}
 
-{{- $pages := union .RegularPages .Sections }}
+{{- $pages := .RegularPages }}
 
 {{- if .IsHome }}
 {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
+{{- else if and (eq .Kind `section`) (eq .Section `posts`) }}
+{{- $pages = where site.RegularPages "Section" "posts" }}
+{{- else if eq (len $pages) 0 }}
+{{- $pages = union .RegularPages .Sections }}
 {{- end }}
 
 {{- $paginator := .Paginate $pages }}
@@ -51,13 +55,13 @@
 {{- partial "home_info.html" . }}
 {{- end }}
 
-<div class="post-feed">
+<div class="post-feed {{ with .Section }}post-feed--{{ . }}{{ end }}">
 {{- range $index, $page := $paginator.Pages }}
 {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
 {{- $hasCover := and .Params.cover.image (not $isHidden) }}
 {{- $delay := add 80 (mul $index 70) }}
 
-<article class="post-entry post-card {{ if $hasCover }}post-card--with-cover{{ else }}post-card--no-cover{{ end }} animate__animated animate__fadeInUp animate__fast"
+<article class="post-entry post-card {{ with .Section }}post-card--{{ . }}{{ end }} {{ if $hasCover }}post-card--with-cover{{ else }}post-card--no-cover{{ end }} animate__animated animate__fadeInUp animate__fast"
   style="--animate-delay: {{ $delay }}ms;">
   <div class="post-card__body">
     <header class="entry-header">

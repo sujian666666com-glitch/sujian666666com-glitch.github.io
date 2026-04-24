@@ -1,14 +1,13 @@
-/* 相册页面样式 - 参考 cathydolle.com */
 .gallery-container {
   max-width: 100%;
-  margin: 0;
+  margin: clamp(20px, 4vw, 36px) 0 0;
   padding: 0;
 }
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 0;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: clamp(12px, 1.8vw, 18px);
   margin-top: 0;
 }
 
@@ -17,17 +16,25 @@
   overflow: hidden;
   aspect-ratio: 1/1;
   cursor: pointer;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.1);
+  isolation: isolate;
 }
 
 .gallery-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .gallery-item:hover img {
   transform: scale(1.05);
+  filter: saturate(1.08) contrast(1.04);
 }
 
 .gallery-overlay {
@@ -37,13 +44,25 @@
   flex-direction: column;
   justify-content: flex-end;
   padding: 30px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent 60%);
+  background:
+    linear-gradient(to top, rgba(2, 6, 23, 0.78), rgba(2, 6, 23, 0.12) 62%, transparent),
+    linear-gradient(135deg, rgba(45, 212, 191, 0.18), transparent 42%);
   color: white;
+  opacity: 1;
+  transition: background 0.4s ease;
+}
+
+.gallery-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
   opacity: 0;
   transition: opacity 0.4s ease;
 }
 
-.gallery-item:hover .gallery-overlay {
+.gallery-item:hover .gallery-overlay::before {
   opacity: 1;
 }
 
@@ -51,7 +70,8 @@
   margin: 0 0 10px 0;
   font-size: 1.5em;
   font-weight: 500;
-  transform: translateY(10px);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.32);
+  transform: translateY(6px);
   transition: transform 0.4s ease;
 }
 
@@ -63,7 +83,7 @@
   margin: 0;
   font-size: 1em;
   opacity: 0.85;
-  transform: translateY(10px);
+  transform: translateY(6px);
   transition: transform 0.4s ease 0.05s;
 }
 
@@ -74,7 +94,7 @@
 /* 响应式设计 */
 @media (max-width: 768px) {
   .gallery-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
   
   .gallery-overlay {
@@ -88,7 +108,7 @@
 
 @media (max-width: 480px) {
   .gallery-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
   }
   
   .gallery-overlay h3 {
@@ -102,5 +122,13 @@
 
 /* 深色模式适配 */
 [data-theme="dark"] .gallery-overlay {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent 60%);
+  background:
+    linear-gradient(to top, rgba(2, 6, 23, 0.82), rgba(2, 6, 23, 0.14) 62%, transparent),
+    linear-gradient(135deg, rgba(45, 212, 191, 0.16), transparent 42%);
+}
+
+[data-theme="dark"] .gallery-item {
+  border-color: rgba(100, 116, 139, 0.22);
+  background: rgba(15, 23, 42, 0.34);
+  box-shadow: 0 20px 52px rgba(2, 6, 23, 0.24);
 }

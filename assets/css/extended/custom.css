@@ -407,11 +407,18 @@
 }
 
 .post-card .entry-content {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
   margin: 0;
   color: rgba(51, 65, 85, 0.82);
   font-size: 1rem;
   line-height: 1.9;
   -webkit-line-clamp: 3;
+}
+
+.post-card--daily .entry-content {
+  -webkit-line-clamp: 2;
 }
 
 .post-card .entry-content p {
