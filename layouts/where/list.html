@@ -1,0 +1,56 @@
+{{ define "main" }}
+<section class="where-page">
+  <div class="where-map" aria-hidden="true">
+    <span class="where-map__grid"></span>
+    <span class="where-map__orbit where-map__orbit--outer"></span>
+    <span class="where-map__orbit where-map__orbit--inner"></span>
+    <span class="where-map__pin"></span>
+    <span class="where-map__pulse"></span>
+    <span class="where-map__label">Shenzhen</span>
+  </div>
+
+  <div class="where-copy">
+    <div class="where-kicker">CURRENT BASE</div>
+    <h1>{{ .Title }}</h1>
+    <p class="where-lede">{{ .Description }}</p>
+
+    <div class="where-status">
+      <div>
+        <span>当前坐标</span>
+        <strong>深圳 · 中国</strong>
+      </div>
+      <div>
+        <span>记录方向</span>
+        <strong>AI 工程 / 生活 / 思考</strong>
+      </div>
+      <div>
+        <span>最近状态</span>
+        <strong>在路上，也在构建中</strong>
+      </div>
+    </div>
+
+    <div class="where-actions">
+      <a href="{{ "/posts/" | absURL }}">查看文章</a>
+      <a href="{{ "/gallery/" | absURL }}">查看相册</a>
+    </div>
+  </div>
+</section>
+
+<section class="where-trail" aria-label="足迹">
+  <article>
+    <span>01</span>
+    <h2>深圳</h2>
+    <p>把工程实践、AI 工具和日常观察放在同一张地图上，持续记录正在发生的变化。</p>
+  </article>
+  <article>
+    <span>02</span>
+    <h2>线上</h2>
+    <p>博客、聊天组件、相册和每日新闻，是这个站点目前最常更新的坐标。</p>
+  </article>
+  <article>
+    <span>03</span>
+    <h2>下一站</h2>
+    <p>以后可以把旅行、城市、文章和照片挂到同一条足迹线上，形成真正的个人地图。</p>
+  </article>
+</section>
+{{ end }}

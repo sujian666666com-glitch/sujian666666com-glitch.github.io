@@ -1,0 +1,237 @@
+.earth-3d-wrap {
+  pointer-events: auto;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 999px;
+  outline-offset: 8px;
+}
+
+.earth-3d-wrap:hover {
+  filter: drop-shadow(0 0 18px rgba(45, 212, 191, 0.35));
+}
+
+.earth-3d-wrap:focus-visible {
+  outline: 3px solid rgba(45, 212, 191, 0.72);
+}
+
+.main:has(.where-page) {
+  max-width: calc(var(--blog-layout-max) + var(--gap) * 2);
+}
+
+.where-page {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+  min-height: calc(100vh - var(--header-height) - var(--footer-height) - 80px);
+  padding: clamp(28px, 5vw, 56px);
+  overflow: hidden;
+  border: 1px solid rgba(100, 116, 139, 0.24);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 28% 38%, rgba(45, 212, 191, 0.18), transparent 34%),
+    radial-gradient(circle at 72% 18%, rgba(245, 158, 11, 0.14), transparent 28%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(17, 24, 39, 0.9));
+  box-shadow: 0 30px 90px rgba(2, 6, 23, 0.34);
+}
+
+.where-map {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-height: 320px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(15, 23, 42, 0.08) 0 31%, transparent 32%),
+    radial-gradient(circle at center, rgba(45, 212, 191, 0.16), transparent 62%);
+}
+
+.where-map__grid {
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  background:
+    linear-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle, #000 0 58%, transparent 72%);
+}
+
+.where-map__orbit {
+  position: absolute;
+  border: 1px solid rgba(203, 213, 225, 0.2);
+  border-radius: 50%;
+}
+
+.where-map__orbit--outer {
+  inset: 8%;
+}
+
+.where-map__orbit--inner {
+  inset: 24%;
+  transform: rotateX(64deg) rotateZ(-18deg);
+}
+
+.where-map__pin {
+  position: absolute;
+  left: 58%;
+  top: 48%;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgb(15, 23, 42);
+  border-radius: 50%;
+  background: rgb(45, 212, 191);
+  box-shadow:
+    0 0 0 8px rgba(45, 212, 191, 0.18),
+    0 0 34px rgba(45, 212, 191, 0.7);
+}
+
+.where-map__pulse {
+  position: absolute;
+  left: calc(58% - 34px);
+  top: calc(48% - 34px);
+  width: 84px;
+  height: 84px;
+  border: 1px solid rgba(45, 212, 191, 0.42);
+  border-radius: 50%;
+  animation: where-pulse 2.8s ease-out infinite;
+}
+
+.where-map__label {
+  position: absolute;
+  left: calc(58% + 26px);
+  top: calc(48% - 14px);
+  padding: 8px 12px;
+  border: 1px solid rgba(45, 212, 191, 0.34);
+  border-radius: 999px;
+  color: rgba(241, 245, 249, 0.96);
+  background: rgba(15, 23, 42, 0.68);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.where-kicker {
+  margin-bottom: 12px;
+  color: rgb(45, 212, 191);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.where-copy h1 {
+  margin: 0;
+  color: rgba(248, 250, 252, 0.98);
+  font-size: clamp(3rem, 7vw, 5.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+.where-lede {
+  max-width: 54ch;
+  margin: 22px 0 0;
+  color: rgba(203, 213, 225, 0.82);
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+.where-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.where-status div {
+  padding: 18px;
+  border: 1px solid rgba(100, 116, 139, 0.26);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.where-status span {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(148, 163, 184, 0.86);
+  font-size: 0.82rem;
+}
+
+.where-status strong {
+  color: rgba(241, 245, 249, 0.96);
+  font-size: 0.98rem;
+}
+
+.where-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.where-actions a {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(45, 212, 191, 0.26);
+  color: rgba(241, 245, 249, 0.96);
+  background: rgba(45, 212, 191, 0.12);
+  font-weight: 700;
+}
+
+.where-trail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.where-trail article {
+  padding: 24px;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  border-radius: 22px;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.where-trail span {
+  color: rgb(45, 212, 191);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.where-trail h2 {
+  margin: 12px 0 10px;
+  color: rgba(248, 250, 252, 0.98);
+  font-size: 1.6rem;
+}
+
+.where-trail p {
+  margin: 0;
+  color: rgba(203, 213, 225, 0.78);
+  line-height: 1.8;
+}
+
+@keyframes where-pulse {
+  from {
+    opacity: 0.9;
+    transform: scale(0.72);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@media (max-width: 860px) {
+  .where-page,
+  .where-trail {
+    grid-template-columns: 1fr;
+  }
+
+  .where-status {
+    grid-template-columns: 1fr;
+  }
+}

@@ -10,9 +10,9 @@
 
   // Replace the last 🌍 in the rendered HTML with a canvas wrapper.
   const earthMarkup =
-    '<span class="earth-3d-wrap" aria-hidden="true">' +
+    '<a class="earth-3d-wrap" href="/where/" aria-label="查看我的位置和足迹" title="查看我的位置和足迹">' +
       '<canvas class="earth-3d-canvas"></canvas>' +
-    '</span>';
+    '</a>';
 
   const html = titleEl.innerHTML;
   const lastIdx = html.lastIndexOf('🌍');
