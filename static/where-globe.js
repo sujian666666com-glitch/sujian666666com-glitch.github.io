@@ -1,4 +1,6 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import { geoEquirectangular, geoPath } from 'https://cdn.jsdelivr.net/npm/d3-geo@3/+esm';
+import { feature } from 'https://cdn.jsdelivr.net/npm/topojson-client@3/+esm';
 
 const canvas = document.querySelector('[data-where-globe]');
 const shell = canvas ? canvas.closest('.where-globe') : null;
@@ -39,7 +41,7 @@ if (canvas && shell) {
   }
 
   const earth = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 96, 64),
+    new THREE.SphereGeometry(radius, 72, 48),
     new THREE.MeshToonMaterial({
       map: earthTexture,
       color: 0xffffff,
@@ -48,7 +50,7 @@ if (canvas && shell) {
   earthGroup.add(earth);
 
   const outline = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.018, 96, 64),
+    new THREE.SphereGeometry(radius * 1.018, 72, 48),
     new THREE.MeshBasicMaterial({
       color: 0x11345d,
       transparent: true,
@@ -59,7 +61,7 @@ if (canvas && shell) {
   earthGroup.add(outline);
 
   const clouds = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.018, 96, 64),
+    new THREE.SphereGeometry(radius * 1.018, 72, 48),
     new THREE.MeshBasicMaterial({
       map: cloudTexture,
       transparent: true,
@@ -70,7 +72,7 @@ if (canvas && shell) {
   earthGroup.add(clouds);
 
   const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.072, 96, 64),
+    new THREE.SphereGeometry(radius * 1.072, 72, 48),
     new THREE.MeshBasicMaterial({
       color: 0x7dd3fc,
       transparent: true,
@@ -121,9 +123,17 @@ if (canvas && shell) {
   label.scale.set(0.62, 0.2, 1);
   earthGroup.add(label);
 
+  drawRealLandTexture(earthTexture.image)
+    .then(() => {
+      earthTexture.needsUpdate = true;
+      shell.classList.add('is-ready');
+    })
+    .catch(() => {
+      shell.classList.add('is-ready');
+    });
+
   earthGroup.rotation.y = 2.1;
   earthGroup.rotation.x = -0.12;
-  shell.classList.add('is-ready');
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
@@ -168,8 +178,8 @@ function latLngToVector3(lat, lng, radius) {
 
 function makeCartoonEarthTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = 2048;
-  canvas.height = 1024;
+  canvas.width = 1024;
+  canvas.height = 512;
   const ctx = canvas.getContext('2d');
 
   const ocean = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -191,44 +201,6 @@ function makeCartoonEarthTexture() {
   }
   ctx.globalAlpha = 1;
 
-  const landFill = '#84cc16';
-  const landShade = '#4d9a2a';
-  const landStroke = '#215732';
-
-  drawLandBlob(ctx, canvas, [
-    [72, -168], [60, -132], [48, -110], [28, -98], [12, -84],
-    [-18, -78], [-54, -72], [-55, -38], [-18, -42], [7, -52],
-    [28, -70], [54, -86], [72, -130],
-  ], landFill, landStroke);
-  drawLandBlob(ctx, canvas, [
-    [70, -18], [62, 24], [50, 58], [30, 72], [8, 46],
-    [-28, 28], [-36, 18], [-18, 8], [6, -8], [34, -12],
-  ], landFill, landStroke);
-  drawLandBlob(ctx, canvas, [
-    [55, 48], [62, 86], [54, 126], [40, 146], [22, 122],
-    [10, 96], [-8, 78], [8, 58], [28, 50],
-  ], landFill, landStroke);
-  drawLandBlob(ctx, canvas, [
-    [36, 76], [30, 106], [14, 126], [-4, 114], [-10, 92],
-    [8, 74], [24, 70],
-  ], landShade, landStroke);
-  drawLandBlob(ctx, canvas, [
-    [2, 108], [-12, 130], [-28, 148], [-44, 136], [-38, 112],
-    [-18, 104],
-  ], '#a3d977', landStroke);
-  drawLandBlob(ctx, canvas, [
-    [-10, 112], [-14, 154], [-31, 154], [-40, 136], [-33, 116],
-  ], '#fbbf24', landStroke);
-
-  addIsland(ctx, canvas, 22.5, 114, 15, '#ffef8a');
-  addIsland(ctx, canvas, 23, 121, 13, '#a3d977');
-  addIsland(ctx, canvas, 35, 139, 16, '#a3d977');
-  addIsland(ctx, canvas, 1.3, 103.8, 10, '#d9f99d');
-
-  for (const [lat, lng, size] of [[18, -155, 8], [-17, -149, 6], [-20, 57, 7], [64, -22, 11]]) {
-    addIsland(ctx, canvas, lat, lng, size, '#d9f99d');
-  }
-
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -237,10 +209,54 @@ function makeCartoonEarthTexture() {
   return texture;
 }
 
+async function drawRealLandTexture(canvas) {
+  const response = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json', {
+    mode: 'cors',
+    cache: 'force-cache',
+  });
+  if (!response.ok) throw new Error('land texture source unavailable');
+
+  const topology = await response.json();
+  const land = feature(topology, topology.objects.land);
+  const ctx = canvas.getContext('2d');
+  const projection = geoEquirectangular()
+    .fitExtent([[0, 0], [canvas.width, canvas.height]], { type: 'Sphere' });
+  const path = geoPath(projection, ctx);
+
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.shadowColor = 'rgba(17, 52, 93, 0.28)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 5;
+  ctx.beginPath();
+  path(land);
+  ctx.fillStyle = '#8bdc37';
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.lineWidth = 9;
+  ctx.strokeStyle = '#173f2d';
+  ctx.stroke();
+
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.globalAlpha = 0.34;
+  ctx.fillStyle = '#fff7ad';
+  ctx.beginPath();
+  path(land);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+
+  addIsland(ctx, canvas, 22.5, 114, 13, '#ffef8a');
+  addIsland(ctx, canvas, 23, 121, 10, '#d9f99d');
+  addIsland(ctx, canvas, 35, 139, 13, '#d9f99d');
+  ctx.restore();
+}
+
 function makeCartoonCloudTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = 2048;
-  canvas.height = 1024;
+  canvas.width = 1024;
+  canvas.height = 512;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -255,28 +271,6 @@ function makeCartoonCloudTexture() {
   texture.wrapT = THREE.ClampToEdgeWrapping;
   texture.needsUpdate = true;
   return texture;
-}
-
-function drawLandBlob(ctx, canvas, points, fill, stroke) {
-  ctx.save();
-  ctx.fillStyle = fill;
-  ctx.strokeStyle = stroke;
-  ctx.lineWidth = 8;
-  ctx.lineJoin = 'round';
-  ctx.beginPath();
-  points.forEach(([lat, lng], index) => {
-    const point = projectLatLng(lat, lng, canvas);
-    if (index === 0) ctx.moveTo(point.x, point.y);
-    else ctx.lineTo(point.x, point.y);
-  });
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = '#fff7ad';
-  points.slice(0, 3).forEach(([lat, lng]) => addIsland(ctx, canvas, lat - 4, lng + 6, 22, '#fff7ad'));
-  ctx.restore();
 }
 
 function addIsland(ctx, canvas, lat, lng, size, fill) {
