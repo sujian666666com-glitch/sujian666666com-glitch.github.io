@@ -288,7 +288,11 @@
     thinkContent.appendChild(thinkInner);
     thinkBlock.appendChild(toggle);
     thinkBlock.appendChild(thinkContent);
-    if (beforeEl) { parent.insertBefore(thinkBlock, beforeEl); } else { parent.appendChild(thinkBlock); }
+    if (beforeEl && beforeEl.parentNode === parent) {
+      parent.insertBefore(thinkBlock, beforeEl);
+    } else {
+      parent.appendChild(thinkBlock);
+    }
     return thinkBlock;
   }
 
@@ -307,12 +311,12 @@
     var textSpan = document.createElement('div');
     textSpan.className = 'chat-msg-text';
     textSpan.innerHTML = role === 'assistant' ? renderMarkdown(content || '') : escapeHtml(content || '');
+    body.appendChild(bubble);
     bubble.appendChild(textSpan);
 
     if (role === 'assistant' && thinking) {
       createThinkingBlock(body, bubble, thinking);
     }
-    body.appendChild(bubble);
 
     if (role === 'user') {
       row.appendChild(body);
