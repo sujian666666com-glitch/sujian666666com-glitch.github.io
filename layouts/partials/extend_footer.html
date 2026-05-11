@@ -1,5 +1,7 @@
 {{- /* Injects a small Three.js "earth" into the hero title on the homepage. */ -}}
-<script>
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
 (function () {
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const titleEl = document.querySelector('.blog-hero__title');
@@ -24,51 +26,101 @@
   const canvasEl = titleEl.querySelector('canvas.earth-3d-canvas');
   if (!wrapEl || !canvasEl) return;
 
-  function initEarth() {
-    const THREE_REF = window.THREE;
-    if (!THREE_REF) return;
+  function createEarthTexture() {
+    const textureCanvas = document.createElement('canvas');
+    textureCanvas.width = 512;
+    textureCanvas.height = 256;
+    const ctx = textureCanvas.getContext('2d');
 
-    const renderer = new THREE_REF.WebGLRenderer({
+    const ocean = ctx.createLinearGradient(0, 0, textureCanvas.width, textureCanvas.height);
+    ocean.addColorStop(0, '#7dd3fc');
+    ocean.addColorStop(0.45, '#2563eb');
+    ocean.addColorStop(1, '#1d4ed8');
+    ctx.fillStyle = ocean;
+    ctx.fillRect(0, 0, textureCanvas.width, textureCanvas.height);
+
+    ctx.fillStyle = '#8bdc37';
+    ctx.strokeStyle = 'rgba(17, 52, 93, 0.35)';
+    ctx.lineWidth = 4;
+    const landShapes = [
+      [[60, 74], [118, 50], [178, 78], [152, 126], [74, 130]],
+      [[210, 106], [256, 82], [316, 108], [292, 160], [224, 154]],
+      [[330, 78], [416, 60], [462, 104], [426, 144], [344, 132]],
+      [[138, 154], [196, 158], [210, 210], [150, 222], [118, 190]],
+      [[356, 168], [426, 164], [454, 204], [388, 224]]
+    ];
+
+    landShapes.forEach((points) => {
+      ctx.beginPath();
+      points.forEach(([x, y], index) => {
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    });
+
+    ctx.globalAlpha = 0.3;
+    ctx.strokeStyle = '#dff9ff';
+    ctx.lineWidth = 2;
+    for (let y = 54; y <= 202; y += 38) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.bezierCurveTo(130, y - 10, 380, y + 10, textureCanvas.width, y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    const texture = new THREE.CanvasTexture(textureCanvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  }
+
+  function initEarth() {
+    const renderer = new THREE.WebGLRenderer({
       canvas: canvasEl,
       alpha: true,
       antialias: true,
       powerPreference: 'low-power'
     });
     renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    const scene = new THREE_REF.Scene();
+    const scene = new THREE.Scene();
     // 使用正交相机，彻底消除透视畸变，保证球体看起来是正圆
-    const camera = new THREE_REF.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
     camera.position.set(0, 0, 3.0);
 
-    const ambient = new THREE_REF.AmbientLight(0xffffff, 0.45);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.45);
     scene.add(ambient);
-    const dir = new THREE_REF.DirectionalLight(0xffffff, 1.1);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.1);
     dir.position.set(2.4, 2.0, 2.5);
     scene.add(dir);
 
-    const earthGroup = new THREE_REF.Group();
+    const earthGroup = new THREE.Group();
     scene.add(earthGroup);
 
-    const geometry = new THREE_REF.SphereGeometry(1, 64, 32);
-
-    // Fallback material (used if texture loading fails).
-    const fallbackMat = new THREE_REF.MeshPhongMaterial({
-      color: 0x1e90ff,
-      shininess: 20
-    });
-
-    const earthMesh = new THREE_REF.Mesh(geometry, fallbackMat);
+    const geometry = new THREE.SphereGeometry(1, 64, 32);
+    const earthMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshPhongMaterial({
+        map: createEarthTexture(),
+        specular: 0x223344,
+        shininess: 18
+      })
+    );
     earthGroup.add(earthMesh);
 
     // Simple atmosphere shell.
-    const atmosphere = new THREE_REF.Mesh(
-      new THREE_REF.SphereGeometry(1.02, 64, 32),
-      new THREE_REF.MeshBasicMaterial({
+    const atmosphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.02, 64, 32),
+      new THREE.MeshBasicMaterial({
         color: 0x4aa3ff,
         transparent: true,
         opacity: reduceMotion ? 0.12 : 0.18,
-        side: THREE_REF.BackSide
+        side: THREE.BackSide
       })
     );
     earthGroup.add(atmosphere);
@@ -90,33 +142,6 @@
       camera.updateProjectionMatrix();
     }
     resize();
-
-    let textureLoader = new THREE_REF.TextureLoader();
-    textureLoader.crossOrigin = 'anonymous';
-
-    // Use CDN textures from the official three.js examples.
-    const mapUrl = 'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg';
-    const normalUrl = 'https://threejs.org/examples/textures/planets/earth_normal_map_2048.jpg';
-    const specUrl = 'https://threejs.org/examples/textures/planets/earth_specular_2048.jpg';
-
-    const onTexturesReady = function (map, normalMap, specularMap) {
-      // 使用 Phong 让 specularMap 在不同 three.js 版本下更稳定生效。
-      const mat = new THREE_REF.MeshPhongMaterial({
-        map: map || null,
-        normalMap: normalMap || null,
-        specularMap: specularMap || null,
-        specular: 0x333333,
-        shininess: 30
-      });
-      earthMesh.material = mat;
-      earthMesh.material.needsUpdate = true;
-    };
-
-    Promise.all([
-      new Promise((resolve) => textureLoader.load(mapUrl, resolve, undefined, () => resolve(null))),
-      new Promise((resolve) => textureLoader.load(normalUrl, resolve, undefined, () => resolve(null))),
-      new Promise((resolve) => textureLoader.load(specUrl, resolve, undefined, () => resolve(null)))
-    ]).then((result) => onTexturesReady(result[0], result[1], result[2]));
 
     let lastT = performance.now();
     // 自转角速度（rad/s），适当降低以符合“慢一点”的视觉观感。
@@ -157,16 +182,7 @@
     }
   }
 
-  if (window.THREE) {
-    initEarth();
-    return;
-  }
-
-  const script = document.createElement('script');
-  script.src = 'https://unpkg.com/three@0.160.0/build/three.min.js';
-  script.async = true;
-  script.onload = initEarth;
-  document.head.appendChild(script);
+  initEarth();
 })();
 </script>
 
