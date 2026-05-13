@@ -1,0 +1,23 @@
+[Unit]
+Description=My Blog anonymous message wall API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/my-blog-wall
+Environment=WALL_API_HOST=127.0.0.1
+Environment=WALL_API_PORT=8787
+Environment=WALL_DB_PATH=/var/lib/my-blog-wall/wall.db
+EnvironmentFile=-/etc/my-blog-wall.env
+ExecStart=/usr/bin/node /opt/my-blog-wall/wall-api.mjs
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/my-blog-wall
+
+[Install]
+WantedBy=multi-user.target

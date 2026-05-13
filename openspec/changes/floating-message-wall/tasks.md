@@ -31,3 +31,13 @@
 - [x] 5.1 执行 `hugo --gc --minify`
 - [x] 5.2 执行 Worker 语法校验
 - [x] 5.3 本地浏览器检查桌面端与移动端关键视觉
+
+## 6. 服务器本地 SQLite + Node API 调整
+
+- [x] 6.1 将方案从 Cloudflare D1 调整为服务器本地 SQLite + Node API，并更新中文 proposal
+- [x] 6.2 新增 `server/wall-api.mjs`，使用 SQLite 保存留言并实现公开/管理接口
+- [x] 6.3 新增 systemd 服务文件和 Nginx `/api/wall/` 反代示例
+- [x] 6.4 调整 `/gallery/` 与 `/wall-admin/` 默认使用同域 API，不再自动指向 Worker
+- [x] 6.5 本地验证 Node API：正常提交、非法内容、隐藏/恢复/删除、每日上限
+- [x] 6.6 重新执行 `hugo --gc --minify`
+- [x] 6.7 部署到 `43.135.48.207`：安装运行环境、启动服务、配置 Nginx、验证线上接口

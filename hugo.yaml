@@ -76,7 +76,7 @@ params:
 
   # 匿名留言墙
   messageWall:
-    apiURL: "https://blog-chat-proxy.ikkkk-blog.workers.dev" # 也可用 HUGO_WALL_API_URL 覆盖
+    apiURL: "" # 默认使用同域 /api/wall；也可用 HUGO_WALL_API_URL 覆盖
 
 menu:
   main:
