@@ -1,5 +1,5 @@
 ---
-title: "路过的人"
+title: "小纸条"
 description: ""
 layout: "gallery"
 hideHeader: true

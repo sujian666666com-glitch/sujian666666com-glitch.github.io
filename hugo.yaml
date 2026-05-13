@@ -104,7 +104,7 @@ menu:
       url: /categories/思考/
       weight: 23
       parent: posts
-    - name: 路过的人
+    - name: 小纸条
       url: /gallery/
       weight: 30
       identifier: gallery

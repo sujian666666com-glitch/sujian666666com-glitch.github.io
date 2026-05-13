@@ -6,7 +6,7 @@
 
 ## 2. 前台留言墙
 
-- [x] 2.1 将 `/gallery/` 改为“路过的人”页面并隐藏传统标题、页脚和聊天组件
+- [x] 2.1 将 `/gallery/` 改为“小纸条”页面并隐藏传统标题、页脚和聊天组件
 - [x] 2.2 基于用户提供样式新增作用域化毛玻璃留言墙 CSS
 - [x] 2.3 新增留言墙前端 JS，实现列表加载、滚动分页、弹窗提交和错误提示
 - [x] 2.4 桌面端保留第一屏漂浮散落感，后续留言可向下滚动延伸
@@ -51,7 +51,7 @@
 
 ## 8. VPS 站内导航域名修复
 
-- [x] 8.1 现象：在 `sujian.online` 点击“路过的人”会跳到 `sujian666666com-glitch.github.io/gallery/`
+- [x] 8.1 现象：在 `sujian.online` 点击“小纸条”会跳到 `sujian666666com-glitch.github.io/gallery/`
 - [x] 8.2 正确期望：VPS 站点内导航保持在 `https://sujian.online/gallery/`
 - [x] 8.3 将仓库默认 `baseURL` 改为 `https://sujian.online/`；GitHub Pages workflow 继续用 `--baseURL` 覆盖自身域名
 - [x] 8.4 重新构建并部署 VPS，验证导航链接不再指向 GitHub Pages
