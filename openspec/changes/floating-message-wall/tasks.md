@@ -48,3 +48,10 @@
 - [x] 7.2 将留言墙 API 地址配置为 `https://sujian.online`
 - [x] 7.3 给 Node API 增加允许 GitHub Pages 来源的 CORS 响应
 - [x] 7.4 部署修复并验证 GitHub Pages 页面可正常提交
+
+## 8. VPS 站内导航域名修复
+
+- [x] 8.1 现象：在 `sujian.online` 点击“路过的人”会跳到 `sujian666666com-glitch.github.io/gallery/`
+- [x] 8.2 正确期望：VPS 站点内导航保持在 `https://sujian.online/gallery/`
+- [x] 8.3 将仓库默认 `baseURL` 改为 `https://sujian.online/`；GitHub Pages workflow 继续用 `--baseURL` 覆盖自身域名
+- [x] 8.4 重新构建并部署 VPS，验证导航链接不再指向 GitHub Pages
