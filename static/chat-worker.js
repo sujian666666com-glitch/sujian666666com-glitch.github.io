@@ -59,8 +59,8 @@ function corsHeaders(request) {
   const origin = request.headers.get('Origin') || '*';
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -276,8 +276,275 @@ async function enrichMessagesWithRag(body, env) {
   return { ...body, messages };
 }
 
+// ── 匿名留言墙（Cloudflare D1）──────────────────────────────
+const WALL_DAILY_LIMIT = 100;
+const WALL_PAGE_LIMIT = 48;
+const WALL_DUPLICATE_WINDOW_MS = 60 * 60 * 1000;
+const WALL_SENSITIVE_WORDS = [
+  '赌博',
+  '博彩',
+  '代开发票',
+  '成人视频',
+  '色情',
+  '外挂',
+  '贷款',
+];
+
+function wallJson(data, status, request) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...corsHeaders(request),
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
+function wallError(status, message, request) {
+  return wallJson({ error: message }, status, request);
+}
+
+function getClientIP(request) {
+  return request.headers.get('CF-Connecting-IP') ||
+    request.headers.get('X-Forwarded-For') ||
+    'unknown';
+}
+
+function toShanghaiDayKey(date) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const map = {};
+  for (const part of parts) {
+    map[part.type] = part.value;
+  }
+  return `${map.year}-${map.month}-${map.day}`;
+}
+
+function normalizeWallContent(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ');
+}
+
+function wallTextLength(value) {
+  return Array.from(value).length;
+}
+
+function validateWallContent(content) {
+  const length = wallTextLength(content);
+  if (length < 1) return '先写一句话。';
+  if (length > 80) return '最多 80 字。';
+  if (/[<>]/.test(content) || /&(?:lt|gt|#60|#62);/i.test(content)) {
+    return '这里只收纯文本。';
+  }
+  if (/(https?:\/\/|www\.|[a-z0-9-]+\.(?:com|net|org|cn|io|xyz|top|shop|site|club|vip)\b)/i.test(content)) {
+    return '这里不放链接。';
+  }
+  const lower = content.toLowerCase();
+  for (const word of WALL_SENSITIVE_WORDS) {
+    if (lower.includes(word.toLowerCase())) {
+      return '这句话暂时不能留下。';
+    }
+  }
+  return '';
+}
+
+function hashWallSeed(value) {
+  let hash = 2166136261;
+  const str = String(value || '');
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function publicWallItem(row) {
+  return {
+    id: row.id,
+    content: row.content,
+    seed: hashWallSeed(row.id),
+  };
+}
+
+function ensureWallDB(env, request) {
+  if (!env.WALL_DB) {
+    return wallError(500, 'Server configuration error: missing WALL_DB', request);
+  }
+  return null;
+}
+
+async function listWallMessages(request, env) {
+  const dbError = ensureWallDB(env, request);
+  if (dbError) return dbError;
+
+  const url = new URL(request.url);
+  const rawLimit = parseInt(url.searchParams.get('limit') || String(WALL_PAGE_LIMIT), 10);
+  const limit = Math.min(100, Math.max(1, rawLimit || WALL_PAGE_LIMIT));
+  const cursor = (url.searchParams.get('cursor') || '').trim();
+
+  let result;
+  if (cursor) {
+    result = await env.WALL_DB
+      .prepare(
+        'SELECT id, content, created_at FROM wall_messages WHERE status = ?1 AND created_at < ?2 ORDER BY created_at DESC, id DESC LIMIT ?3',
+      )
+      .bind('visible', cursor, limit + 1)
+      .all();
+  } else {
+    result = await env.WALL_DB
+      .prepare(
+        'SELECT id, content, created_at FROM wall_messages WHERE status = ?1 ORDER BY created_at DESC, id DESC LIMIT ?2',
+      )
+      .bind('visible', limit + 1)
+      .all();
+  }
+
+  const rows = result.results || [];
+  const page = rows.slice(0, limit);
+  const nextCursor = rows.length > limit ? page[page.length - 1].created_at : '';
+  return wallJson({
+    items: page.map(publicWallItem),
+    nextCursor,
+  }, 200, request);
+}
+
+async function createWallMessage(request, env) {
+  const dbError = ensureWallDB(env, request);
+  if (dbError) return dbError;
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return wallError(400, 'Invalid JSON body', request);
+  }
+
+  const content = normalizeWallContent(body.content);
+  const contentError = validateWallContent(content);
+  if (contentError) {
+    return wallError(400, contentError, request);
+  }
+
+  const now = new Date();
+  const createdAt = now.toISOString();
+  const dayKey = toShanghaiDayKey(now);
+  const ip = getClientIP(request);
+  const userAgent = (request.headers.get('User-Agent') || '').slice(0, 500);
+  const referer = (request.headers.get('Referer') || '').slice(0, 500);
+  const duplicateAfter = new Date(now.getTime() - WALL_DUPLICATE_WINDOW_MS).toISOString();
+
+  const daily = await env.WALL_DB
+    .prepare('SELECT COUNT(*) AS count FROM wall_messages WHERE day_key = ?1')
+    .bind(dayKey)
+    .first();
+  if ((daily && Number(daily.count)) >= WALL_DAILY_LIMIT) {
+    return wallError(429, '今天的小纸条已经放满了', request);
+  }
+
+  const duplicate = await env.WALL_DB
+    .prepare('SELECT id FROM wall_messages WHERE ip = ?1 AND content = ?2 AND created_at >= ?3 LIMIT 1')
+    .bind(ip, content, duplicateAfter)
+    .first();
+  if (duplicate) {
+    return wallError(429, '这句话刚刚已经留下了。', request);
+  }
+
+  const id = crypto.randomUUID();
+  await env.WALL_DB
+    .prepare(
+      'INSERT INTO wall_messages (id, content, status, created_at, day_key, ip, user_agent, referer) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)',
+    )
+    .bind(id, content, 'visible', createdAt, dayKey, ip, userAgent, referer)
+    .run();
+
+  return wallJson({
+    item: publicWallItem({ id, content }),
+  }, 201, request);
+}
+
+function isWallAdminAuthorized(request, env) {
+  const expected = String(env.WALL_ADMIN_TOKEN || '').trim();
+  if (!expected) return false;
+  const header = request.headers.get('Authorization') || '';
+  const token = header.replace(/^Bearer\s+/i, '').trim();
+  return token === expected;
+}
+
+async function listWallAdminMessages(request, env) {
+  const dbError = ensureWallDB(env, request);
+  if (dbError) return dbError;
+  if (!isWallAdminAuthorized(request, env)) {
+    return wallError(401, 'Unauthorized', request);
+  }
+
+  const result = await env.WALL_DB
+    .prepare(
+      'SELECT id, content, status, created_at, day_key, ip, user_agent, referer FROM wall_messages ORDER BY created_at DESC, id DESC LIMIT 500',
+    )
+    .all();
+  return wallJson({ items: result.results || [] }, 200, request);
+}
+
+async function mutateWallAdminMessage(request, env, action, id) {
+  const dbError = ensureWallDB(env, request);
+  if (dbError) return dbError;
+  if (!isWallAdminAuthorized(request, env)) {
+    return wallError(401, 'Unauthorized', request);
+  }
+  if (!id) {
+    return wallError(400, 'Missing message id', request);
+  }
+
+  if (action === 'delete') {
+    await env.WALL_DB.prepare('DELETE FROM wall_messages WHERE id = ?1').bind(id).run();
+  } else if (action === 'hide' || action === 'show') {
+    const status = action === 'hide' ? 'hidden' : 'visible';
+    await env.WALL_DB.prepare('UPDATE wall_messages SET status = ?1 WHERE id = ?2').bind(status, id).run();
+  } else {
+    return wallError(404, 'Not Found', request);
+  }
+
+  return wallJson({ ok: true }, 200, request);
+}
+
+async function handleWallRequest(request, env) {
+  if (request.method === 'OPTIONS') {
+    return handleOptions(request);
+  }
+
+  const url = new URL(request.url);
+  const pathname = url.pathname.replace(/\/+$/, '') || '/';
+
+  if (pathname === '/api/wall/messages') {
+    if (request.method === 'GET') return listWallMessages(request, env);
+    if (request.method === 'POST') return createWallMessage(request, env);
+    return wallError(405, 'Method Not Allowed', request);
+  }
+
+  if (pathname === '/api/wall/admin/messages') {
+    if (request.method === 'GET') return listWallAdminMessages(request, env);
+    return wallError(405, 'Method Not Allowed', request);
+  }
+
+  const match = pathname.match(/^\/api\/wall\/admin\/messages\/([^/]+)(?:\/(hide|show))?$/);
+  if (match) {
+    const id = decodeURIComponent(match[1]);
+    const action = request.method === 'DELETE' ? 'delete' : match[2];
+    if (request.method === 'DELETE' || request.method === 'PATCH') {
+      return mutateWallAdminMessage(request, env, action, id);
+    }
+    return wallError(405, 'Method Not Allowed', request);
+  }
+
+  return wallError(404, 'Not Found', request);
+}
+
 // ── 主处理逻辑 ──────────────────────────────────────────────
-async function handleRequest(request, env) {
+async function handleChatRequest(request, env) {
   // CORS 预检
   if (request.method === 'OPTIONS') {
     return handleOptions(request);
@@ -419,7 +686,11 @@ function jsonError(status, message, request) {
 // ── Worker 入口 ─────────────────────────────────────────────
 export default {
   async fetch(request, env) {
-    return handleRequest(request, env);
+    const url = new URL(request.url);
+    if (url.pathname.startsWith('/api/wall/')) {
+      return handleWallRequest(request, env);
+    }
+    return handleChatRequest(request, env);
   },
 };
 

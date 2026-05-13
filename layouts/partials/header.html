@@ -1,3 +1,4 @@
+{{- if not (.Param "hideHeader") }}
 <header class="header animate__animated animate__fadeInDown animate__faster{{ if .IsHome }} header--home{{ end }}">
     <nav class="nav">
         <div class="logo">
@@ -128,3 +129,4 @@
         </ul>
     </nav>
 </header>
+{{- end }}

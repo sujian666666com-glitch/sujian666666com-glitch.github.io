@@ -170,4 +170,6 @@
 })();
 </script>
 
+{{- if not (.Param "hideChat") }}
 {{- partial "chat-widget.html" . -}}
+{{- end }}

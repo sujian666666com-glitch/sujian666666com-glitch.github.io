@@ -13,3 +13,8 @@ DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 RAG_VECTORS_URL = "https://sujian666666com-glitch.github.io/rag-vectors.json"
 RAG_TOP_K = "4"
 BLOG_PUBLIC_BASE_URL = "https://sujian666666com-glitch.github.io"
+
+[[d1_databases]]
+binding = "WALL_DB"
+database_name = "blog-message-wall"
+database_id = "00000000-0000-0000-0000-000000000000"

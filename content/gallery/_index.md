@@ -1,7 +1,9 @@
 ---
-title: "相册"
-description: "记录生活中的美好瞬间"
+title: "路过的人"
+description: ""
 layout: "gallery"
+hideHeader: true
+hideFooter: true
+hideChat: true
+disableScrollToTop: true
 ---
-
-{{< gallery-images >}}

@@ -1,13 +1,25 @@
 {{ define "main" }}
-{{- if .Title }}
-<header class="page-header">
-    <h1>{{ .Title }}</h1>
-    {{- if .Description }}
-    <p class="page-description">{{ .Description }}</p>
-    {{- end }}
-</header>
-{{- end }}
+{{- $wallApiURL := site.Params.messageWall.apiURL | default site.Params.chat.proxyURL | default (getenv "HUGO_WALL_API_URL") | default (getenv "HUGO_CHAT_PROXY_URL") | default "" -}}
+<div class="message-wall-page" data-wall-api="{{ $wallApiURL }}">
+  <div class="wall-blob wall-blob--one"></div>
+  <div class="wall-blob wall-blob--two"></div>
+  <div class="wall-blob wall-blob--three"></div>
 
-{{ .Content }}
+  <main class="message-wall-stage" data-wall-stage aria-live="polite"></main>
 
+  <button class="message-wall-add" type="button" data-wall-open aria-label="添加留言">+</button>
+
+  <div class="message-wall-dialog" data-wall-dialog hidden>
+    <div class="message-wall-dialog__backdrop" data-wall-close></div>
+    <form class="message-wall-dialog__panel" data-wall-form>
+      <button class="message-wall-dialog__close" type="button" data-wall-close aria-label="关闭">×</button>
+      <label for="wallMessageInput">想说点什么？</label>
+      <textarea id="wallMessageInput" name="content" maxlength="80" rows="3" placeholder="输入一句话" required></textarea>
+      <p class="message-wall-dialog__meta"><span data-wall-count>0</span>/80</p>
+      <p class="message-wall-dialog__error" data-wall-error></p>
+      <button class="message-wall-submit" type="submit">留下</button>
+    </form>
+  </div>
+</div>
+<script src="/message-wall.js" defer></script>
 {{ end }}

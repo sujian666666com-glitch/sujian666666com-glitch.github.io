@@ -74,6 +74,10 @@ params:
     # 前端在弱网/流式失败时会依次尝试主地址与此地址（HUGO_CHAT_PROXY_FALLBACK_URL）
     proxyFallbackURL: ""
 
+  # 匿名留言墙
+  messageWall:
+    apiURL: "https://blog-chat-proxy.ikkkk-blog.workers.dev" # 也可用 HUGO_WALL_API_URL 覆盖
+
 menu:
   main:
     - name: 首页
@@ -100,7 +104,7 @@ menu:
       url: /categories/思考/
       weight: 23
       parent: posts
-    - name: 相册
+    - name: 路过的人
       url: /gallery/
       weight: 30
       identifier: gallery

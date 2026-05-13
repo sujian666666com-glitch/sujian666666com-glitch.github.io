@@ -1,0 +1,20 @@
+{{ define "main" }}
+{{- $wallApiURL := site.Params.messageWall.apiURL | default site.Params.chat.proxyURL | default (getenv "HUGO_WALL_API_URL") | default (getenv "HUGO_CHAT_PROXY_URL") | default "" -}}
+<main class="wall-admin-page" data-wall-api="{{ $wallApiURL }}">
+  <section class="wall-admin-panel">
+    <div class="wall-admin-head">
+      <h1>留言管理</h1>
+      <button class="wall-admin-refresh" type="button" data-wall-admin-refresh>刷新</button>
+    </div>
+
+    <form class="wall-admin-auth" data-wall-admin-auth>
+      <input type="password" name="token" placeholder="管理口令" autocomplete="current-password" required>
+      <button type="submit">进入</button>
+    </form>
+
+    <p class="wall-admin-status" data-wall-admin-status></p>
+    <div class="wall-admin-list" data-wall-admin-list></div>
+  </section>
+</main>
+<script src="/wall-admin.js" defer></script>
+{{ end }}
