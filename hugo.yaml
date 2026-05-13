@@ -76,7 +76,7 @@ params:
 
   # 匿名留言墙
   messageWall:
-    apiURL: "" # 默认使用同域 /api/wall；也可用 HUGO_WALL_API_URL 覆盖
+    apiURL: "https://sujian.online" # GitHub Pages 无动态 API，留言墙统一请求 VPS；也可用 HUGO_WALL_API_URL 覆盖
 
 menu:
   main:

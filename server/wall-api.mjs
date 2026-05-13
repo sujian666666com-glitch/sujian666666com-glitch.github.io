@@ -8,6 +8,15 @@ const PORT = Number(process.env.WALL_API_PORT || 8787);
 const HOST = process.env.WALL_API_HOST || '127.0.0.1';
 const DB_PATH = process.env.WALL_DB_PATH || '/var/lib/my-blog-wall/wall.db';
 const ADMIN_TOKEN = String(process.env.WALL_ADMIN_TOKEN || '').trim();
+const ALLOWED_ORIGINS = new Set(
+  String(
+    process.env.WALL_ALLOWED_ORIGINS ||
+      'https://sujian.online,https://www.sujian.online,https://sujian666666com-glitch.github.io',
+  )
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+);
 
 const WALL_DAILY_LIMIT = 100;
 const WALL_PAGE_LIMIT = 48;
@@ -50,16 +59,31 @@ db.exec(`
     ON wall_messages (ip, created_at DESC);
 `);
 
-function json(res, status, data) {
+function corsHeaders(req) {
+  const origin = String(req.headers.origin || '').trim();
+  const headers = {
+    Vary: 'Origin',
+  };
+  if (ALLOWED_ORIGINS.has(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+    headers['Access-Control-Allow-Methods'] = 'GET,POST,PATCH,DELETE,OPTIONS';
+    headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization';
+    headers['Access-Control-Max-Age'] = '86400';
+  }
+  return headers;
+}
+
+function json(req, res, status, data) {
   res.writeHead(status, {
+    ...corsHeaders(req),
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
   });
   res.end(JSON.stringify(data));
 }
 
-function error(res, status, message) {
-  json(res, status, { error: message });
+function error(req, res, status, message) {
+  json(req, res, status, { error: message });
 }
 
 function normalizeWallContent(value) {
@@ -185,7 +209,7 @@ function listWallMessages(req, res, url) {
 
   const page = rows.slice(0, limit);
   const nextCursor = rows.length > limit ? page[page.length - 1].created_at : '';
-  json(res, 200, {
+  json(req, res, 200, {
     items: page.map(publicWallItem),
     nextCursor,
   });
@@ -196,14 +220,14 @@ async function createWallMessage(req, res) {
   try {
     body = await readJsonBody(req);
   } catch (err) {
-    error(res, err.status || 400, err.message || 'Invalid JSON body');
+    error(req, res, err.status || 400, err.message || 'Invalid JSON body');
     return;
   }
 
   const content = normalizeWallContent(body.content);
   const contentError = validateWallContent(content);
   if (contentError) {
-    error(res, 400, contentError);
+    error(req, res, 400, contentError);
     return;
   }
 
@@ -219,7 +243,7 @@ async function createWallMessage(req, res) {
     .prepare('SELECT COUNT(*) AS count FROM wall_messages WHERE day_key = ?')
     .get(dayKey);
   if ((daily && Number(daily.count)) >= WALL_DAILY_LIMIT) {
-    error(res, 429, '今天的小纸条已经放满了');
+    error(req, res, 429, '今天的小纸条已经放满了');
     return;
   }
 
@@ -227,7 +251,7 @@ async function createWallMessage(req, res) {
     .prepare('SELECT id FROM wall_messages WHERE ip = ? AND content = ? AND created_at >= ? LIMIT 1')
     .get(ip, content, duplicateAfter);
   if (duplicate) {
-    error(res, 429, '这句话刚刚已经留下了。');
+    error(req, res, 429, '这句话刚刚已经留下了。');
     return;
   }
 
@@ -236,28 +260,28 @@ async function createWallMessage(req, res) {
     'INSERT INTO wall_messages (id, content, status, created_at, day_key, ip, user_agent, referer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
   ).run(id, content, 'visible', createdAt, dayKey, ip, userAgent, referer);
 
-  json(res, 201, { item: publicWallItem({ id, content }) });
+  json(req, res, 201, { item: publicWallItem({ id, content }) });
 }
 
 function listWallAdminMessages(req, res) {
   if (!isWallAdminAuthorized(req)) {
-    error(res, 401, 'Unauthorized');
+    error(req, res, 401, 'Unauthorized');
     return;
   }
 
   const rows = db
     .prepare('SELECT id, content, status, created_at, day_key, ip, user_agent, referer FROM wall_messages ORDER BY created_at DESC, id DESC LIMIT 500')
     .all();
-  json(res, 200, { items: rows });
+  json(req, res, 200, { items: rows });
 }
 
 function mutateWallAdminMessage(req, res, action, id) {
   if (!isWallAdminAuthorized(req)) {
-    error(res, 401, 'Unauthorized');
+    error(req, res, 401, 'Unauthorized');
     return;
   }
   if (!id) {
-    error(res, 400, 'Missing message id');
+    error(req, res, 400, 'Missing message id');
     return;
   }
 
@@ -267,11 +291,11 @@ function mutateWallAdminMessage(req, res, action, id) {
     const status = action === 'hide' ? 'hidden' : 'visible';
     db.prepare('UPDATE wall_messages SET status = ? WHERE id = ?').run(status, id);
   } else {
-    error(res, 404, 'Not Found');
+    error(req, res, 404, 'Not Found');
     return;
   }
 
-  json(res, 200, { ok: true });
+  json(req, res, 200, { ok: true });
 }
 
 function handle(req, res) {
@@ -279,13 +303,13 @@ function handle(req, res) {
   const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
   if (req.method === 'OPTIONS') {
-    res.writeHead(204);
+    res.writeHead(204, corsHeaders(req));
     res.end();
     return;
   }
 
   if (pathname === '/health') {
-    json(res, 200, { ok: true });
+    json(req, res, 200, { ok: true });
     return;
   }
 
@@ -298,7 +322,7 @@ function handle(req, res) {
       createWallMessage(req, res);
       return;
     }
-    error(res, 405, 'Method Not Allowed');
+    error(req, res, 405, 'Method Not Allowed');
     return;
   }
 
@@ -307,7 +331,7 @@ function handle(req, res) {
       listWallAdminMessages(req, res);
       return;
     }
-    error(res, 405, 'Method Not Allowed');
+    error(req, res, 405, 'Method Not Allowed');
     return;
   }
 
@@ -319,17 +343,17 @@ function handle(req, res) {
       mutateWallAdminMessage(req, res, action, id);
       return;
     }
-    error(res, 405, 'Method Not Allowed');
+    error(req, res, 405, 'Method Not Allowed');
     return;
   }
 
-  error(res, 404, 'Not Found');
+  error(req, res, 404, 'Not Found');
 }
 
 const server = http.createServer((req, res) => {
   Promise.resolve(handle(req, res)).catch((err) => {
     console.error(err);
-    if (!res.headersSent) error(res, 500, 'Internal Server Error');
+    if (!res.headersSent) error(req, res, 500, 'Internal Server Error');
   });
 });
 

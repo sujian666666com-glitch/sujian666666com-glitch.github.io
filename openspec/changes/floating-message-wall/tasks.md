@@ -41,3 +41,10 @@
 - [x] 6.5 本地验证 Node API：正常提交、非法内容、隐藏/恢复/删除、每日上限
 - [x] 6.6 重新执行 `hugo --gc --minify`
 - [x] 6.7 部署到 `43.135.48.207`：安装运行环境、启动服务、配置 Nginx、验证线上接口
+
+## 7. GitHub Pages 提交链路修复
+
+- [x] 7.1 现象：GitHub Pages 访问 `/api/wall/messages` 时返回 405；正确期望：GitHub Pages 页面应请求 `sujian.online` 上的 VPS API
+- [x] 7.2 将留言墙 API 地址配置为 `https://sujian.online`
+- [x] 7.3 给 Node API 增加允许 GitHub Pages 来源的 CORS 响应
+- [x] 7.4 部署修复并验证 GitHub Pages 页面可正常提交
