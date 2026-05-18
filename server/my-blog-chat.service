@@ -1,0 +1,28 @@
+[Unit]
+Description=My Blog Xiao K chat API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/my-blog-chat
+Environment=CHAT_API_HOST=127.0.0.1
+Environment=CHAT_API_PORT=8788
+Environment=BIGMODEL_ANTHROPIC_BASE_URL=https://open.bigmodel.cn/api/anthropic
+Environment=BIGMODEL_EMBEDDING_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+Environment=RAG_EMBEDDING_MODEL=embedding-3
+Environment=RAG_EMBEDDING_DIMENSIONS=1024
+Environment=RAG_VECTORS_URL=https://sujian.online/rag-vectors.json
+Environment=RAG_TOP_K=4
+Environment=BLOG_PUBLIC_BASE_URL=https://sujian.online
+EnvironmentFile=-/etc/my-blog-chat.env
+ExecStart=/usr/bin/node /opt/my-blog-chat/chat-api.mjs
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

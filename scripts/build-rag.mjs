@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 /**
- * 构建向量索引：扫描 Markdown → 切块 → DashScope Embedding API → static/rag-vectors.json
+ * 构建向量索引：扫描 Markdown → 切块 → BigModel Embedding API → static/rag-vectors.json
  *
- * 需要环境变量：DASHSCOPE_API_KEY（与 Worker / 百炼通用 sk- 一致）
- * 可选：DASHSCOPE_BASE_URL（默认北京 compatible-mode）
+ * 需要环境变量：BIGMODEL_API_KEY（兼容 ANTHROPIC_AUTH_TOKEN）
+ * 可选：
+ * - BIGMODEL_EMBEDDING_BASE_URL（默认 https://open.bigmodel.cn/api/paas/v4）
+ * - RAG_EMBEDDING_MODEL（默认 embedding-3）
+ * - RAG_EMBEDDING_DIMENSIONS（默认 1024）
  *
- *   DASHSCOPE_API_KEY=sk-xxx node scripts/build-rag.mjs
+ *   BIGMODEL_API_KEY=xxx node scripts/build-rag.mjs
  *
  * 未设置 KEY 时：写入空索引并退出 0（便于 CI 未配 secret 时仍能通过构建）
  */
@@ -18,10 +21,13 @@ import { fileURLToPath } from 'node:url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const REPO_ROOT = join(__dirname, '..')
 
-const EMBEDDING_MODEL = 'text-embedding-v4'
+const EMBEDDING_PROVIDER = 'bigmodel'
+const EMBEDDING_MODEL = process.env.RAG_EMBEDDING_MODEL || 'embedding-3'
+const EMBEDDING_DIMENSIONS =
+  parseInt(String(process.env.RAG_EMBEDDING_DIMENSIONS || '1024'), 10) || 1024
 const BASE_URL =
-  process.env.DASHSCOPE_BASE_URL ||
-  'https://dashscope.aliyuncs.com/compatible-mode/v1'
+  process.env.BIGMODEL_EMBEDDING_BASE_URL ||
+  'https://open.bigmodel.cn/api/paas/v4'
 const CHUNK_SIZE = 900
 const CHUNK_OVERLAP = 120
 const MIN_CHUNK_LEN = 80
@@ -132,16 +138,21 @@ async function walkMarkdownFiles(dir, acc = []) {
 
 async function embedBatch(apiKey, inputs) {
   const url = `${BASE_URL.replace(/\/$/, '')}/embeddings`
+  const body = {
+    model: EMBEDDING_MODEL,
+    input: inputs,
+  }
+  if (Number.isFinite(EMBEDDING_DIMENSIONS) && EMBEDDING_DIMENSIONS > 0) {
+    body.dimensions = EMBEDDING_DIMENSIONS
+  }
+
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: EMBEDDING_MODEL,
-      input: inputs,
-    }),
+    body: JSON.stringify(body),
   })
   const text = await res.text()
   if (!res.ok) {
@@ -153,16 +164,29 @@ async function embedBatch(apiKey, inputs) {
   return list.map((d) => d.embedding)
 }
 
+function isReusableIndex(data) {
+  return (
+    data &&
+    data.embeddingProvider === EMBEDDING_PROVIDER &&
+    data.embeddingModel === EMBEDDING_MODEL &&
+    Number(data.embeddingDimensions) === EMBEDDING_DIMENSIONS &&
+    Array.isArray(data.chunks)
+  )
+}
+
 async function main() {
-  const apiKey = process.env.DASHSCOPE_API_KEY || ''
+  const apiKey = process.env.BIGMODEL_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || ''
   const outPath = join(REPO_ROOT, 'static/rag-vectors.json')
   const siteBase = await readSiteBaseFromHugo()
 
   const stub = {
-    version: 1,
+    version: 2,
+    embeddingProvider: EMBEDDING_PROVIDER,
     embeddingModel: EMBEDDING_MODEL,
+    embeddingDimensions: EMBEDDING_DIMENSIONS,
+    embeddingBaseUrl: BASE_URL,
     baseUrl: BASE_URL,
-    /** 与 hugo baseURL 一致，供 Worker 补全旧索引链接 */
+    /** 与 hugo baseURL 一致，供代理补全旧索引链接 */
     siteBaseUrl: siteBase,
     generatedAt: new Date().toISOString(),
     chunks: [],
@@ -170,18 +194,18 @@ async function main() {
 
   if (!apiKey) {
     console.warn(
-      '[build-rag] 未设置 DASHSCOPE_API_KEY，写入空 rag-vectors.json（Worker 将跳过 RAG）',
+      '[build-rag] 未设置 BIGMODEL_API_KEY/ANTHROPIC_AUTH_TOKEN，写入空 rag-vectors.json（小 k 将跳过 RAG）',
     )
     await writeFile(outPath, JSON.stringify(stub), 'utf8')
     return
   }
 
-  // ── 加载旧索引（增量构建） ──
+  // ── 加载旧索引（仅当 provider/model/dimensions 完全一致时复用）──
   let oldMap = new Map() // source → { hash, chunks[] }
   try {
     const oldRaw = await readFile(outPath, 'utf8')
     const oldData = JSON.parse(oldRaw)
-    if (oldData && Array.isArray(oldData.chunks)) {
+    if (isReusableIndex(oldData)) {
       for (const c of oldData.chunks) {
         if (!c.source || !c.contentHash) continue
         if (!oldMap.has(c.source)) {
@@ -208,14 +232,12 @@ async function main() {
     const rel = relative(REPO_ROOT, file).replace(/\\/g, '/')
     const hash = sha256(raw)
 
-    // 文件内容未变 → 复用旧向量
     const old = oldMap.get(rel)
     if (old && old.hash === hash) {
       reusedChunks.push(...old.chunks)
       continue
     }
 
-    // 新增或修改的文件
     const title = extractTitleFromFrontMatter(raw)
     const body = stripMarkdownNoise(stripFrontMatter(raw))
     const url = contentUrlFromRelative(rel, siteBase)
@@ -226,7 +248,7 @@ async function main() {
 
   console.log(
     `[build-rag] 复用 ${reusedChunks.length} 条旧向量，` +
-    `${plainChunks.length} 个文本块需要重新 Embedding（${EMBEDDING_MODEL}）…`,
+      `${plainChunks.length} 个文本块需要重新 Embedding（${EMBEDDING_MODEL}/${EMBEDDING_DIMENSIONS}）…`,
   )
 
   const embeddings = []
