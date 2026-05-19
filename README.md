@@ -9,9 +9,9 @@
   <a href="#博客简介">博客简介</a> •
   <a href="#内容板块">内容板块</a> •
   <a href="#技术栈">技术栈</a> •
-  <a href="#ai-聊天助手">AI 聊天助手</a> •
+  <a href="#动态能力">动态能力</a> •
   <a href="#本地运行">本地运行</a> •
-  <a href="#部署">部署</a> •
+  <a href="#服务器部署">服务器部署</a> •
   <a href="#项目结构">项目结构</a>
 </p>
 
@@ -19,29 +19,30 @@
 
 ## 博客简介
 
-基于 Hugo + PaperMod 主题搭建的个人博客，用于记录技术探索、生活点滴和思考感悟。博客采用极简设计，以 Profile Mode 作为首页，提供清晰的内容分类和良好的阅读体验。内置 AI 聊天助手，支持多模型切换和博客内容 RAG 检索。
+基于 Hugo + PaperMod 主题搭建的个人博客，用于记录技术探索、生活点滴和思考感悟。当前主站部署在自有服务器域名 `sujian.online`，静态页面由 Hugo 构建后交给 Nginx 提供，聊天助手与留言墙等动态能力由 VPS 本地 Node.js 服务承载。
 
-**在线访问**: [https://sujian666666com-glitch.github.io/](https://sujian666666com-glitch.github.io/)
+**在线访问**: [https://sujian.online/](https://sujian.online/)
 
 ## 内容板块
 
 | 板块 | 说明 | 访问路径 |
 |------|------|----------|
 | 首页 | Profile Mode 极简首页 | `/` |
-| 每日新闻 | 科技新闻与开源动态精选（46+ 期） | `/daily/` |
+| 每日新闻 | 科技新闻与开源动态精选（78+ 期） | `/daily/` |
 | 技术文章 | AI、工程化、OpenClaw 等技术内容 | `/categories/技术/` |
 | 生活随笔 | 生活记录与分享 | `/categories/生活/` |
 | 思考笔记 | 个人思考与感悟 | `/categories/思考/` |
 | 相册 | 图片收藏与分享 | `/gallery/` |
-| 小虾日记 | 养虾日记与周记（49 天 / 7 周） | `/shrimp-diary/` |
+| 小虾日记 | 养虾日记与周记（36 天 / 12 周） | `/shrimp-diary/` |
 
 ## 技术栈
 
 - **静态站点生成器**: Hugo 0.157+
 - **主题**: PaperMod（Profile Mode）
-- **AI 聊天**: Cloudflare Worker + DashScope API（SSE 流式响应）
-- **RAG 检索**: 博客内容向量索引 + 语义检索
-- **部署**: GitHub Pages + Cloudflare Workers
+- **AI 聊天**: VPS Node.js API + 智谱 Coding Plan / Claude API 兼容口（SSE 流式响应）
+- **RAG 检索**: 博客内容向量索引 + 智谱 embedding-3 语义检索
+- **留言墙**: VPS Node.js API + SQLite
+- **部署**: 自有服务器 + Nginx + systemd
 - **语言**: 中文
 
 ### 主题特性
@@ -54,13 +55,18 @@
 - 响应式设计（桌面浮窗 / 移动全屏）
 - 深色/浅色主题切换
 
-## AI 聊天助手
+## 动态能力
 
-博客内置 AI 聊天组件，读者可在侧边栏与 AI 助手对话，AI 会优先依据博客文章内容（RAG 检索）回答问题。
+博客静态内容由 Hugo 生成，动态接口统一走服务器本地服务，再由 Nginx 反向代理到前端路径。
+
+### AI 聊天助手
+
+博客内置 AI 聊天组件，读者可在侧边栏与“小 k”对话。AI 会优先依据博客文章内容（RAG 检索）回答问题，前端只请求站内 `/api/chat`，不会暴露模型 API Key。
 
 ### 功能特性
 
-- 多模型切换：Qwen 3.6 Plus / Qwen Plus / GLM 5 / Kimi K2.5 / MiniMax M2.5 等 12 个模型
+- 站内 `/api/chat` 代理，线上由 `server/chat-api.mjs` 提供
+- GLM 模型调用，兼容 Claude `/v1/messages` 风格接口
 - SSE 流式响应，打字机效果
 - 博客内容 RAG 检索：自动从文章中提取相关片段辅助回答
 - 思考模式开关（支持深度推理模型）
@@ -70,33 +76,35 @@
 ### 架构
 
 ```
-用户 → chat-widget.html (前端) → Cloudflare Worker (chat-worker.js)
+用户 → chat-widget.html / chat-ui.js → Nginx /api/chat
                                       ↓
-                                   DashScope API (多模型)
+                              server/chat-api.mjs (systemd)
                                       ↓
-                                   RAG 向量检索 (rag-vectors.json)
+                         智谱 Coding Plan / Claude API 兼容口
+                                      ↓
+                              RAG 向量索引 (rag-vectors.json)
 ```
 
 - **前端**: `layouts/partials/chat-widget.html` + `assets/css/extended/chat-widget.css`
-- **Worker**: `static/chat-worker.js` — API 代理，处理 CORS、速率限制、模型白名单校验、RAG 检索
-- **RAG 构建**: `scripts/build-rag.mjs` — 从博客内容生成向量索引，CI 中自动执行
+- **聊天 API**: `server/chat-api.mjs` — 服务器本地代理，处理模型调用、流式响应和 RAG 检索
+- **RAG 构建**: `scripts/build-rag.mjs` — 从博客内容生成向量索引
 - **模型配置**: `data/chat.yaml` — 模型列表与系统提示词
+
+### 匿名留言墙
+
+相册页带有匿名留言墙，前端请求站内 `/api/wall/`，线上由 `server/wall-api.mjs` 提供本地 API，并使用 SQLite 保存留言数据。后台管理页使用 `WALL_ADMIN_TOKEN` 做轻量管理鉴权。
 
 ## 本地运行
 
 ### 环境要求
 
-- Hugo Extended 0.157+（与 GitHub Actions 版本保持一致）
-- Node.js 18+（聊天 Worker 开发）
+- Hugo Extended 0.157+（与线上构建版本保持一致）
+- Node.js 22+（本地聊天 API、留言墙 API；留言墙使用 `node:sqlite`）
 - Git
 
-### 克隆与运行
+### 启动预览
 
 ```bash
-# 克隆仓库（包含子模块）
-git clone --recurse-submodules https://github.com/sujian666666com-glitch/sujian666666com-glitch.github.io.git
-cd sujian666666com-glitch.github.io
-
 # 本地运行
 hugo server -D
 
@@ -116,64 +124,92 @@ hugo --minify
 git submodule update --init --recursive --force
 
 # 重新构建 RAG 向量索引
-node scripts/build-rag.mjs
+npm run build:rag
 
-# 部署聊天 Worker（需要 Cloudflare 账号）
-npx wrangler secret put DASHSCOPE_API_KEY
-npx wrangler deploy
+# 本地启动留言墙 API
+npm run wall:dev
+
+# 本地启动聊天 API（需要 BIGMODEL_API_KEY）
+BIGMODEL_API_KEY=your_zhipu_api_key npm run chat:dev
 ```
 
-## 部署
+## 服务器部署
 
-### GitHub Pages（博客主站）
+当前部署口径以 `sujian.online` 自有服务器为准：
 
-通过 GitHub Actions 自动部署，推送代码到 `main` 分支即可触发：
+- Hugo 构建产物由 Nginx 作为静态站点提供。
+- `/api/chat` 反向代理到服务器本地 `server/chat-api.mjs`。
+- `/api/wall/` 反向代理到服务器本地 `server/wall-api.mjs`。
+- 两个 Node.js API 通过 systemd 常驻运行。
 
-1. GitHub Actions 构建 Hugo 站点
-2. 执行 `scripts/build-rag.mjs` 生成 RAG 向量索引
-3. 生成的静态文件部署到 GitHub Pages
+### 静态站点
 
-### Cloudflare Workers（聊天代理）
+```bash
+# 构建静态站点
+hugo --minify
 
-聊天 Worker 独立部署在 Cloudflare Workers 上，配置见 `wrangler.toml`：
+# 构建或刷新 RAG 向量索引
+BIGMODEL_API_KEY=your_zhipu_api_key npm run build:rag
+```
+
+### 聊天 API
 
 | 配置项 | 说明 |
 |--------|------|
-| `DASHSCOPE_BASE_URL` | DashScope API 地址 |
-| `DASHSCOPE_API_KEY` | API 密钥（通过 `wrangler secret` 设置） |
-| `RAG_VECTORS_URL` | 博客向量索引地址 |
+| `BIGMODEL_API_KEY` | 智谱 API Key，放在 `/etc/my-blog-chat.env` |
+| `BIGMODEL_ANTHROPIC_BASE_URL` | Claude API 兼容口，默认 `https://open.bigmodel.cn/api/anthropic` |
+| `BIGMODEL_EMBEDDING_BASE_URL` | Embedding API 地址，默认 `https://open.bigmodel.cn/api/paas/v4` |
+| `RAG_VECTORS_URL` | 线上博客向量索引地址 |
 | `RAG_TOP_K` | 检索返回的 top-k 文档数 |
+
+线上文件位置：
+
+- 服务代码：`/opt/my-blog-chat/chat-api.mjs`
+- systemd：`/etc/systemd/system/my-blog-chat.service`
+- 环境文件：`/etc/my-blog-chat.env`
+- Nginx：`server/nginx-chat-location.conf`
+
+### 留言墙 API
+
+| 配置项 | 说明 |
+|--------|------|
+| `WALL_API_HOST` | 默认 `127.0.0.1` |
+| `WALL_API_PORT` | 默认 `8787` |
+| `WALL_DB_PATH` | 默认 `/var/lib/my-blog-wall/wall.db` |
+| `WALL_ADMIN_TOKEN` | 后台管理口令，放在 `/etc/my-blog-wall.env` |
+
+线上文件位置：
+
+- 服务代码：`/opt/my-blog-wall/wall-api.mjs`
+- 数据库：`/var/lib/my-blog-wall/wall.db`
+- systemd：`/etc/systemd/system/my-blog-wall.service`
+- Nginx：`server/nginx-wall-location.conf`
 
 ### 注意事项
 
-- 本地 Hugo 版本应与 `.github/workflows/hugo.yml` 中的 `HUGO_VERSION` 保持一致
 - 主题作为 Git 子模块引入，如遇构建失败可执行 `git submodule update --init --recursive --force`
-- Worker 密钥通过 `npx wrangler secret put` 管理，不要提交到仓库
+- API Key 与后台口令只放服务器环境文件，不要提交到仓库
+- `wrangler.toml` 和 `static/chat-worker.js` 是旧 Cloudflare Worker 路径，当前线上主链路以 VPS Node API 为准
 
 ## 项目结构
 
 ```text
 my-blog/
-├── .github/
-│   ├── workflows/
-│   │   └── hugo.yml              # GitHub Actions 部署 + RAG 构建
-│   ├── prompts/                  # OpenSpec 提示词模板
-│   └── skills/                   # OpenSpec 技能定义
 ├── archetypes/                   # 文章模板
 ├── assets/css/extended/
 │   ├── custom.css                # 自定义样式（布局宽度等）
 │   └── chat-widget.css           # 聊天组件样式
 ├── content/                      # 博客内容
 │   ├── about/                    # 关于页面
-│   ├── daily/                    # 每日新闻（46+ 篇）
+│   ├── daily/                    # 每日新闻（78+ 篇）
 │   ├── gallery/                  # 相册
 │   ├── posts/                    # 博客文章
 │   │   ├── 技术/                 # 技术分类
 │   │   ├── 生活/                 # 生活分类
 │   │   └── 思考/                 # 思考分类
 │   └── shrimp-diary/             # 小虾日记
-│       ├── daily/                # 每日记录（49 天）
-│       └── weekly/               # 周记（7 周）
+│       ├── daily/                # 每日记录
+│       └── weekly/               # 周记
 ├── data/
 │   └── chat.yaml                 # 聊天模型配置与系统提示词
 ├── layouts/partials/
@@ -185,15 +221,23 @@ my-blog/
 ├── scripts/
 │   ├── build-rag.mjs             # RAG 向量索引构建脚本
 │   └── update-rag.sh             # RAG 更新 Shell 脚本
+├── server/
+│   ├── chat-api.mjs              # VPS 本地聊天 API
+│   ├── wall-api.mjs              # VPS 本地留言墙 API
+│   ├── my-blog-chat.service      # 聊天 API systemd 示例
+│   ├── my-blog-wall.service      # 留言墙 API systemd 示例
+│   ├── nginx-chat-location.conf  # /api/chat 反代配置
+│   └── nginx-wall-location.conf  # /api/wall/ 反代配置
 ├── static/
-│   ├── chat-worker.js            # Cloudflare Worker（API 代理 + RAG）
+│   ├── chat-ui.js                # 聊天组件交互逻辑
+│   ├── message-wall.js           # 留言墙交互逻辑
 │   ├── rag-vectors.json          # 博客内容向量索引
 │   └── images/                   # 图片资源
 ├── themes/
 │   └── PaperMod/                 # 主题（Git 子模块）
 ├── hugo.yaml                     # Hugo 配置文件
-├── wrangler.toml                 # Cloudflare Worker 配置
-└── package.json                  # Node.js 依赖（wrangler）
+├── server/README.md              # 服务器 API 部署说明
+└── package.json                  # Node.js 脚本与依赖
 ```
 
 ## 博客配置
@@ -205,7 +249,8 @@ my-blog/
 | `baseURL` | 博客地址 |
 | `theme` | PaperMod |
 | `params.profileMode` | 首页极简模式 |
-| `params.chat.proxyURL` | 聊天 Worker 代理地址 |
+| `params.chat.proxyURL` | 聊天 API 地址，当前为 `https://sujian.online/api/chat` |
+| `params.messageWall.apiURL` | 留言墙 API 站点地址，当前为 `https://sujian.online` |
 | `params.author` | 作者名称 |
 | `params.mainSections` | 首页展示的内容分类 |
 
