@@ -126,6 +126,9 @@ git submodule update --init --recursive --force
 # 重新构建 RAG 向量索引
 npm run build:rag
 
+# 生成每日新闻封面提示词（按日期稳定随机）
+python3 scripts/daily-cover-prompt.py --date 2026-05-19
+
 # 本地启动留言墙 API
 npm run wall:dev
 
@@ -220,6 +223,7 @@ my-blog/
 │   └── index_profile.html        # 首页 Profile 模板
 ├── scripts/
 │   ├── build-rag.mjs             # RAG 向量索引构建脚本
+│   ├── daily-cover-prompt.py     # 每日新闻封面提示词随机拼装脚本
 │   └── update-rag.sh             # RAG 更新 Shell 脚本
 ├── server/
 │   ├── chat-api.mjs              # VPS 本地聊天 API
@@ -267,6 +271,20 @@ hugo new posts/my-article/index.md
 # 本地预览
 hugo server -D
 ```
+
+### 每日新闻封面提示词
+
+每日新闻封面由 `scripts/daily-cover-prompt.py` 生成。脚本按日期做稳定随机，从「风格类型 × 气质人设 × 场景主题」中各抽一个组合，输出给 ChatGPT 生成封面图。
+
+```bash
+# 输出纯提示词
+python3 scripts/daily-cover-prompt.py --date 2026-05-19
+
+# 输出 JSON，便于自动化流程记录抽中的组合
+python3 scripts/daily-cover-prompt.py --date 2026-05-19 --json
+```
+
+脚本内置通用安全边界：成年女性、服装完整覆盖私密部位、不透明、不湿身、不破损、不低俗、不强调胸部/臀部或身体特写，画面需适合作为博客封面、头像或日更插画素材。
 
 ## 联系方式
 
