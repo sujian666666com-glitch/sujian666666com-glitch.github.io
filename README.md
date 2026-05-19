@@ -136,6 +136,20 @@ npm run wall:dev
 BIGMODEL_API_KEY=your_zhipu_api_key npm run chat:dev
 ```
 
+### 每日新闻正文格式
+
+每日新闻正文不要写成单纯的链接列表。每条新闻必须包含「标题 + 摘要 + 链接」三类信息，建议保持如下结构：
+
+```markdown
+## 1. 新闻标题
+
+- 标题：新闻标题原文或准确中文标题
+- 摘要：用 1-3 句话说明事件本身、影响点和为什么值得关注，只写可核验信息。
+- 链接：[原始报道](https://example.com/) / [讨论页](https://news.ycombinator.com/item?id=xxxx)，热度：可选
+```
+
+摘要要基于公开来源和真实性评估结果，不要把无法确认的推测写成事实。
+
 ## 服务器部署
 
 当前部署口径以 `sujian.online` 自有服务器为准：
