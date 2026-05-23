@@ -1,21 +1,17 @@
-{{- $pages := .pages -}}
+{{- $pages := .pages | default slice -}}
 {{- $current := .current -}}
-{{- $active := .active -}}
-{{- $limit := .limit | default 18 -}}
+{{- $limit := .limit | default 14 -}}
+{{- $label := .label | default "最近文章" -}}
 
-<nav class="daily-date-nav" aria-label="最近每日新闻">
+{{- if gt (len $pages) 0 -}}
+<nav class="daily-date-nav article-doc-nav" aria-label="{{ $label }}">
   <div class="daily-date-nav__head">
-    <span>RECENT</span>
-    <strong>每日新闻</strong>
+    <span>{{ $label }}</span>
+    <strong>{{ len $pages }} 篇</strong>
   </div>
   <ol class="daily-date-nav__list">
     {{- range first $limit $pages }}
-    {{- $isActive := false -}}
-    {{- if $active -}}
-      {{- $isActive = eq .RelPermalink $active.RelPermalink -}}
-    {{- else if and $current $current.IsPage -}}
-      {{- $isActive = eq .RelPermalink $current.RelPermalink -}}
-    {{- end -}}
+    {{- $isActive := and $current (eq .RelPermalink $current.RelPermalink) -}}
     <li>
       <a class="{{ if $isActive }}is-active{{ end }}" href="{{ .RelPermalink }}">
         <time datetime="{{ .Date.Format "2006-01-02" }}">
@@ -28,3 +24,4 @@
     {{- end }}
   </ol>
 </nav>
+{{- end -}}

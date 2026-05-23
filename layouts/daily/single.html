@@ -67,21 +67,21 @@
       {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
       <ul class="post-tags">
         {{- range ($.GetTerms $tags) }}
-        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+        <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
         {{- end }}
       </ul>
 
       {{- if gt (len $dailyPages) 1 }}
       <nav class="paginav daily-single-nav">
         {{- with $dailyPages.Next . }}
-        <a class="prev" href="{{ .Permalink }}">
+        <a class="prev" href="{{ .RelPermalink }}">
           <span class="title">« 上一篇</span>
           <br>
           <span>{{ .Name }}</span>
         </a>
         {{- end }}
         {{- with $dailyPages.Prev . }}
-        <a class="next" href="{{ .Permalink }}">
+        <a class="next" href="{{ .RelPermalink }}">
           <span class="title">下一篇 »</span>
           <br>
           <span>{{ .Name }}</span>
