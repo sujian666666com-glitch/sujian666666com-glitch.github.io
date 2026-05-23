@@ -4,6 +4,148 @@
 {{- partial "index_profile.html" . }}
 {{- else }}
 
+{{- $pages := .RegularPages }}
+{{- if .IsHome }}
+{{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
+{{- else if and (eq .Kind `section`) (eq .Section `posts`) }}
+{{- $pages = where site.RegularPages "Section" "posts" }}
+{{- else if eq (len $pages) 0 }}
+{{- $pages = union .RegularPages .Sections }}
+{{- end }}
+
+{{- $paginator := .Paginate $pages }}
+{{- $useDocList := and (not .IsHome) (ne .Section "gallery") (gt (len $paginator.Pages) 0) }}
+{{- $sectionPages := (where site.RegularPages "Section" .Section).ByDate.Reverse -}}
+{{- $navPages := cond (gt (len $sectionPages) 0) $sectionPages site.RegularPages.ByDate.Reverse -}}
+
+{{- if $useDocList }}
+<section class="daily-doc-layout article-doc-layout article-list-layout" aria-label="{{ .Title | default "文章列表" }}">
+  <aside class="daily-doc-sidebar daily-doc-sidebar--left">
+    {{- partial "article-section-nav.html" (dict "pages" $navPages "current" nil "limit" 16 "label" "最近文章") -}}
+  </aside>
+
+  <div class="daily-doc-main">
+    {{- if not .IsHome | and .Title }}
+    <header class="daily-doc-header article-list-header animate__animated animate__fadeInDown animate__fast">
+      {{- partial "breadcrumbs.html" . }}
+
+      <div class="daily-doc-header__meta">
+        <span>{{ if eq .Kind `term` }}分类归档{{ else if eq .Kind `section` }}栏目归档{{ else }}文章归档{{ end }}</span>
+        {{- if and (or (eq .Kind `term`) (eq .Kind `section`)) (.Param "ShowRssButtonInSectionTermList") }}
+        {{- with .OutputFormats.Get "rss" }}
+        <a class="article-list-header__rss" href="{{ .RelPermalink }}" title="RSS" aria-label="RSS">RSS</a>
+        {{- end }}
+        {{- end }}
+      </div>
+
+      <div class="daily-doc-header__title-row">
+        <div>
+          <h1 class="post-title">{{ .Title }}</h1>
+          {{- if .Description }}
+          <div class="post-description">
+            {{ .Description | markdownify }}
+          </div>
+          {{- end }}
+        </div>
+        <div class="daily-doc-header__date article-list-header__count" aria-hidden="true">
+          <span>共计</span>
+          <strong>{{ len $pages }}</strong>
+        </div>
+      </div>
+    </header>
+    {{- end }}
+
+    {{- if .Content }}
+    <div class="post-content article-doc-content article-list-intro animate__animated animate__fadeInUp animate__fast">
+      {{- if not (.Param "disableAnchoredHeadings") }}
+      {{- partial "anchored_headings.html" .Content -}}
+      {{- else }}{{ .Content }}{{ end }}
+    </div>
+    {{- end }}
+
+    <div id="文章列表" class="article-archive-list">
+      {{- range $index, $page := $paginator.Pages }}
+      {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
+      {{- $hasCover := and .Params.cover.image (not $isHidden) }}
+      {{- $delay := add 80 (mul $index 45) }}
+      <article class="article-archive-item {{ if $hasCover }}article-archive-item--with-cover{{ else }}article-archive-item--no-cover{{ end }} animate__animated animate__fadeInUp animate__fast"
+        style="--animate-delay: {{ $delay }}ms;">
+        <a class="article-archive-item__link" href="{{ .RelPermalink }}" aria-label="阅读 {{ .Title | plainify }}">
+          <time class="article-archive-item__date" {{ if not .Date.IsZero }}datetime="{{ .Date.Format "2006-01-02" }}"{{ end }}>
+            {{- if .Date.IsZero }}
+            <span>栏目</span>
+            <strong>入口</strong>
+            {{- else }}
+            <span>{{ .Date.Format "2006" }}</span>
+            <strong>{{ .Date.Format "01.02" }}</strong>
+            {{- end }}
+          </time>
+
+          <div class="article-archive-item__body">
+            <h2>
+              {{- .Title }}
+              {{- if .Draft }}<span class="entry-hint">Draft</span>{{- end }}
+            </h2>
+            {{- if (ne (.Param "hideSummary") true) }}
+            <p class="article-archive-item__summary">{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+            {{- end }}
+            {{- if not (.Param "hideMeta") }}
+            <div class="article-archive-item__meta">
+              {{- partial "post_meta.html" . -}}
+            </div>
+            {{- end }}
+          </div>
+
+          {{- if $hasCover }}
+          <div class="article-archive-item__thumb" aria-hidden="true">
+            {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
+          </div>
+          {{- else }}
+          <span class="article-archive-item__arrow" aria-hidden="true">阅读</span>
+          {{- end }}
+        </a>
+      </article>
+      {{- end }}
+    </div>
+
+    {{- if gt $paginator.TotalPages 1 }}
+    <footer class="daily-magazine-pagination article-list-pagination animate__animated animate__fadeInUp animate__fast">
+      {{- if $paginator.HasPrev }}
+      <a class="daily-magazine-pagination__prev" href="{{ $paginator.Prev.URL }}">
+        上一页
+        {{- if (.Param "ShowPageNums") }} · {{ sub $paginator.PageNumber 1 }}/{{ $paginator.TotalPages }}{{- end }}
+      </a>
+      {{- end }}
+      {{- if $paginator.HasNext }}
+      <a class="daily-magazine-pagination__next" href="{{ $paginator.Next.URL }}">
+        下一页
+        {{- if (.Param "ShowPageNums") }} · {{ add 1 $paginator.PageNumber }}/{{ $paginator.TotalPages }}{{- end }}
+      </a>
+      {{- end }}
+    </footer>
+    {{- end }}
+  </div>
+
+  <aside class="daily-doc-sidebar daily-doc-sidebar--right">
+    <nav class="daily-doc-toc article-list-toc" aria-label="页面导航">
+      <div class="daily-doc-toc__label">页面导航</div>
+      <ol>
+        <li><a href="#top">顶部</a></li>
+        <li><a href="#文章列表">文章列表</a></li>
+        {{- with site.GetPage "/archives" }}
+        <li><a href="{{ .RelPermalink }}">归档</a></li>
+        {{- end }}
+        {{- with site.GetPage "/daily" }}
+        <li><a href="{{ .RelPermalink }}">每日新闻</a></li>
+        {{- end }}
+      </ol>
+    </nav>
+  </aside>
+</section>
+
+{{- else }}
+
 {{- if not .IsHome | and .Title }}
 <header class="page-header animate__animated animate__fadeInDown animate__fast">
   {{- partial "breadcrumbs.html" . }}
@@ -37,19 +179,6 @@
   {{- else }}{{ .Content }}{{ end }}
 </div>
 {{- end }}
-
-{{- $pages := .RegularPages }}
-
-{{- if .IsHome }}
-{{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
-{{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
-{{- else if and (eq .Kind `section`) (eq .Section `posts`) }}
-{{- $pages = where site.RegularPages "Section" "posts" }}
-{{- else if eq (len $pages) 0 }}
-{{- $pages = union .RegularPages .Sections }}
-{{- end }}
-
-{{- $paginator := .Paginate $pages }}
 
 {{- if and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
 {{- partial "home_info.html" . }}
@@ -95,7 +224,7 @@
   </div>
   {{- end }}
 
-  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
 </article>
 {{- end }}
 </div>
@@ -104,7 +233,7 @@
 <footer class="page-footer animate__animated animate__fadeInUp animate__fast">
   <nav class="pagination">
     {{- if $paginator.HasPrev }}
-    <a class="prev" href="{{ $paginator.Prev.URL | absURL }}">
+    <a class="prev" href="{{ $paginator.Prev.URL }}">
       «&nbsp;{{ i18n "prev_page" }}&nbsp;
       {{- if (.Param "ShowPageNums") }}
       {{- sub $paginator.PageNumber 1 }}/{{ $paginator.TotalPages }}
@@ -112,7 +241,7 @@
     </a>
     {{- end }}
     {{- if $paginator.HasNext }}
-    <a class="next" href="{{ $paginator.Next.URL | absURL }}">
+    <a class="next" href="{{ $paginator.Next.URL }}">
       {{- i18n "next_page" }}&nbsp;
       {{- if (.Param "ShowPageNums") }}
       {{- add 1 $paginator.PageNumber }}/{{ $paginator.TotalPages }}
@@ -121,6 +250,8 @@
     {{- end }}
   </nav>
 </footer>
+{{- end }}
+
 {{- end }}
 
 {{- end }}
