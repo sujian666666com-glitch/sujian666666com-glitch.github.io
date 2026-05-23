@@ -1,0 +1,99 @@
+{{- define "main" }}
+
+{{- $pages := .RegularPages.ByDate.Reverse -}}
+{{- $paginator := .Paginate $pages -}}
+{{- $latest := index $pages 0 -}}
+
+<section class="daily-magazine" aria-label="每日新闻">
+  <header class="daily-magazine-hero animate__animated animate__fadeInDown animate__fast">
+    <div class="daily-magazine-hero__masthead">
+      <span class="daily-magazine-hero__brand">DAILY NEWS</span>
+      <span class="daily-magazine-hero__rule" aria-hidden="true"></span>
+      <span class="daily-magazine-hero__issue">
+        {{- if $latest -}}
+        更新于 {{ $latest.Date.Format "2006.01.02" }}
+        {{- else -}}
+        持续记录
+        {{- end -}}
+      </span>
+    </div>
+
+    <div class="daily-magazine-hero__body">
+      <div>
+        <p class="daily-magazine-hero__eyebrow">科技 / 开源 / AI / 安全</p>
+        <h1>{{ .Title | default "每日科技新闻速递" }}</h1>
+      </div>
+      <div class="daily-magazine-hero__summary">
+        <p>{{ .Description | default "把每天值得关注的技术新闻整理成可核验的摘要档案。" }}</p>
+        <dl>
+          <div>
+            <dt>累计</dt>
+            <dd>{{ len $pages }} 期</dd>
+          </div>
+          <div>
+            <dt>最近</dt>
+            <dd>{{ with $latest }}{{ .Date.Format "01.02" }}{{ else }}--{{ end }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <nav class="daily-magazine-hero__links" aria-label="每日新闻快捷入口">
+      <a href="{{ "/archives/" | absURL }}">归档</a>
+      <a href="{{ "/index.xml" | absURL }}">RSS</a>
+      <a href="{{ "/search/" | absURL }}">搜索</a>
+    </nav>
+  </header>
+
+  <div class="daily-archive-list">
+    {{- range $index, $page := $paginator.Pages }}
+    {{- $delay := add 80 (mul $index 45) -}}
+    {{- $cover := .Params.cover.image -}}
+    <article class="daily-archive-item animate__animated animate__fadeInUp animate__fast" style="--animate-delay: {{ $delay }}ms;">
+      <a class="daily-archive-item__link" href="{{ .Permalink }}" aria-label="阅读 {{ .Title | plainify }}">
+        <div class="daily-archive-item__date" aria-label="{{ .Date.Format "2006年01月02日" }}">
+          <span>{{ .Date.Format "2006" }}</span>
+          <strong>{{ .Date.Format "01.02" }}</strong>
+        </div>
+
+        <div class="daily-archive-item__body">
+          {{- $issueNumber := sub (len $pages) $index -}}
+          <div class="daily-archive-item__meta">
+            <span>Issue {{ printf "%02d" $issueNumber }}</span>
+            <span>{{ .ReadingTime }} min read</span>
+          </div>
+          <h2>{{ .Title }}</h2>
+          {{- if ne (.Param "hideSummary") true }}
+          <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+          {{- end }}
+        </div>
+
+        <div class="daily-archive-item__thumb" aria-hidden="true">
+          {{- if $cover }}
+          <img src="{{ $cover | relURL }}" alt="">
+          {{- else }}
+          <span>{{ .Date.Format "Jan" }}</span>
+          <strong>{{ .Date.Format "02" }}</strong>
+          {{- end }}
+        </div>
+
+        <span class="daily-archive-item__arrow" aria-hidden="true">→</span>
+      </a>
+    </article>
+    {{- end }}
+  </div>
+
+  {{- if gt $paginator.TotalPages 1 }}
+  <footer class="daily-magazine-pagination animate__animated animate__fadeInUp animate__fast">
+    {{- if $paginator.HasPrev }}
+    <a class="daily-magazine-pagination__prev" href="{{ $paginator.Prev.URL | absURL }}">上一页</a>
+    {{- end }}
+    <span>Page {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}</span>
+    {{- if $paginator.HasNext }}
+    <a class="daily-magazine-pagination__next" href="{{ $paginator.Next.URL | absURL }}">下一页</a>
+    {{- end }}
+  </footer>
+  {{- end }}
+</section>
+
+{{- end }}
