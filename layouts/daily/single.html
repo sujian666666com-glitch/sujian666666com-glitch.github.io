@@ -1,22 +1,22 @@
 {{- define "main" }}
 
-{{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false -}}
-{{- $hasCover := and .Params.cover.image (not $isHidden) -}}
-{{- $dailyPages := where site.RegularPages "Section" "daily" -}}
+{{- $dailyPages := (where site.RegularPages "Section" "daily").ByDate.Reverse -}}
 
-<article class="post-single daily-single">
-  <header class="daily-single-hero animate__animated animate__fadeInDown animate__fast">
-    {{ partial "breadcrumbs.html" . }}
+<article class="post-single daily-single daily-doc-layout">
+  <aside class="daily-doc-sidebar daily-doc-sidebar--left">
+    {{- partial "daily-date-nav.html" (dict "pages" $dailyPages "current" . "limit" 18) -}}
+  </aside>
 
-    <div class="daily-single-hero__masthead">
-      <span>DAILY NEWS</span>
-      <span aria-hidden="true"></span>
-      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
-    </div>
+  <div class="daily-doc-main">
+    <header class="daily-doc-header animate__animated animate__fadeInDown animate__fast">
+      {{ partial "breadcrumbs.html" . }}
 
-    <div class="daily-single-hero__body">
-      <div class="daily-single-hero__copy">
-        <p class="daily-single-hero__eyebrow">每日科技新闻速递</p>
+      <div class="daily-doc-header__meta">
+        <span>每日科技新闻速递</span>
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+      </div>
+
+      <div class="daily-doc-header__title-row">
         <h1 class="post-title entry-hint-parent">
           {{ .Title }}
           {{- if .Draft }}
@@ -27,79 +27,87 @@
           </span>
           {{- end }}
         </h1>
-        {{- if .Description }}
-        <div class="post-description">{{ .Description }}</div>
-        {{- end }}
-        {{- if not (.Param "hideMeta") }}
-        <div class="post-meta">
-          {{- partial "post_meta.html" . -}}
-          {{- partial "translation_list.html" . -}}
-          {{- partial "edit_post.html" . -}}
-          {{- partial "post_canonical.html" . -}}
+        <div class="daily-doc-header__date" aria-hidden="true">
+          <span>{{ .Date.Format "2006" }}</span>
+          <strong>{{ .Date.Format "01.02" }}</strong>
         </div>
-        {{- end }}
       </div>
 
-      <div class="daily-single-hero__cover" aria-hidden="true">
-        {{- if $hasCover }}
-        <img src="{{ .Params.cover.image | relURL }}" alt="">
-        {{- else }}
-        <span>{{ .Date.Format "2006" }}</span>
-        <strong>{{ .Date.Format "01.02" }}</strong>
-        {{- end }}
+      {{- if .Description }}
+      <div class="post-description">{{ .Description }}</div>
+      {{- end }}
+      {{- if not (.Param "hideMeta") }}
+      <div class="post-meta">
+        {{- partial "post_meta.html" . -}}
+        {{- partial "translation_list.html" . -}}
+        {{- partial "edit_post.html" . -}}
+        {{- partial "post_canonical.html" . -}}
       </div>
+      {{- end }}
+    </header>
+
+    {{- if (.Param "ShowToc") }}
+    <div class="daily-doc-mobile-toc">
+      <details>
+        <summary>目录</summary>
+        {{ .TableOfContents }}
+      </details>
     </div>
-  </header>
+    {{- end }}
 
-  {{- if (.Param "ShowToc") }}
-  <div class="daily-single__toc">
-    {{- partial "toc.html" . }}
+    {{- if .Content }}
+    <div class="post-content daily-news-content animate__animated animate__fadeInUp animate__fast">
+      {{- if not (.Param "disableAnchoredHeadings") }}
+      {{- partial "anchored_headings.html" .Content -}}
+      {{- else }}{{ .Content }}{{ end }}
+    </div>
+    {{- end }}
+
+    <footer class="post-footer daily-single-footer">
+      {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
+      <ul class="post-tags">
+        {{- range ($.GetTerms $tags) }}
+        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+        {{- end }}
+      </ul>
+
+      {{- if gt (len $dailyPages) 1 }}
+      <nav class="paginav daily-single-nav">
+        {{- with $dailyPages.Next . }}
+        <a class="prev" href="{{ .Permalink }}">
+          <span class="title">« 上一篇</span>
+          <br>
+          <span>{{ .Name }}</span>
+        </a>
+        {{- end }}
+        {{- with $dailyPages.Prev . }}
+        <a class="next" href="{{ .Permalink }}">
+          <span class="title">下一篇 »</span>
+          <br>
+          <span>{{ .Name }}</span>
+        </a>
+        {{- end }}
+      </nav>
+      {{- end }}
+
+      {{- if (and site.Params.ShowShareButtons (ne .Params.disableShare true)) }}
+      {{- partial "share_icons.html" . -}}
+      {{- end }}
+    </footer>
+
+    {{- if (.Param "comments") }}
+    {{- partial "comments.html" . }}
+    {{- end }}
   </div>
-  {{- end }}
 
-  {{- if .Content }}
-  <div class="post-content daily-news-content animate__animated animate__fadeInUp animate__fast">
-    {{- if not (.Param "disableAnchoredHeadings") }}
-    {{- partial "anchored_headings.html" .Content -}}
-    {{- else }}{{ .Content }}{{ end }}
-  </div>
-  {{- end }}
-
-  <footer class="post-footer daily-single-footer">
-    {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
-    <ul class="post-tags">
-      {{- range ($.GetTerms $tags) }}
-      <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
-      {{- end }}
-    </ul>
-
-    {{- if gt (len $dailyPages) 1 }}
-    <nav class="paginav daily-single-nav">
-      {{- with $dailyPages.Next . }}
-      <a class="prev" href="{{ .Permalink }}">
-        <span class="title">« 上一篇</span>
-        <br>
-        <span>{{ .Name }}</span>
-      </a>
-      {{- end }}
-      {{- with $dailyPages.Prev . }}
-      <a class="next" href="{{ .Permalink }}">
-        <span class="title">下一篇 »</span>
-        <br>
-        <span>{{ .Name }}</span>
-      </a>
-      {{- end }}
+  <aside class="daily-doc-sidebar daily-doc-sidebar--right">
+    {{- if (.Param "ShowToc") }}
+    <nav class="daily-doc-toc" aria-label="文章目录">
+      <span class="daily-doc-toc__label">ON THIS PAGE</span>
+      {{ .TableOfContents }}
     </nav>
     {{- end }}
-
-    {{- if (and site.Params.ShowShareButtons (ne .Params.disableShare true)) }}
-    {{- partial "share_icons.html" . -}}
-    {{- end }}
-  </footer>
-
-  {{- if (.Param "comments") }}
-  {{- partial "comments.html" . }}
-  {{- end }}
+  </aside>
 </article>
 
 {{- end }}

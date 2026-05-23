@@ -1,0 +1,30 @@
+{{- $pages := .pages -}}
+{{- $current := .current -}}
+{{- $active := .active -}}
+{{- $limit := .limit | default 18 -}}
+
+<nav class="daily-date-nav" aria-label="最近每日新闻">
+  <div class="daily-date-nav__head">
+    <span>RECENT</span>
+    <strong>每日新闻</strong>
+  </div>
+  <ol class="daily-date-nav__list">
+    {{- range first $limit $pages }}
+    {{- $isActive := false -}}
+    {{- if $active -}}
+      {{- $isActive = eq .Permalink $active.Permalink -}}
+    {{- else if and $current $current.IsPage -}}
+      {{- $isActive = eq .Permalink $current.Permalink -}}
+    {{- end -}}
+    <li>
+      <a class="{{ if $isActive }}is-active{{ end }}" href="{{ .Permalink }}">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">
+          <span>{{ .Date.Format "2006" }}</span>
+          <strong>{{ .Date.Format "01.02" }}</strong>
+        </time>
+        <span>{{ .Title }}</span>
+      </a>
+    </li>
+    {{- end }}
+  </ol>
+</nav>
