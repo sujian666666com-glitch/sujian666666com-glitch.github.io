@@ -1291,6 +1291,16 @@ html {
   --daily-accent: rgb(217, 166, 82);
 }
 
+[data-theme="dark"] .article-doc-layout {
+  --daily-ink: rgb(232, 229, 220);
+  --daily-muted: rgb(150, 156, 166);
+  --daily-rule: rgba(232, 229, 220, 0.14);
+  --daily-rule-strong: rgba(232, 229, 220, 0.46);
+  --daily-paper: rgb(29, 30, 32);
+  --daily-soft: rgba(217, 166, 82, 0.1);
+  --daily-accent: rgb(205, 143, 61);
+}
+
 [data-theme="dark"] .daily-magazine-hero,
 [data-theme="dark"] .daily-single-hero {
   background: linear-gradient(180deg, rgba(18, 18, 17, 0.94), rgba(18, 18, 17, 0.52));
