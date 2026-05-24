@@ -28,20 +28,28 @@
   data-user-avatar="{{ $userAvatar }}">
   <!-- Header -->
   <div class="chat-header">
-    <span class="chat-header-title">{{ $panelTitle }}</span>
+    <button class="chat-header-profile" id="chatProfileBtn" type="button" aria-label="查看小 k 资料">
+      <span class="chat-header-avatar">
+        <img src="{{ $assistantAvatarImage }}" alt="{{ $panelTitle }}"/>
+      </span>
+      <span class="chat-header-copy">
+        <span class="chat-header-title">{{ $panelTitle }}</span>
+        <span class="chat-header-subtitle"><span class="chat-status-dot"></span>博客阅读助手</span>
+      </span>
+    </button>
     <div class="chat-header-actions">
-      <select class="chat-model-select" id="chatModelSelect">
+      <select class="chat-model-select" id="chatModelSelect" aria-hidden="true" tabindex="-1">
         {{- range $chat.models }}
         <option value="{{ .id }}" {{ if eq .id $defaultModel }}selected{{ end }}>{{ .label }}</option>
         {{- end }}
       </select>
-      <label class="chat-think-toggle" title="启用后可查看模型思考过程">
+      <label class="chat-think-toggle" title="启用后可查看模型思考过程" aria-hidden="true">
         <input type="checkbox" id="chatThinkToggle">思考
       </label>
-      <label class="chat-think-toggle" title="启用后会检索博客文章内容来回答">
+      <label class="chat-think-toggle" title="启用后会检索博客文章内容来回答" aria-hidden="true">
         <input type="checkbox" id="chatRagToggle" checked>RAG
       </label>
-      <label class="chat-think-toggle" title="网络不稳或连接被重置时勾选：单次返回全文（非流式），可多试几次">
+      <label class="chat-think-toggle" title="网络不稳或连接被重置时勾选：单次返回全文（非流式），可多试几次" aria-hidden="true">
         <input type="checkbox" id="chatCompatToggle">兼容
       </label>
       <button class="chat-header-btn" id="chatClearBtn" title="清除对话">
@@ -56,6 +64,26 @@
   <!-- Messages Area -->
   <div class="chat-messages" id="chatMessages"></div>
 
+  <div class="chat-profile-card" id="chatProfileCard" hidden>
+    <div class="chat-profile-backdrop" id="chatProfileBackdrop"></div>
+    <section class="chat-profile-panel" aria-label="小 k 资料">
+      <button class="chat-profile-close" id="chatProfileCloseBtn" type="button" aria-label="关闭资料">×</button>
+      <img class="chat-profile-avatar" src="{{ $assistantAvatarImage }}" alt="{{ $panelTitle }}"/>
+      <h2>小 k</h2>
+      <p>住在博客侧边栏里的阅读小助手，喜欢帮你翻文章、找线索、整理想法。</p>
+      <div class="chat-profile-tags">
+        <span>认真</span>
+        <span>话少</span>
+        <span>爱总结</span>
+      </div>
+      <ul class="chat-profile-skills">
+        <li>读博客文章</li>
+        <li>总结近期内容</li>
+        <li>帮你找相关链接</li>
+      </ul>
+    </section>
+  </div>
+
   <!-- Input Area -->
   <div class="chat-input-area">
     <textarea class="chat-input" id="chatInput" placeholder="输入消息…" rows="1"></textarea>
@@ -65,4 +93,4 @@
   </div>
 </div>
 
-<script src="/chat-ui.js" defer></script>
+<script src="/chat-ui.js?v=xiao-k-vps-chat-redesign" defer></script>

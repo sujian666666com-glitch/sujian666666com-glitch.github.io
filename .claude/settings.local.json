@@ -23,7 +23,8 @@
       "Bash(grep -E '\\\\.\\(html|css|js\\)$')",
       "Bash(node -c /Users/ik/clawd/my-blog/static/chat-ui.js)",
       "mcp__plugin_oh-my-claudecode_t__state_list_active",
-      "Bash(open /Users/ik/clawd/my-blog/chat-designs-preview.html)"
+      "Bash(open /Users/ik/clawd/my-blog/chat-designs-preview.html)",
+      "WebSearch"
     ]
   }
 }

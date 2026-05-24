@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776329638773,
+  "lastScanned": 1779083612892,
   "projectRoot": "/Users/ik/clawd/my-blog",
   "techStack": {
     "languages": [
@@ -24,6 +24,8 @@
     "devCommand": null,
     "scripts": {
       "build:rag": "node scripts/build-rag.mjs",
+      "wall:dev": "mkdir -p tmp && WALL_DB_PATH=./tmp/wall.db WALL_ADMIN_TOKEN=dev-token node server/wall-api.mjs",
+      "chat:dev": "CHAT_API_PORT=18788 DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-dev-key} RAG_VECTORS_URL=https://sujian.online/rag-vectors.json node server/chat-api.mjs",
       "worker:dev": "wrangler dev",
       "worker:deploy": "wrangler deploy",
       "worker:secret": "wrangler secret put DASHSCOPE_API_KEY"
@@ -55,7 +57,7 @@
       "path": "archetypes",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776329638760,
+      "lastAccessed": 1779083612886,
       "keyFiles": [
         "default.md"
       ]
@@ -64,21 +66,21 @@
       "path": "assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1776329638764,
+      "lastAccessed": 1779083612886,
       "keyFiles": []
     },
     "content": {
       "path": "content",
       "purpose": null,
-      "fileCount": 1,
-      "lastAccessed": 1776329638764,
+      "fileCount": 0,
+      "lastAccessed": 1779083612888,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 1,
-      "lastAccessed": 1776329638765,
+      "lastAccessed": 1779083612888,
       "keyFiles": [
         "chat.yaml"
       ]
@@ -87,21 +89,30 @@
       "path": "i18n",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776329638765,
+      "lastAccessed": 1779083612888,
       "keyFiles": []
     },
     "layouts": {
       "path": "layouts",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776329638765,
+      "lastAccessed": 1779083612888,
       "keyFiles": []
+    },
+    "migrations": {
+      "path": "migrations",
+      "purpose": "Database migrations",
+      "fileCount": 1,
+      "lastAccessed": 1779083612888,
+      "keyFiles": [
+        "0001_create_wall_messages.sql"
+      ]
     },
     "openspec": {
       "path": "openspec",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776329638765,
+      "lastAccessed": 1779083612889,
       "keyFiles": [
         "config.yaml"
       ]
@@ -109,8 +120,8 @@
     "public": {
       "path": "public",
       "purpose": "Public files",
-      "fileCount": 14,
-      "lastAccessed": 1776329638766,
+      "fileCount": 17,
+      "lastAccessed": 1779083612889,
       "keyFiles": [
         "404.html",
         "avatar.png",
@@ -123,24 +134,37 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776329638766,
+      "lastAccessed": 1779083612889,
       "keyFiles": []
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1776329638766,
+      "lastAccessed": 1779083612889,
       "keyFiles": [
         "build-rag.mjs",
         "update-rag.sh"
       ]
     },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1779083612889,
+      "keyFiles": [
+        "README.md",
+        "chat-api.mjs",
+        "my-blog-chat.service",
+        "my-blog-wall.service",
+        "nginx-chat-location.conf"
+      ]
+    },
     "static": {
       "path": "static",
       "purpose": "Static files",
-      "fileCount": 9,
-      "lastAccessed": 1776329638767,
+      "fileCount": 12,
+      "lastAccessed": 1779083612889,
       "keyFiles": [
         "avatar.png",
         "chat-redesign-preview.html",
@@ -153,28 +177,28 @@
       "path": "themes",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776329638767,
+      "lastAccessed": 1779083612889,
       "keyFiles": []
     },
     "public/assets": {
       "path": "public/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1776329638768,
+      "lastAccessed": 1779083612890,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
       "path": "layouts/partials/chat-widget.html",
-      "accessCount": 24,
-      "lastAccessed": 1776333714235,
+      "accessCount": 25,
+      "lastAccessed": 1779083776178,
       "type": "file"
     },
     {
       "path": "static/chat-ui.js",
-      "accessCount": 12,
-      "lastAccessed": 1776332995500,
+      "accessCount": 13,
+      "lastAccessed": 1779083648315,
       "type": "file"
     },
     {
@@ -184,15 +208,15 @@
       "type": "file"
     },
     {
-      "path": "assets/css/extended/custom.css",
-      "accessCount": 7,
-      "lastAccessed": 1776232505570,
+      "path": "data/chat.yaml",
+      "accessCount": 9,
+      "lastAccessed": 1779084056533,
       "type": "file"
     },
     {
-      "path": "data/chat.yaml",
+      "path": "assets/css/extended/custom.css",
       "accessCount": 7,
-      "lastAccessed": 1776332556209,
+      "lastAccessed": 1776232505570,
       "type": "file"
     },
     {
@@ -202,27 +226,33 @@
       "type": "file"
     },
     {
+      "path": "server/chat-api.mjs",
+      "accessCount": 6,
+      "lastAccessed": 1779083910450,
+      "type": "file"
+    },
+    {
+      "path": "hugo.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1779083715454,
+      "type": "file"
+    },
+    {
+      "path": "wrangler.toml",
+      "accessCount": 4,
+      "lastAccessed": 1779084233636,
+      "type": "file"
+    },
+    {
       "path": "scripts/update-rag.sh",
       "accessCount": 3,
       "lastAccessed": 1776230296158,
       "type": "file"
     },
     {
-      "path": "wrangler.toml",
-      "accessCount": 3,
-      "lastAccessed": 1776230666591,
-      "type": "file"
-    },
-    {
-      "path": "hugo.yaml",
-      "accessCount": 3,
-      "lastAccessed": 1776329838827,
-      "type": "file"
-    },
-    {
       "path": "README.md",
-      "accessCount": 2,
-      "lastAccessed": 1776230321781,
+      "accessCount": 3,
+      "lastAccessed": 1779084233585,
       "type": "file"
     },
     {
@@ -248,6 +278,18 @@
       "accessCount": 2,
       "lastAccessed": 1776333060954,
       "type": "directory"
+    },
+    {
+      "path": "server/my-blog-chat.service",
+      "accessCount": 2,
+      "lastAccessed": 1779083887256,
+      "type": "file"
+    },
+    {
+      "path": "server/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1779083894944,
+      "type": "file"
     },
     {
       "path": ".cursor/plans/expand_rag_indexing_0cfb769d.plan.md",
@@ -313,6 +355,12 @@
       "path": "chat-designs-preview.html",
       "accessCount": 1,
       "lastAccessed": 1776332150658,
+      "type": "file"
+    },
+    {
+      "path": "server/nginx-chat-location.conf",
+      "accessCount": 1,
+      "lastAccessed": 1779083715344,
       "type": "file"
     }
   ],

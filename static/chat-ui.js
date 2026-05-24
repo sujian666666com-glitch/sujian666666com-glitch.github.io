@@ -30,7 +30,20 @@
     }
     var el = document.createElement('div');
     el.className = 'chat-msg-avatar chat-msg-avatar--' + role;
-    el.setAttribute('aria-hidden', 'true');
+    if (role === 'assistant') {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', '查看小 k 资料');
+      el.addEventListener('click', openProfile);
+      el.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openProfile(event);
+        }
+      });
+    } else {
+      el.setAttribute('aria-hidden', 'true');
+    }
     if (role === 'assistant' && ASSISTANT_AVATAR_IMAGE) {
       var img = document.createElement('img');
       img.src = ASSISTANT_AVATAR_IMAGE;
@@ -52,6 +65,10 @@
   var sendBtn = document.getElementById('chatSendBtn');
   var closeBtn = document.getElementById('chatCloseBtn');
   var clearBtn = document.getElementById('chatClearBtn');
+  var profileBtn = document.getElementById('chatProfileBtn');
+  var profileCard = document.getElementById('chatProfileCard');
+  var profileBackdrop = document.getElementById('chatProfileBackdrop');
+  var profileCloseBtn = document.getElementById('chatProfileCloseBtn');
   var modelSelect = document.getElementById('chatModelSelect');
   var thinkToggle = document.getElementById('chatThinkToggle');
   var ragToggle = document.getElementById('chatRagToggle');
@@ -217,6 +234,17 @@
     }
   }
 
+  function openProfile(event) {
+    if (event) event.stopPropagation();
+    if (!profileCard) return;
+    profileCard.hidden = false;
+  }
+
+  function closeProfile() {
+    if (!profileCard) return;
+    profileCard.hidden = true;
+  }
+
   // ── Panel Open/Close ─────────────────────────────────────
   bubble.addEventListener('click', function () {
     var isOpen = panel.classList.toggle('open');
@@ -227,12 +255,16 @@
       } else if (messages.length > 0 && messagesEl.children.length === 0) {
         renderAllMessages();
       }
+      openProfile();
       inputEl.focus();
+    } else {
+      closeProfile();
     }
   });
 
   closeBtn.addEventListener('click', function () {
     panel.classList.remove('open');
+    closeProfile();
   });
 
   // ── localStorage Persistence ─────────────────────────────
@@ -256,6 +288,9 @@
     showWelcome();
   }
   clearBtn.addEventListener('click', clearHistory);
+  if (profileBtn) profileBtn.addEventListener('click', openProfile);
+  if (profileBackdrop) profileBackdrop.addEventListener('click', closeProfile);
+  if (profileCloseBtn) profileCloseBtn.addEventListener('click', closeProfile);
 
   // ── Code Copy Handler ────────────────────────────────────
   messagesEl.addEventListener('click', function (e) {
@@ -374,8 +409,8 @@
 
   // ── Send Message ─────────────────────────────────────────
   function setStreaming(v) { isStreaming = v; sendBtn.disabled = v; inputEl.disabled = v; }
-  function getSelectedModel() { return modelSelect.value || DEFAULT_MODEL; }
-  function isThinkingEnabled() { return thinkToggle.checked; }
+  function getSelectedModel() { return modelSelect ? (modelSelect.value || DEFAULT_MODEL) : DEFAULT_MODEL; }
+  function isThinkingEnabled() { return !!(thinkToggle && thinkToggle.checked); }
   function isRagEnabled() { return ragToggle ? ragToggle.checked : true; }
 
   function isAbortError(err) {
@@ -395,7 +430,7 @@
     var hints = [];
 
     if (compatToggle && !compatToggle.checked) {
-      hints.push('可勾选面板「兼容」改用非流式');
+      hints.push('已自动尝试流式与非流式');
     } else {
       hints.push('当前已是非流式模式，可多试几次');
     }
@@ -507,6 +542,11 @@
       var e = data.error;
       if (typeof e === 'string') return e;
       if (e && typeof e === 'object') {
+        if (e.code === 'Arrearage' || e.type === 'Arrearage' || /overdue-payment|account is in good standing/i.test(e.message || '')) {
+          var arrearageMsg = '小 k 的模型服务账号状态异常：DashScope 返回欠费/停服，请先到阿里云 Model Studio 处理欠费或更换服务器上的 DASHSCOPE_API_KEY';
+          if (data.request_id) arrearageMsg += ' [request_id: ' + data.request_id + ']';
+          return arrearageMsg;
+        }
         var msg = e.message || e.code || '';
         if (e.param) msg = (msg ? msg + ' ' : '') + 'param: ' + e.param;
         if (msg) { if (data.request_id) msg += ' [request_id: ' + data.request_id + ']'; return msg; }
@@ -649,6 +689,7 @@
   sendBtn.addEventListener('click', sendMessage);
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    if (e.key === 'Escape') closeProfile();
   });
   inputEl.addEventListener('input', function () {
     this.style.height = 'auto';
