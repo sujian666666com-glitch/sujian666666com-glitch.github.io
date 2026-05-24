@@ -15,11 +15,97 @@
 {{- end }}
 
 {{- $paginator := .Paginate $pages }}
+{{- $blogTermPages := where .Pages "Section" "posts" }}
+{{- $isBlogSection := and (eq .Kind `section`) (eq .Section `posts`) }}
+{{- $isBlogCategory := and (eq .Kind `term`) (eq .Type `categories`) (gt (len $blogTermPages) 0) }}
+{{- $useBlogArchive := or $isBlogSection $isBlogCategory }}
+{{- $blogSectionPages := $pages }}
+{{- if $isBlogSection }}
+{{- $blogSectionPages = where site.RegularPages "Section" "posts" }}
+{{- if ne .RelPermalink ("/posts/" | relLangURL) }}
+{{- $blogSectionPages = .RegularPages }}
+{{- end }}
+{{- end }}
+{{- $blogArchivePages := cond $isBlogCategory $blogTermPages $blogSectionPages }}
 {{- $useDocList := and (not .IsHome) (ne .Section "gallery") (gt (len $paginator.Pages) 0) }}
 {{- $sectionPages := (where site.RegularPages "Section" .Section).ByDate.Reverse -}}
 {{- $navPages := cond (gt (len $sectionPages) 0) $sectionPages site.RegularPages.ByDate.Reverse -}}
 
-{{- if $useDocList }}
+{{- if $useBlogArchive }}
+<section class="blog-archive-page" aria-label="{{ .Title | default "博客索引" }}">
+  <header class="blog-archive-hero animate__animated animate__fadeInDown animate__fast">
+    <div class="blog-archive-hero__pattern" aria-hidden="true"></div>
+    <div class="blog-archive-hero__inner">
+      {{- partial "breadcrumbs.html" . }}
+      <div class="blog-archive-hero__label">
+        <span>{{ if $isBlogCategory }}博客分类{{ else }}博客索引{{ end }}</span>
+        {{- if and (or (eq .Kind `term`) (eq .Kind `section`)) (.Param "ShowRssButtonInSectionTermList") }}
+        {{- with .OutputFormats.Get "rss" }}
+        <a href="{{ .RelPermalink }}" title="RSS" aria-label="RSS">RSS</a>
+        {{- end }}
+        {{- end }}
+      </div>
+      <div class="blog-archive-hero__title-row">
+        <div>
+          <h1>{{ .Title | default "博客" }}</h1>
+          <p>{{ .Description | default "技术、生活与思考的长期记录" | markdownify }}</p>
+        </div>
+        <div class="blog-archive-hero__count" aria-label="文章数量">
+          <span>文章</span>
+          <strong>{{ len $blogArchivePages }}</strong>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {{- if .Content }}
+  <div class="blog-archive-intro animate__animated animate__fadeInUp animate__fast">
+    {{- if not (.Param "disableAnchoredHeadings") }}
+    {{- partial "anchored_headings.html" .Content -}}
+    {{- else }}{{ .Content }}{{ end }}
+  </div>
+  {{- end }}
+
+  {{- if gt (len $blogArchivePages) 0 }}
+  <div class="blog-archive-years">
+    {{- range $yearIndex, $yearGroup := ($blogArchivePages.ByDate.Reverse).GroupByPublishDate "2006" }}
+    {{- if ne $yearGroup.Key "0001" }}
+    {{- $delay := add 80 (mul $yearIndex 70) }}
+    <section class="blog-archive-year animate__animated animate__fadeInUp animate__fast" style="--animate-delay: {{ $delay }}ms;" aria-labelledby="blog-year-{{ $yearGroup.Key }}">
+      <h2 id="blog-year-{{ $yearGroup.Key }}">
+        <span>{{ $yearGroup.Key }}</span>
+        <sup>{{ len $yearGroup.Pages }}</sup>
+      </h2>
+      <ul class="blog-archive-posts">
+        {{- range $yearGroup.Pages }}
+        <li>
+          <a href="{{ .RelPermalink }}" aria-label="阅读 {{ .Title | plainify }}">
+            <span class="blog-archive-posts__bullet" aria-hidden="true"></span>
+            <span class="blog-archive-posts__main">
+              <span class="blog-archive-posts__title">
+                {{- .Title -}}
+                {{- if .Draft }}<em>Draft</em>{{- end }}
+              </span>
+              <span class="blog-archive-posts__meta">
+                {{- partial "post_meta.html" . -}}
+              </span>
+            </span>
+          </a>
+        </li>
+        {{- end }}
+      </ul>
+    </section>
+    {{- end }}
+    {{- end }}
+  </div>
+  {{- else }}
+  <div class="blog-archive-empty animate__animated animate__fadeInUp animate__fast">
+    暂时还没有可展示的博客文章。
+  </div>
+  {{- end }}
+</section>
+
+{{- else if $useDocList }}
 <section class="daily-doc-layout article-doc-layout article-list-layout" aria-label="{{ .Title | default "文章列表" }}">
   <aside class="daily-doc-sidebar daily-doc-sidebar--left">
     {{- partial "article-section-nav.html" (dict "pages" $navPages "current" nil "limit" 16 "label" "最近文章") -}}

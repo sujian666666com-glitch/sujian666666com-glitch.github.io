@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <rect width="160" height="160" fill="#ef4b1f"/>
+  <g opacity=".96">
+    <path d="M0 0h80v80H0z" fill="#f55324"/>
+    <path d="M0 0h80L40 18 0 0z" fill="#ff7646"/>
+    <path d="M80 0v80L40 58 40 18z" fill="#d93d17"/>
+    <path d="M0 80V0l40 18v40z" fill="#c93412"/>
+    <path d="M0 80h80L40 58z" fill="#aa2d12"/>
+  </g>
+  <g transform="translate(80 0)" opacity=".9">
+    <path d="M0 0h80v80H0z" fill="#e64219"/>
+    <path d="M0 0h80L40 18 0 0z" fill="#ff6536"/>
+    <path d="M80 0v80L40 58 40 18z" fill="#c93614"/>
+    <path d="M0 80V0l40 18v40z" fill="#b52f12"/>
+    <path d="M0 80h80L40 58z" fill="#97270e"/>
+  </g>
+  <g transform="translate(0 80)" opacity=".9">
+    <path d="M0 0h80v80H0z" fill="#e9471d"/>
+    <path d="M0 0h80L40 18 0 0z" fill="#ff6c3b"/>
+    <path d="M80 0v80L40 58 40 18z" fill="#cf3815"/>
+    <path d="M0 80V0l40 18v40z" fill="#ba3213"/>
+    <path d="M0 80h80L40 58z" fill="#9f2a10"/>
+  </g>
+  <g transform="translate(80 80)" opacity=".94">
+    <path d="M0 0h80v80H0z" fill="#f05222"/>
+    <path d="M0 0h80L40 18 0 0z" fill="#ff784b"/>
+    <path d="M80 0v80L40 58 40 18z" fill="#da3e18"/>
+    <path d="M0 80V0l40 18v40z" fill="#c43714"/>
+    <path d="M0 80h80L40 58z" fill="#a52d12"/>
+  </g>
+</svg>
