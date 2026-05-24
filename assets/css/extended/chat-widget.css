@@ -24,6 +24,7 @@
   --chat-inline-code-text: #c96442;
   --chat-shadow: 0 22px 70px rgba(20, 20, 19, 0.12), 0 8px 24px rgba(201, 100, 66, 0.12);
   --chat-transition: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  --chat-cache-version: xiao-k-vps-chat-redesign-20260524;
 }
 
 .chat-bubble {

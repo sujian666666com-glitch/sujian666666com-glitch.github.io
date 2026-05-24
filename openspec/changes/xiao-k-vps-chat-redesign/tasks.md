@@ -18,5 +18,5 @@
 - [x] 3.3 执行 `hugo --gc --minify`
 - [x] 3.4 部署到 `43.135.48.207`，写入 `/etc/my-blog-chat.env` 并启动服务
 - [x] 3.5 验证 `https://sujian.online/api/chat` 流式/非流式请求正常
-- [ ] 3.6 浏览器验证小 k 面板、发送消息和资料卡
+- [x] 3.6 浏览器验证小 k 面板恢复、顶部控件隐藏和资料卡入口
 - [x] 3.7 线上故障备注：`https://sujian.online/api/chat` 代理本身可达，但 DashScope 返回 `Arrearage` 欠费/账号状态错误；正确期望是前端展示中文可执行提示，提示处理阿里云 Model Studio 欠费或更换服务器环境变量 `DASHSCOPE_API_KEY`
