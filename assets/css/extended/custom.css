@@ -6,9 +6,15 @@
   --blog-layout-max: min(1440px, calc(100vw - var(--gap) * 2));
 }
 
+.header {
+  position: relative;
+  z-index: 1000;
+  overflow: visible;
+}
+
 .header--home {
   position: relative;
-  z-index: 30;
+  z-index: 1000;
   overflow: visible;
 }
 
@@ -2041,12 +2047,12 @@ html {
 }
 
 .menu-item-has-children {
-  z-index: 1;
+  z-index: 1001;
 }
 
 .menu-item-has-children:hover,
 .menu-item-has-children:focus-within {
-  z-index: 200;
+  z-index: 1010;
 }
 
 /* 下拉箭头 */
@@ -2073,15 +2079,14 @@ html {
   margin: 4px 0 0;
   list-style: none;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  background: rgb(255, 255, 255);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.18);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
-  z-index: 300;
-  backdrop-filter: blur(12px);
+  z-index: 1020;
   white-space: normal;
   text-align: start;
   line-height: normal;
@@ -2089,7 +2094,7 @@ html {
 
 /* 首页 header 样式适配 */
 .header--home .sub-menu {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgb(255, 255, 255);
   border-color: rgba(15, 23, 42, 0.08);
 }
 
@@ -2145,7 +2150,7 @@ html {
 
 /* 深色模式适配 */
 [data-theme="dark"] .sub-menu {
-  background: rgba(30, 41, 59, 0.96);
+  background: rgb(30, 41, 59);
   border-color: rgba(71, 85, 105, 0.3);
   box-shadow: 0 14px 32px rgba(2, 6, 23, 0.32);
 }
