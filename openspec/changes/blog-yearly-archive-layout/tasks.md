@@ -21,3 +21,9 @@
 - [x] 4.2 执行 `hugo --minify`
 - [x] 4.3 浏览器验收 `/posts/`、博客分类页和文章详情页
 - [x] 4.4 回归确认 `/daily/`、`/gallery/`、`/shrimp-diary/` 未被套入新布局
+
+## 5. 线上导航 404 修复
+
+- [x] 5.1 现象 / 缺陷：线上 `/categories/技术/` 返回 Nginx 404；对应根因是顶部导航指向了不存在的 taxonomy term，而博客一级栏目实际由 `content/posts/技术/`、`content/posts/生活/`、`content/posts/思考/` section 生成。
+- [x] 5.2 正确期望行为：顶部“技术 / 生活 / 思考”导航应进入已有 `/posts/<栏目>/` 页面；历史 `/categories/<栏目>/` 地址不应直接返回 404。
+- [x] 5.3 本次修复方式：将菜单 URL 收敛到 `/posts/<栏目>/`，并在三个 section `_index.md` 中补充旧 `/categories/<栏目>/` alias 兼容入口。

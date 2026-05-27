@@ -55,3 +55,19 @@
 - **WHEN** 访客打开首页、单篇文章、`/daily/`、`/gallery/` 或 `/shrimp-diary/`
 - **THEN** 页面不出现博客年度索引横幅和年份网格
 - **AND** 既有布局和功能保持不变
+
+### Requirement: 博客导航链接可达
+
+系统 SHALL 保证顶部博客子导航中的一级栏目链接指向已生成的 Hugo section 页面，并兼容旧的分类入口。
+
+#### Scenario: 打开博客子导航栏目
+
+- **WHEN** 访客点击顶部导航中的“技术”“生活”或“思考”
+- **THEN** 浏览器进入对应的 `/posts/<栏目>/` 页面
+- **AND** 页面由 Hugo 生成且不返回 Nginx 404
+
+#### Scenario: 访问旧分类栏目地址
+
+- **WHEN** 访客打开历史地址 `/categories/技术/`、`/categories/生活/` 或 `/categories/思考/`
+- **THEN** 页面重定向到对应的 `/posts/<栏目>/` 页面
+- **AND** 不直接返回 Nginx 404

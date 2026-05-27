@@ -91,15 +91,15 @@ menu:
       weight: 20
       identifier: posts
     - name: 技术
-      url: /categories/技术/
+      url: /posts/技术/
       weight: 21
       parent: posts
     - name: 生活
-      url: /categories/生活/
+      url: /posts/生活/
       weight: 22
       parent: posts
     - name: 思考
-      url: /categories/思考/
+      url: /posts/思考/
       weight: 23
       parent: posts
     - name: 小纸条
