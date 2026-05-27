@@ -2236,13 +2236,13 @@ html {
 }
 
 .blog-archive-page--thought {
-  --blog-archive-accent: rgb(123, 91, 198);
-  --blog-archive-soft: rgb(247, 243, 255);
-  --blog-archive-hero-wash: linear-gradient(180deg, rgba(71, 45, 134, 0.18), transparent 42%);
-  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(113, 78, 184), rgb(57, 43, 112));
-  --blog-archive-pattern-radial: rgba(231, 218, 255, 0.58);
-  --blog-archive-pattern-line: rgba(206, 190, 255, 0.15);
-  --blog-archive-pattern-tail: rgba(31, 24, 74, 0.3);
+  --blog-archive-accent: rgb(137, 99, 26);
+  --blog-archive-soft: rgb(255, 250, 237);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(137, 93, 21, 0.2), transparent 42%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(201, 144, 42), rgb(105, 73, 28));
+  --blog-archive-pattern-radial: rgba(255, 238, 177, 0.6);
+  --blog-archive-pattern-line: rgba(255, 226, 142, 0.16);
+  --blog-archive-pattern-tail: rgba(80, 51, 15, 0.28);
 }
 
 .blog-archive-page--life {
@@ -2253,6 +2253,46 @@ html {
   --blog-archive-pattern-radial: rgba(247, 255, 202, 0.55);
   --blog-archive-pattern-line: rgba(230, 243, 154, 0.14);
   --blog-archive-pattern-tail: rgba(31, 49, 23, 0.28);
+}
+
+[data-theme="light"] .blog-archive-page {
+  --blog-archive-accent: rgb(145, 83, 14);
+  --blog-archive-soft: rgb(255, 250, 244);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(166, 60, 15, 0.16), transparent 38%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(244, 94, 38), rgb(185, 52, 22));
+  --blog-archive-pattern-radial: rgba(255, 237, 210, 0.62);
+  --blog-archive-pattern-line: rgba(255, 214, 176, 0.16);
+  --blog-archive-pattern-tail: rgba(94, 27, 10, 0.26);
+}
+
+[data-theme="light"] .blog-archive-page--tech {
+  --blog-archive-accent: rgb(18, 113, 138);
+  --blog-archive-soft: rgb(239, 251, 255);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(13, 103, 150, 0.17), transparent 40%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(35, 151, 191), rgb(12, 88, 137));
+  --blog-archive-pattern-radial: rgba(205, 249, 255, 0.62);
+  --blog-archive-pattern-line: rgba(130, 223, 244, 0.18);
+  --blog-archive-pattern-tail: rgba(5, 36, 78, 0.28);
+}
+
+[data-theme="light"] .blog-archive-page--thought {
+  --blog-archive-accent: rgb(137, 99, 26);
+  --blog-archive-soft: rgb(255, 250, 237);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(155, 109, 24, 0.2), transparent 42%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(215, 156, 47), rgb(113, 78, 29));
+  --blog-archive-pattern-radial: rgba(255, 239, 181, 0.62);
+  --blog-archive-pattern-line: rgba(255, 226, 142, 0.18);
+  --blog-archive-pattern-tail: rgba(80, 51, 15, 0.3);
+}
+
+[data-theme="light"] .blog-archive-page--life {
+  --blog-archive-accent: rgb(90, 119, 42);
+  --blog-archive-soft: rgb(249, 252, 239);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(82, 112, 39, 0.19), transparent 42%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(139, 158, 70), rgb(68, 95, 45));
+  --blog-archive-pattern-radial: rgba(249, 255, 207, 0.58);
+  --blog-archive-pattern-line: rgba(230, 243, 154, 0.17);
+  --blog-archive-pattern-tail: rgba(31, 49, 23, 0.3);
 }
 
 .blog-archive-hero {
@@ -2520,12 +2560,12 @@ html {
 }
 
 [data-theme="dark"] .blog-archive-page--thought {
-  --blog-archive-accent: rgb(199, 179, 255);
-  --blog-archive-soft: rgb(31, 25, 45);
-  --blog-archive-hero-wash: linear-gradient(180deg, rgba(20, 14, 36, 0.58), rgba(20, 14, 36, 0.2) 46%);
-  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(72, 48, 124), rgb(32, 24, 76));
-  --blog-archive-pattern-radial: rgba(226, 211, 255, 0.42);
-  --blog-archive-pattern-line: rgba(191, 166, 255, 0.12);
+  --blog-archive-accent: rgb(246, 204, 111);
+  --blog-archive-soft: rgb(39, 31, 19);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(35, 25, 10, 0.6), rgba(35, 25, 10, 0.22) 46%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(134, 91, 28), rgb(55, 39, 22));
+  --blog-archive-pattern-radial: rgba(255, 225, 143, 0.42);
+  --blog-archive-pattern-line: rgba(246, 204, 111, 0.13);
   --blog-archive-pattern-tail: rgba(0, 0, 0, 0.34);
 }
 
