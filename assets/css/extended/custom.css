@@ -2217,7 +2217,42 @@ html {
   --blog-archive-accent: rgb(145, 83, 14);
   --blog-archive-rule: rgba(24, 28, 35, 0.12);
   --blog-archive-soft: rgb(255, 250, 244);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(105, 37, 8, 0.14), transparent 38%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(248, 89, 31), rgb(224, 52, 13));
+  --blog-archive-pattern-radial: rgba(255, 255, 255, 0.55);
+  --blog-archive-pattern-line: rgba(255, 255, 255, 0.1);
+  --blog-archive-pattern-tail: rgba(84, 20, 4, 0.2);
   color: var(--blog-archive-ink);
+}
+
+.blog-archive-page--tech {
+  --blog-archive-accent: rgb(18, 113, 138);
+  --blog-archive-soft: rgb(239, 251, 255);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(10, 74, 112, 0.16), transparent 40%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(24, 132, 171), rgb(13, 79, 126));
+  --blog-archive-pattern-radial: rgba(191, 245, 255, 0.58);
+  --blog-archive-pattern-line: rgba(130, 223, 244, 0.16);
+  --blog-archive-pattern-tail: rgba(5, 36, 78, 0.28);
+}
+
+.blog-archive-page--thought {
+  --blog-archive-accent: rgb(123, 91, 198);
+  --blog-archive-soft: rgb(247, 243, 255);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(71, 45, 134, 0.18), transparent 42%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(113, 78, 184), rgb(57, 43, 112));
+  --blog-archive-pattern-radial: rgba(231, 218, 255, 0.58);
+  --blog-archive-pattern-line: rgba(206, 190, 255, 0.15);
+  --blog-archive-pattern-tail: rgba(31, 24, 74, 0.3);
+}
+
+.blog-archive-page--life {
+  --blog-archive-accent: rgb(90, 119, 42);
+  --blog-archive-soft: rgb(249, 252, 239);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(82, 92, 35, 0.17), transparent 42%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(132, 146, 61), rgb(64, 86, 43));
+  --blog-archive-pattern-radial: rgba(247, 255, 202, 0.55);
+  --blog-archive-pattern-line: rgba(230, 243, 154, 0.14);
+  --blog-archive-pattern-tail: rgba(31, 49, 23, 0.28);
 }
 
 .blog-archive-hero {
@@ -2229,9 +2264,9 @@ html {
   align-items: center;
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(105, 37, 8, 0.14), transparent 38%),
+    var(--blog-archive-hero-wash),
     url("/images/blog-protruding-squares.svg"),
-    linear-gradient(135deg, rgb(248, 89, 31), rgb(224, 52, 13));
+    var(--blog-archive-hero-gradient);
   background-size: auto, 160px 160px, auto;
   color: rgb(255, 255, 255);
   box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.14);
@@ -2243,8 +2278,8 @@ html {
   z-index: -1;
   opacity: 0.18;
   background-image:
-    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.55), transparent 20%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 42%, rgba(84, 20, 4, 0.2));
+    radial-gradient(circle at 18% 16%, var(--blog-archive-pattern-radial), transparent 20%),
+    linear-gradient(90deg, var(--blog-archive-pattern-line), transparent 42%, var(--blog-archive-pattern-tail));
   mix-blend-mode: soft-light;
 }
 
@@ -2459,22 +2494,49 @@ html {
   --blog-archive-accent: rgb(255, 177, 100);
   --blog-archive-rule: rgba(242, 238, 232, 0.16);
   --blog-archive-soft: rgb(34, 25, 20);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(10, 9, 8, 0.5), rgba(10, 9, 8, 0.18) 44%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(119, 40, 15), rgb(65, 22, 12));
+  --blog-archive-pattern-radial: rgba(255, 204, 148, 0.5);
+  --blog-archive-pattern-line: rgba(255, 177, 100, 0.12);
+  --blog-archive-pattern-tail: rgba(0, 0, 0, 0.32);
 }
 
 [data-theme="dark"] .blog-archive-hero {
-  background:
-    linear-gradient(180deg, rgba(10, 9, 8, 0.5), rgba(10, 9, 8, 0.18) 44%),
-    url("/images/blog-protruding-squares.svg"),
-    linear-gradient(135deg, rgb(119, 40, 15), rgb(65, 22, 12));
-  background-size: auto, 160px 160px, auto;
   background-blend-mode: multiply, multiply, normal;
 }
 
 [data-theme="dark"] .blog-archive-hero__pattern {
   opacity: 0.12;
-  background-image:
-    radial-gradient(circle at 18% 16%, rgba(255, 204, 148, 0.5), transparent 20%),
-    linear-gradient(90deg, rgba(255, 177, 100, 0.12), transparent 42%, rgba(0, 0, 0, 0.32));
+}
+
+[data-theme="dark"] .blog-archive-page--tech {
+  --blog-archive-accent: rgb(117, 218, 242);
+  --blog-archive-soft: rgb(16, 31, 42);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(3, 21, 33, 0.56), rgba(3, 21, 33, 0.18) 46%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(22, 94, 124), rgb(7, 38, 71));
+  --blog-archive-pattern-radial: rgba(143, 235, 255, 0.42);
+  --blog-archive-pattern-line: rgba(110, 220, 245, 0.12);
+  --blog-archive-pattern-tail: rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="dark"] .blog-archive-page--thought {
+  --blog-archive-accent: rgb(199, 179, 255);
+  --blog-archive-soft: rgb(31, 25, 45);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(20, 14, 36, 0.58), rgba(20, 14, 36, 0.2) 46%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(72, 48, 124), rgb(32, 24, 76));
+  --blog-archive-pattern-radial: rgba(226, 211, 255, 0.42);
+  --blog-archive-pattern-line: rgba(191, 166, 255, 0.12);
+  --blog-archive-pattern-tail: rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="dark"] .blog-archive-page--life {
+  --blog-archive-accent: rgb(207, 221, 129);
+  --blog-archive-soft: rgb(29, 35, 22);
+  --blog-archive-hero-wash: linear-gradient(180deg, rgba(23, 28, 13, 0.58), rgba(23, 28, 13, 0.2) 46%);
+  --blog-archive-hero-gradient: linear-gradient(135deg, rgb(86, 103, 43), rgb(34, 55, 32));
+  --blog-archive-pattern-radial: rgba(239, 250, 164, 0.4);
+  --blog-archive-pattern-line: rgba(222, 239, 129, 0.12);
+  --blog-archive-pattern-tail: rgba(0, 0, 0, 0.34);
 }
 
 @media (max-width: 1120px) {

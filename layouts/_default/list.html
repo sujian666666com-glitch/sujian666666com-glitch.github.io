@@ -30,9 +30,17 @@
 {{- $useDocList := and (not .IsHome) (ne .Section "gallery") (gt (len $paginator.Pages) 0) }}
 {{- $sectionPages := (where site.RegularPages "Section" .Section).ByDate.Reverse -}}
 {{- $navPages := cond (gt (len $sectionPages) 0) $sectionPages site.RegularPages.ByDate.Reverse -}}
+{{- $blogArchiveTone := "all" -}}
+{{- if eq .Title "技术" -}}
+{{- $blogArchiveTone = "tech" -}}
+{{- else if eq .Title "思考" -}}
+{{- $blogArchiveTone = "thought" -}}
+{{- else if eq .Title "生活" -}}
+{{- $blogArchiveTone = "life" -}}
+{{- end -}}
 
 {{- if $useBlogArchive }}
-<section class="blog-archive-page" aria-label="{{ .Title | default "博客索引" }}">
+<section class="blog-archive-page blog-archive-page--{{ $blogArchiveTone }}" aria-label="{{ .Title | default "博客索引" }}">
   <header class="blog-archive-hero animate__animated animate__fadeInDown animate__fast">
     <div class="blog-archive-hero__pattern" aria-hidden="true"></div>
     <div class="blog-archive-hero__inner">
