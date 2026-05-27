@@ -2249,9 +2249,9 @@ html {
 }
 
 .blog-archive-hero__inner {
-  width: min(100%, 1440px);
+  width: min(100%, calc(1440px + var(--gap) * 2));
   margin-inline: auto;
-  padding: 54px max(var(--gap), calc((100vw - 1440px) / 2 + var(--gap)));
+  padding: 54px var(--gap);
 }
 
 .blog-archive-hero .breadcrumbs {
@@ -2293,12 +2293,13 @@ html {
 }
 
 .blog-archive-hero h1 {
-  max-width: 11ch;
+  max-width: 12em;
   margin: 0;
   color: rgb(255, 255, 255);
   font-size: 4.8rem;
   line-height: 1.04;
   letter-spacing: 0;
+  word-break: keep-all;
 }
 
 .blog-archive-hero p {
@@ -2338,9 +2339,9 @@ html {
 .blog-archive-intro,
 .blog-archive-years,
 .blog-archive-empty {
-  width: min(100%, 1440px);
+  width: min(100%, calc(1440px + var(--gap) * 2));
   margin-inline: auto;
-  padding-inline: max(var(--gap), calc((100vw - 1440px) / 2 + var(--gap)));
+  padding-inline: var(--gap);
 }
 
 .blog-archive-intro {
