@@ -2579,6 +2579,57 @@ html {
   --blog-archive-pattern-tail: rgba(0, 0, 0, 0.34);
 }
 
+.blog-archive-page--tech .blog-archive-hero {
+  background:
+    linear-gradient(180deg, rgba(13, 103, 150, 0.17), transparent 40%),
+    url("/images/blog-protruding-squares.svg"),
+    linear-gradient(135deg, rgb(35, 151, 191), rgb(12, 88, 137));
+  background-size: auto, 160px 160px, auto;
+}
+
+.blog-archive-page--thought .blog-archive-hero {
+  background:
+    linear-gradient(180deg, rgba(155, 109, 24, 0.2), transparent 42%),
+    url("/images/blog-protruding-squares.svg"),
+    linear-gradient(135deg, rgb(215, 156, 47), rgb(113, 78, 29));
+  background-size: auto, 160px 160px, auto;
+}
+
+.blog-archive-page--life .blog-archive-hero {
+  background:
+    linear-gradient(180deg, rgba(82, 112, 39, 0.19), transparent 42%),
+    url("/images/blog-protruding-squares.svg"),
+    linear-gradient(135deg, rgb(139, 158, 70), rgb(68, 95, 45));
+  background-size: auto, 160px 160px, auto;
+}
+
+[data-theme="dark"] .blog-archive-page--tech .blog-archive-hero {
+  background:
+    linear-gradient(180deg, rgba(3, 21, 33, 0.56), rgba(3, 21, 33, 0.18) 46%),
+    url("/images/blog-protruding-squares.svg"),
+    linear-gradient(135deg, rgb(22, 94, 124), rgb(7, 38, 71));
+  background-size: auto, 160px 160px, auto;
+  background-blend-mode: multiply, multiply, normal;
+}
+
+[data-theme="dark"] .blog-archive-page--thought .blog-archive-hero {
+  background:
+    linear-gradient(180deg, rgba(35, 25, 10, 0.6), rgba(35, 25, 10, 0.22) 46%),
+    url("/images/blog-protruding-squares.svg"),
+    linear-gradient(135deg, rgb(134, 91, 28), rgb(55, 39, 22));
+  background-size: auto, 160px 160px, auto;
+  background-blend-mode: multiply, multiply, normal;
+}
+
+[data-theme="dark"] .blog-archive-page--life .blog-archive-hero {
+  background:
+    linear-gradient(180deg, rgba(23, 28, 13, 0.58), rgba(23, 28, 13, 0.2) 46%),
+    url("/images/blog-protruding-squares.svg"),
+    linear-gradient(135deg, rgb(86, 103, 43), rgb(34, 55, 32));
+  background-size: auto, 160px 160px, auto;
+  background-blend-mode: multiply, multiply, normal;
+}
+
 @media (max-width: 1120px) {
   .blog-archive-years {
     grid-template-columns: repeat(2, minmax(0, 1fr));
