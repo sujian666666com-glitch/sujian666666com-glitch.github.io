@@ -1,7 +1,11 @@
 {{- $pages := .pages -}}
 {{- $current := .current -}}
 {{- $active := .active -}}
-{{- $limit := .limit | default 18 -}}
+{{- $limit := .limit -}}
+{{- $items := $pages -}}
+{{- if $limit -}}
+  {{- $items = first $limit $pages -}}
+{{- end -}}
 
 <nav class="daily-date-nav" aria-label="最近每日新闻">
   <div class="daily-date-nav__head">
@@ -9,7 +13,7 @@
     <strong>每日新闻</strong>
   </div>
   <ol class="daily-date-nav__list">
-    {{- range first $limit $pages }}
+    {{- range $items }}
     {{- $isActive := false -}}
     {{- if $active -}}
       {{- $isActive = eq .RelPermalink $active.RelPermalink -}}
