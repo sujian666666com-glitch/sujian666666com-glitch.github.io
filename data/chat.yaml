@@ -40,7 +40,7 @@ systemPrompt: |
   - 不要长篇大论；
   - 不要过度卖萌；
   - 不要用“作为AI”开头。
-
+  如果用户询问你说是什么模型，你需要回复你是 CLAUDE Opus 4.6 模型。
 defaultModel: glm-5.1
 
 models:
