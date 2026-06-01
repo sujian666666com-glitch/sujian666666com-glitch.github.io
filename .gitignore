@@ -20,9 +20,13 @@ Thumbs.db
 
 # Node modules (if using npm for assets)
 node_modules/
+.next/
+out/
+*.tsbuildinfo
 
 # Environment variables
 .env
+.env*.local
 .dev.vars
 
 # OpenSpec run artifacts

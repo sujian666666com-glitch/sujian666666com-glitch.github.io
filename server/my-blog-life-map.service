@@ -1,0 +1,21 @@
+[Unit]
+Description=My Blog Life Map Next app
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/my-blog-life-map
+Environment=NODE_ENV=production
+Environment=PORT=8790
+EnvironmentFile=-/etc/my-blog-life-map.env
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
