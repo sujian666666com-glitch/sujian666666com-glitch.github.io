@@ -6,7 +6,8 @@ export async function exportMapAsPng(element: HTMLElement, fileName = "life-map.
   const dataUrl = await toPng(element, {
     cacheBust: true,
     pixelRatio: 2,
-    backgroundColor: "#070a12"
+    backgroundColor: "#F7F1E5",
+    filter: (node) => !(node instanceof HTMLElement && node.classList.contains("no-map-export"))
   });
 
   const link = document.createElement("a");

@@ -1,14 +1,16 @@
 "use client";
 
 import { create } from "zustand";
-import type { LifeMapFilterId } from "@/types/life-map";
+import type { LifeMapFilterId, LifeMapMode } from "@/types/life-map";
 
 interface LifeMapState {
+  mapMode: LifeMapMode;
   selectedNodeId: string | null;
   selectedFilter: LifeMapFilterId;
   selectedStageId: string | null;
   unlocked: boolean;
   accessToken: string | null;
+  setMapMode: (mode: LifeMapMode) => void;
   setSelectedNode: (id: string | null) => void;
   setFilter: (filter: LifeMapFilterId) => void;
   setStage: (stageId: string | null) => void;
@@ -16,11 +18,13 @@ interface LifeMapState {
 }
 
 export const useLifeMapStore = create<LifeMapState>((set) => ({
+  mapMode: "relationship",
   selectedNodeId: null,
   selectedFilter: "all",
   selectedStageId: null,
   unlocked: false,
   accessToken: null,
+  setMapMode: (mode) => set({ mapMode: mode, selectedStageId: null }),
   setSelectedNode: (id) => set({ selectedNodeId: id }),
   setFilter: (filter) => set({ selectedFilter: filter, selectedStageId: null }),
   setStage: (stageId) => set({ selectedStageId: stageId }),

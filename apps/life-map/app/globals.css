@@ -4,8 +4,8 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  background: #070a12;
+  color-scheme: light;
+  background: #f7f1e5;
 }
 
 * {
@@ -17,17 +17,16 @@ body {
   min-height: 100%;
   margin: 0;
   overflow-x: clip;
-  background: #070a12;
+  background: #f7f1e5;
 }
 
 body {
-  color: #f8fafc;
+  color: #332a22;
   font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
+    "Trebuchet MS",
+    "Avenir Next",
     "Segoe UI",
+    system-ui,
     sans-serif;
 }
 
@@ -45,22 +44,52 @@ input {
 }
 
 .react-flow__controls {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 12px;
+  border: 1px solid #d8c5a8;
+  border-radius: 8px;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.88);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  background: #fff9ec;
+  box-shadow: 3px 4px 0 rgba(216, 197, 168, 0.45);
 }
 
 .react-flow__controls-button {
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-  background: rgba(15, 23, 42, 0.92);
-  color: #f8fafc;
+  border-bottom: 1px solid #d8c5a8;
+  background: #fff9ec;
+  color: #332a22;
 }
 
-.react-flow__minimap {
-  overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 14px;
-  background: rgba(15, 23, 42, 0.7);
+.react-flow__controls-button:hover {
+  background: #f3e8d2;
+}
+
+.react-flow__edge-path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.react-flow__edge-textbg {
+  rx: 4px;
+  ry: 4px;
+}
+
+.life-map-paper-surface {
+  background:
+    linear-gradient(90deg, rgba(216, 197, 168, 0.22) 1px, transparent 1px),
+    linear-gradient(rgba(216, 197, 168, 0.18) 1px, transparent 1px),
+    #f7f1e5;
+  background-size:
+    64px 64px,
+    64px 64px,
+    auto;
+}
+
+.paper-grain {
+  opacity: 0.55;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(183, 110, 60, 0.08) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 42%, rgba(122, 106, 88, 0.08) 0 1px, transparent 1px),
+    radial-gradient(circle at 32% 78%, rgba(214, 168, 79, 0.12) 0 1px, transparent 1px);
+  background-size:
+    18px 18px,
+    22px 22px,
+    26px 26px;
 }

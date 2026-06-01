@@ -1,10 +1,10 @@
 import type { Edge, Node } from "@xyflow/react";
-import type { LifeEdgeData, LifeFlowNodeData, LifeMapFilterId, LifeMapPayload, LifeNodeData } from "@/types/life-map";
+import type { LifeEdgeData, LifeFlowNodeData, LifeMapFilterId, LifeMapMode, LifeMapPayload, LifeNodeData } from "@/types/life-map";
 
 const filterTagMap: Record<Exclude<LifeMapFilterId, "all">, string[]> = {
-  family: ["家庭"],
+  family: ["家庭", "人物"],
   study: ["学习"],
-  relationship: ["感情"],
+  youth: ["青春", "支线", "遗憾"],
   work: ["工作"],
   boss: ["Boss"],
   awakening: ["觉醒点"],
@@ -12,7 +12,7 @@ const filterTagMap: Record<Exclude<LifeMapFilterId, "all">, string[]> = {
 };
 
 const filterTypeMap: Partial<Record<LifeMapFilterId, LifeNodeData["type"][]>> = {
-  family: ["family"],
+  family: ["family", "person"],
   boss: ["boss"],
   awakening: ["awakening"],
   goal: ["goal"]
@@ -26,52 +26,145 @@ export function matchNodeFilter(node: LifeNodeData, filter: LifeMapFilterId) {
   return byType || byTag;
 }
 
-export function filterLifeMap(payload: LifeMapPayload, filter: LifeMapFilterId, stageNodeIds: string[] | null) {
+export function filterLifeMap(
+  payload: LifeMapPayload,
+  filter: LifeMapFilterId,
+  stageNodeIds: string[] | null,
+  mapMode: LifeMapMode
+) {
+  const visibleEdges = payload.edges.filter((edge) => !edge.visibleInModes || edge.visibleInModes.includes(mapMode));
+  const connectedInMode = new Set<string>();
+  visibleEdges.forEach((edge) => {
+    connectedInMode.add(edge.source);
+    connectedInMode.add(edge.target);
+  });
   const filteredNodes = payload.nodes.filter((node) => {
     const stageMatched = stageNodeIds ? stageNodeIds.includes(node.id) : true;
-    return stageMatched && matchNodeFilter(node, filter);
+    const visibleInMode = connectedInMode.has(node.id) || node.modeRole === "center";
+    return visibleInMode && stageMatched && matchNodeFilter(node, filter);
   });
   const nodeIds = new Set(filteredNodes.map((node) => node.id));
-  const filteredEdges = payload.edges.filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+  const filteredEdges = visibleEdges.filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
   return { nodes: filteredNodes, edges: filteredEdges };
+}
+
+export function getFocusContext(payload: LifeMapPayload, selectedNodeId: string | null) {
+  const selectedNode = payload.nodes.find((node) => node.id === selectedNodeId) ?? null;
+  const highlightedNodeIds = new Set<string>();
+  const highlightedEdgeIds = new Set<string>();
+
+  if (!selectedNode || selectedNode.id === "me") {
+    return { selectedNode, highlightedNodeIds, highlightedEdgeIds, hasFocus: false };
+  }
+
+  highlightedNodeIds.add(selectedNode.id);
+
+  if (selectedNode.type === "person") {
+    payload.nodes.forEach((node) => {
+      if (node.relatedPeopleIds?.includes(selectedNode.id)) highlightedNodeIds.add(node.id);
+      if (selectedNode.id === "her" && node.branchId === "youth-love") highlightedNodeIds.add(node.id);
+    });
+  } else if (selectedNode.branchId) {
+    payload.nodes.forEach((node) => {
+      if (node.branchId === selectedNode.branchId) highlightedNodeIds.add(node.id);
+      if (node.id === "her") highlightedNodeIds.add(node.id);
+    });
+  } else {
+    selectedNode.relatedPeopleIds?.forEach((id) => highlightedNodeIds.add(id));
+  }
+
+  payload.edges.forEach((edge) => {
+    const branchMatched = selectedNode.branchId && edge.lineStyle === "youth-branch";
+    const selectedPersonMatched =
+      selectedNode.type === "person" &&
+      (edge.source === selectedNode.id ||
+        edge.target === selectedNode.id ||
+        (selectedNode.id === "her" && edge.lineStyle === "youth-branch"));
+    const selectedNodeMatched = edge.source === selectedNode.id || edge.target === selectedNode.id;
+    const bothEndpointsMatched = highlightedNodeIds.has(edge.source) && highlightedNodeIds.has(edge.target);
+
+    if (branchMatched || selectedPersonMatched || selectedNodeMatched || bothEndpointsMatched) {
+      highlightedEdgeIds.add(edge.id);
+      highlightedNodeIds.add(edge.source);
+      highlightedNodeIds.add(edge.target);
+    }
+  });
+
+  return { selectedNode, highlightedNodeIds, highlightedEdgeIds, hasFocus: true };
 }
 
 export function toReactFlowNodes(
   nodes: LifeNodeData[],
   selectedNodeId: string | null,
-  isMobile: boolean
+  isMobile: boolean,
+  mapMode: LifeMapMode,
+  highlightedNodeIds: Set<string>,
+  hasFocus: boolean
 ): Node<LifeFlowNodeData, "lifeMapNode">[] {
   return nodes.map((node, index) => ({
     id: node.id,
     type: "lifeMapNode",
     position:
+      (isMobile ? node.modePosition?.[mapMode]?.mobile : node.modePosition?.[mapMode]?.desktop) ??
       (isMobile ? node.position?.mobile : node.position?.desktop) ??
       { x: isMobile ? (index % 2 === 0 ? 40 : 260) : index * 260, y: isMobile ? index * 180 : 220 },
     data: {
       ...node,
-      selected: node.id === selectedNodeId
+      selected: node.id === selectedNodeId,
+      highlighted: highlightedNodeIds.has(node.id),
+      dimmed: hasFocus && !highlightedNodeIds.has(node.id),
+      mapMode
     } satisfies LifeFlowNodeData
   }));
 }
 
-export function toReactFlowEdges(edges: LifeEdgeData[]): Edge[] {
+export function toReactFlowEdges(edges: LifeEdgeData[], highlightedEdgeIds: Set<string>, hasFocus: boolean): Edge[] {
   return edges.map((edge) => ({
     id: edge.id,
     source: edge.source,
     target: edge.target,
-    label: edge.label,
-    animated: edge.relation === "UNLOCKS" || edge.relation === "TRIGGERS",
-    type: "smoothstep",
+    label: edge.relationLabel ?? edge.label,
+    animated: !hasFocus && (edge.relation === "UNLOCKS" || edge.relation === "TRIGGERS"),
+    type: "bezier",
     style: {
-      stroke: edge.relation === "CHALLENGES" ? "#ef4444" : edge.relation === "SUPPORTS" ? "#f59e0b" : "#38bdf8",
-      strokeDasharray: edge.relation === "AFFECTS" || edge.relation === "SUPPORTS" ? "7 7" : undefined,
-      strokeWidth: edge.relation === "UNLOCKS" ? 3 : 2
+      stroke: getEdgeColor(edge),
+      strokeDasharray: getEdgeDash(edge),
+      strokeWidth: getEdgeWidth(edge, highlightedEdgeIds.has(edge.id), hasFocus),
+      opacity: hasFocus && !highlightedEdgeIds.has(edge.id) ? 0.16 : 0.92,
+      filter: highlightedEdgeIds.has(edge.id) ? "drop-shadow(0 3px 0 rgba(255, 249, 236, 0.75))" : undefined
     },
-    labelStyle: { fill: "#cbd5e1", fontWeight: 700 },
-    labelBgStyle: { fill: "rgba(15, 23, 42, 0.86)", fillOpacity: 1 }
+    labelStyle: {
+      fill: hasFocus && !highlightedEdgeIds.has(edge.id) ? "#7A6A58" : "#332A22",
+      fontWeight: 800,
+      opacity: hasFocus && !highlightedEdgeIds.has(edge.id) ? 0.22 : 0.9
+    },
+    labelBgStyle: { fill: "#FFF9EC", fillOpacity: hasFocus && !highlightedEdgeIds.has(edge.id) ? 0.22 : 0.88 }
   }));
 }
 
 export function getInitialNodeId(payload: LifeMapPayload | null) {
-  return payload?.nodes[0]?.id ?? null;
+  return payload?.nodes.find((node) => node.id === "me")?.id ?? payload?.nodes[0]?.id ?? null;
+}
+
+function getEdgeColor(edge: LifeEdgeData) {
+  if (edge.lineStyle === "youth-branch") return "#8B6F9A";
+  if (edge.lineStyle === "boss-pressure") return "#9A4A3F";
+  if (edge.lineStyle === "person-link") return "#D8C5A8";
+  if (edge.lineStyle === "branch") return "#B48A9F";
+  return "#B76E3C";
+}
+
+function getEdgeDash(edge: LifeEdgeData) {
+  if (edge.lineStyle === "main-route") return "12 10";
+  if (edge.lineStyle === "youth-branch") return "8 7";
+  if (edge.lineStyle === "boss-pressure") return "4 5";
+  if (edge.lineStyle === "branch") return "7 8";
+  return "3 8";
+}
+
+function getEdgeWidth(edge: LifeEdgeData, highlighted: boolean, hasFocus: boolean) {
+  const base = edge.lineStyle === "youth-branch" ? 3.2 : edge.lineStyle === "main-route" ? 3 : 1.7;
+  if (highlighted) return base + 1.3;
+  if (hasFocus) return Math.max(1, base - 0.7);
+  return base;
 }
