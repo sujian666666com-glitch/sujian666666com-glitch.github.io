@@ -1,24 +1,53 @@
-{{- $mainSections := site.Params.mainSections | default (slice "posts") -}}
-{{- $latest := first 1 ((where site.RegularPages "Section" "in" $mainSections).ByDate.Reverse) -}}
-{{- $latestPost := index $latest 0 -}}
-<div class="profile dispatch-hero">
+<div class="profile dispatch-hero" data-dispatch-lang-root>
     {{- with site.Params.profileMode }}
-    {{- $statement := site.Params.masthead.statement | default "记录技术、生活与持续的实验。" -}}
-    {{- $summary := .subtitle | default site.Params.description | default "这里是一份个人 dispatch：整理 AI 工程、独立开发、日常观察和那些值得反复推敲的判断。" -}}
+    {{- $mainSections := site.Params.mainSections | default (slice "posts") -}}
+    {{- $latest := first 1 ((where site.RegularPages "Section" "in" $mainSections).ByDate.Reverse) -}}
+    {{- $latestPost := index $latest 0 -}}
+    {{- $zhTitle := site.Params.masthead.dispatch.zh.title | default (slice "把问题拆开，" "把系统建起，" "把生活继续") -}}
+    {{- $enTitle := site.Params.masthead.dispatch.en.title | default (slice "Break the problem down," "Build the system up," "Keep life moving.") -}}
+    {{- $zhLabel := site.Params.masthead.dispatch.zh.label | default "A PERSONAL DISPATCH" -}}
+    {{- $enLabel := site.Params.masthead.dispatch.en.label | default "A PERSONAL DISPATCH" -}}
+    {{- $zhPrimary := site.Params.masthead.dispatch.zh.primaryCta | default "浏览文章 →" -}}
+    {{- $enPrimary := site.Params.masthead.dispatch.en.primaryCta | default "Read Notes →" -}}
+    {{- $zhSecondary := site.Params.masthead.dispatch.zh.secondaryCta | default "关于我" -}}
+    {{- $enSecondary := site.Params.masthead.dispatch.en.secondaryCta | default "About" -}}
     <div class="profile_inner dispatch-hero__inner">
         <section class="dispatch-hero__statement-panel" aria-labelledby="dispatch-title">
-            <p class="dispatch-hero__label">A PERSONAL DISPATCH</p>
-            <h1 id="dispatch-title" class="dispatch-hero__statement">{{ $statement | markdownify }}</h1>
-            <div class="dispatch-hero__summary">
-                {{ $summary | markdownify }}
+            <div class="dispatch-hero__label-row">
+                <p class="dispatch-hero__label">
+                    <span data-dispatch-lang-panel="zh">{{ $zhLabel }}</span>
+                    <span data-dispatch-lang-panel="en" hidden>{{ $enLabel }}</span>
+                </p>
+                <div class="dispatch-lang-toggle" role="group" aria-label="Language">
+                    <button class="dispatch-lang-toggle__button is-active" type="button" data-dispatch-lang-button="zh" aria-pressed="true">ZH</button>
+                    <button class="dispatch-lang-toggle__button" type="button" data-dispatch-lang-button="en" aria-pressed="false">EN</button>
+                </div>
             </div>
+            <h1 id="dispatch-title" class="dispatch-hero__statement">
+                <span class="dispatch-hero__statement-copy" data-dispatch-lang-panel="zh">
+                    {{- range $zhTitle }}
+                    <span>{{ . }}</span>
+                    {{- end }}
+                </span>
+                <span class="dispatch-hero__statement-copy" data-dispatch-lang-panel="en" hidden>
+                    {{- range $enTitle }}
+                    <span>{{ . }}</span>
+                    {{- end }}
+                </span>
+            </h1>
             <div class="dispatch-hero__actions">
-                <a class="dispatch-cta dispatch-cta--primary" href="{{ "/posts/" | absURL }}">浏览文章 →</a>
-                <a class="dispatch-cta dispatch-cta--secondary" href="{{ "/about/" | absURL }}">关于我</a>
+                <a class="dispatch-cta dispatch-cta--primary" href="{{ "/posts/" | absURL }}">
+                    <span data-dispatch-lang-panel="zh">{{ $zhPrimary }}</span>
+                    <span data-dispatch-lang-panel="en" hidden>{{ $enPrimary }}</span>
+                </a>
+                <a class="dispatch-cta dispatch-cta--secondary" href="{{ "/about/" | absURL }}">
+                    <span data-dispatch-lang-panel="zh">{{ $zhSecondary }}</span>
+                    <span data-dispatch-lang-panel="en" hidden>{{ $enSecondary }}</span>
+                </a>
             </div>
         </section>
 
-        <aside class="dispatch-hero__proof" aria-label="最新文章">
+        <aside class="dispatch-hero__proof" aria-label="{{ site.Params.masthead.dispatch.zh.proofAria | default "最新文章" }} / {{ site.Params.masthead.dispatch.en.proofAria | default "Latest article" }}">
             {{- if $latestPost }}
             <div class="dispatch-proof__kicker">
                 <span>{{ site.Params.masthead.issue | default "VOL. I · NO. 01" }}</span>
@@ -33,39 +62,63 @@
             </a>
             <dl class="dispatch-proof__meta">
                 <div>
-                    <dt>日期</dt>
-                    <dd>{{ if not $latestPost.Date.IsZero }}{{ $latestPost.Date.Format "2006.01.02" }}{{ else }}未标注{{ end }}</dd>
+                    <dt>
+                        <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.dateLabel | default "日期" }}</span>
+                        <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.dateLabel | default "Date" }}</span>
+                    </dt>
+                    <dd>{{ $latestPost.Date.Format "2006.01.02" }}</dd>
                 </div>
                 <div>
-                    <dt>分类</dt>
+                    <dt>
+                        <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.categoryLabel | default "分类" }}</span>
+                        <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.categoryLabel | default "Category" }}</span>
+                    </dt>
                     <dd>
                         {{- with index ($latestPost.GetTerms "categories") 0 -}}
                         {{ .LinkTitle }}
                         {{- else -}}
-                        Dispatch
+                        -
                         {{- end -}}
                     </dd>
                 </div>
                 <div>
-                    <dt>阅读</dt>
-                    <dd>{{ $latestPost.ReadingTime }} 分钟</dd>
+                    <dt>
+                        <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.readLabel | default "阅读" }}</span>
+                        <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.readLabel | default "Read" }}</span>
+                    </dt>
+                    <dd>
+                        <span data-dispatch-lang-panel="zh">{{ $latestPost.ReadingTime }} 分钟</span>
+                        <span data-dispatch-lang-panel="en" hidden>{{ $latestPost.ReadingTime }} min</span>
+                    </dd>
                 </div>
                 <div>
-                    <dt>字数</dt>
+                    <dt>
+                        <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.wordsLabel | default "字数" }}</span>
+                        <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.wordsLabel | default "Words" }}</span>
+                    </dt>
                     <dd>{{ $latestPost.WordCount }}</dd>
                 </div>
             </dl>
-            {{- with $latestPost.Summary }}
-            <p class="dispatch-proof__summary">{{ . | plainify | htmlUnescape }}</p>
-            {{- end }}
-            <a class="dispatch-proof__read" href="{{ $latestPost.RelPermalink }}">阅读全文</a>
+            {{ with $latestPost.Summary }}
+            <p class="dispatch-proof__summary">{{ . | plainify | truncate 144 }}</p>
+            {{ end }}
+            <a class="dispatch-proof__read" href="{{ $latestPost.RelPermalink }}">
+                <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.readArticle | default "阅读全文" }}</span>
+                <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.readArticle | default "Read Article" }}</span>
+            </a>
             {{- else }}
-            <div class="dispatch-proof__kicker">
-                <span>{{ site.Params.masthead.issue | default "VOL. I · NO. 01" }}</span>
-                <span>Latest</span>
-            </div>
-            <h2>新的 dispatch 正在整理中</h2>
-            <p class="dispatch-proof__summary">等第一篇文章发布后，这里会自动呈现最新内容的日期、分类、阅读时间和摘要。</p>
+            <h2>
+                <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.fallbackTitle | default "新的 dispatch 正在整理中" }}</span>
+                <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.fallbackTitle | default "A new dispatch is being drafted" }}</span>
+            </h2>
+            <p class="dispatch-proof__summary">
+                <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.fallbackSummary | default "等第一篇文章发布后，这里会自动呈现最新内容的日期、分类、阅读时间和摘要。" }}</span>
+                <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.fallbackSummary | default "Once the first article is published, this card will show its date, category, reading time, and summary." }}</span>
+            </p>
+            <span class="dispatch-proof__read" aria-disabled="true">
+                <span data-dispatch-lang-panel="zh">{{ site.Params.masthead.dispatch.zh.readArticle | default "阅读全文" }}</span>
+                <span data-dispatch-lang-panel="en" hidden>{{ site.Params.masthead.dispatch.en.readArticle | default "Read Article" }}</span>
+            </span>
             {{- end }}
         </aside>
     </div>

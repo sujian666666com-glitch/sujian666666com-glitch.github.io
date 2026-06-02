@@ -3,12 +3,15 @@
 {{- $masthead := site.Params.masthead -}}
 {{- $issue := $masthead.issue | default "VOL. I · NO. 01" -}}
 {{- $dateline := $masthead.dateline | default (now.Format "Monday, the 2nd of January") -}}
+{{- $brandAvatar := site.Params.masthead.avatar | default "/nav-avatar.png" -}}
 <header class="header masthead{{ if .IsHome }} masthead--home{{ end }}">
     <div class="masthead__rule" aria-hidden="true"></div>
     <div class="masthead__plate">
         <div class="masthead__issue">{{ $issue }}</div>
         <a class="masthead__brand" href="{{ "" | absLangURL }}" accesskey="h" title="{{ $labelText }} (Alt + H)">
-            {{ $labelText }}
+            <img class="masthead__brand-avatar" src="{{ $brandAvatar | relURL }}" alt="" width="64" height="64" aria-hidden="true">
+            <span class="masthead__brand-copy">の Blog</span>
+            <span class="sr-only">{{ $labelText }}</span>
         </a>
         <time class="masthead__date" datetime="{{ now.Format "2006-01-02" }}">{{ $dateline }}</time>
     </div>
@@ -26,10 +29,14 @@
                 <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}{{ cond $isSearch " (Alt + /)" "" }}"
                 {{- cond $isSearch (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr) }}>
                     <span {{- if eq $menuItemURL $pageURL }} class="active" {{- end }}>
+                        {{- if eq .Identifier "about" -}}
+                        <img class="nav-avatar__image" src="{{ $brandAvatar | relURL }}" alt="关于" width="32" height="32">
+                        {{- else -}}
                         {{- .Pre }}
                         {{- .Name -}}
                         {{ .Post -}}
                         {{- if $hasChildren }}<span class="menu-arrow" aria-hidden="true">⌄</span>{{- end }}
+                        {{- end -}}
                     </span>
                 </a>
                 {{- if $hasChildren }}
