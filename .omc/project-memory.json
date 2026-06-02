@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1779083612892,
+  "lastScanned": 1780304630581,
   "projectRoot": "/Users/ik/clawd/my-blog",
   "techStack": {
     "languages": [
@@ -25,7 +25,7 @@
     "scripts": {
       "build:rag": "node scripts/build-rag.mjs",
       "wall:dev": "mkdir -p tmp && WALL_DB_PATH=./tmp/wall.db WALL_ADMIN_TOKEN=dev-token node server/wall-api.mjs",
-      "chat:dev": "CHAT_API_PORT=18788 DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-dev-key} RAG_VECTORS_URL=https://sujian.online/rag-vectors.json node server/chat-api.mjs",
+      "chat:dev": "CHAT_API_PORT=18788 BIGMODEL_API_KEY=${BIGMODEL_API_KEY:-dev-key} RAG_VECTORS_URL=https://sujian.online/rag-vectors.json node server/chat-api.mjs",
       "worker:dev": "wrangler dev",
       "worker:deploy": "wrangler deploy",
       "worker:secret": "wrangler secret put DASHSCOPE_API_KEY"
@@ -57,7 +57,7 @@
       "path": "archetypes",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1779083612886,
+      "lastAccessed": 1780304630400,
       "keyFiles": [
         "default.md"
       ]
@@ -66,21 +66,21 @@
       "path": "assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1779083612886,
+      "lastAccessed": 1780304630400,
       "keyFiles": []
     },
     "content": {
       "path": "content",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1779083612888,
+      "lastAccessed": 1780304630401,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 1,
-      "lastAccessed": 1779083612888,
+      "lastAccessed": 1780304630407,
       "keyFiles": [
         "chat.yaml"
       ]
@@ -89,21 +89,21 @@
       "path": "i18n",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1779083612888,
+      "lastAccessed": 1780304630535,
       "keyFiles": []
     },
     "layouts": {
       "path": "layouts",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1779083612888,
+      "lastAccessed": 1780304630537,
       "keyFiles": []
     },
     "migrations": {
       "path": "migrations",
       "purpose": "Database migrations",
       "fileCount": 1,
-      "lastAccessed": 1779083612888,
+      "lastAccessed": 1780304630538,
       "keyFiles": [
         "0001_create_wall_messages.sql"
       ]
@@ -112,7 +112,7 @@
       "path": "openspec",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1779083612889,
+      "lastAccessed": 1780304630547,
       "keyFiles": [
         "config.yaml"
       ]
@@ -121,7 +121,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 17,
-      "lastAccessed": 1779083612889,
+      "lastAccessed": 1780304630567,
       "keyFiles": [
         "404.html",
         "avatar.png",
@@ -134,16 +134,18 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1779083612889,
+      "lastAccessed": 1780304630568,
       "keyFiles": []
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 2,
-      "lastAccessed": 1779083612889,
+      "fileCount": 4,
+      "lastAccessed": 1780304630570,
       "keyFiles": [
         "build-rag.mjs",
+        "daily-cover-prompt.py",
+        "generate-daily-cover-clpai.py",
         "update-rag.sh"
       ]
     },
@@ -151,7 +153,7 @@
       "path": "server",
       "purpose": null,
       "fileCount": 7,
-      "lastAccessed": 1779083612889,
+      "lastAccessed": 1780304630574,
       "keyFiles": [
         "README.md",
         "chat-api.mjs",
@@ -164,7 +166,7 @@
       "path": "static",
       "purpose": "Static files",
       "fileCount": 12,
-      "lastAccessed": 1779083612889,
+      "lastAccessed": 1780304630575,
       "keyFiles": [
         "avatar.png",
         "chat-redesign-preview.html",
@@ -177,190 +179,184 @@
       "path": "themes",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1779083612889,
+      "lastAccessed": 1780304630576,
       "keyFiles": []
     },
     "public/assets": {
       "path": "public/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1779083612890,
+      "lastAccessed": 1780304630580,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "layouts/partials/chat-widget.html",
-      "accessCount": 25,
-      "lastAccessed": 1779083776178,
-      "type": "file"
-    },
-    {
-      "path": "static/chat-ui.js",
-      "accessCount": 13,
-      "lastAccessed": 1779083648315,
-      "type": "file"
-    },
-    {
-      "path": "assets/css/extended/chat-widget.css",
-      "accessCount": 11,
-      "lastAccessed": 1776333700057,
-      "type": "file"
-    },
-    {
-      "path": "data/chat.yaml",
-      "accessCount": 9,
-      "lastAccessed": 1779084056533,
-      "type": "file"
-    },
-    {
-      "path": "assets/css/extended/custom.css",
-      "accessCount": 7,
-      "lastAccessed": 1776232505570,
-      "type": "file"
-    },
-    {
-      "path": "static/chat-worker.js",
-      "accessCount": 7,
-      "lastAccessed": 1776332997193,
-      "type": "file"
-    },
-    {
-      "path": "server/chat-api.mjs",
-      "accessCount": 6,
-      "lastAccessed": 1779083910450,
-      "type": "file"
-    },
-    {
-      "path": "hugo.yaml",
+      "path": "content/posts/生活/my-life-story.md",
       "accessCount": 4,
-      "lastAccessed": 1779083715454,
+      "lastAccessed": 1780313942650,
       "type": "file"
     },
     {
-      "path": "wrangler.toml",
-      "accessCount": 4,
-      "lastAccessed": 1779084233636,
-      "type": "file"
-    },
-    {
-      "path": "scripts/update-rag.sh",
+      "path": "apps/life-map/components/LifeMap/LifeMapNode.tsx",
       "accessCount": 3,
-      "lastAccessed": 1776230296158,
+      "lastAccessed": 1780313929293,
       "type": "file"
     },
     {
-      "path": "README.md",
+      "path": "apps/life-map/components/LifeMap/LifeMapPanel.tsx",
       "accessCount": 3,
-      "lastAccessed": 1779084233585,
+      "lastAccessed": 1780313930317,
       "type": "file"
     },
     {
-      "path": "layouts/_default/list.html",
+      "path": "apps/life-map/lib/life-map-utils.ts",
+      "accessCount": 3,
+      "lastAccessed": 1780313930356,
+      "type": "file"
+    },
+    {
+      "path": "apps/life-map/types/life-map.ts",
+      "accessCount": 3,
+      "lastAccessed": 1780313930375,
+      "type": "file"
+    },
+    {
+      "path": "apps/life-map/components/LifeMap/index.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1780313931853,
+      "type": "file"
+    },
+    {
+      "path": "apps/life-map/components/LifeMap/LifeMapCanvas.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1780313932751,
+      "type": "file"
+    },
+    {
+      "path": "apps/life-map/lib/life-map-store.ts",
       "accessCount": 2,
-      "lastAccessed": 1776231007808,
+      "lastAccessed": 1780313930631,
       "type": "file"
     },
     {
-      "path": "layouts/partials/header.html",
+      "path": "apps/life-map/data/life-map-data.server.ts",
       "accessCount": 2,
-      "lastAccessed": 1776231007863,
+      "lastAccessed": 1780313931492,
       "type": "file"
     },
     {
-      "path": "layouts/partials/extend_footer.html",
+      "path": "apps/life-map/components/LifeMap/LifeMapFilter.tsx",
       "accessCount": 2,
-      "lastAccessed": 1776329831135,
+      "lastAccessed": 1780313932824,
       "type": "file"
     },
     {
-      "path": "",
+      "path": "apps/life-map/components/LifeMap/LifeMapLegend.tsx",
       "accessCount": 2,
-      "lastAccessed": 1776333060954,
-      "type": "directory"
+      "lastAccessed": 1780313932949,
+      "type": "file"
     },
     {
-      "path": "server/my-blog-chat.service",
+      "path": "apps/life-map/components/LifeMap/LifeMapTimeline.tsx",
       "accessCount": 2,
-      "lastAccessed": 1779083887256,
+      "lastAccessed": 1780313933417,
       "type": "file"
     },
     {
-      "path": "server/README.md",
+      "path": "apps/life-map/components/LifeMap/UnlockPanel.tsx",
       "accessCount": 2,
-      "lastAccessed": 1779083894944,
+      "lastAccessed": 1780313933613,
       "type": "file"
     },
     {
-      "path": ".cursor/plans/expand_rag_indexing_0cfb769d.plan.md",
-      "accessCount": 1,
-      "lastAccessed": 1776225327890,
+      "path": "apps/life-map/app/globals.css",
+      "accessCount": 2,
+      "lastAccessed": 1780313933948,
       "type": "file"
     },
     {
-      "path": "assets/css/extended/gallery.css",
-      "accessCount": 1,
-      "lastAccessed": 1776230655769,
+      "path": "apps/life-map/app/about/life-map/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1780313934262,
       "type": "file"
     },
     {
-      "path": "layouts/partials/extend_head.html",
-      "accessCount": 1,
-      "lastAccessed": 1776230662177,
+      "path": "apps/life-map/app/api/life-map/data/route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1780313934661,
       "type": "file"
     },
     {
-      "path": "package.json",
-      "accessCount": 1,
-      "lastAccessed": 1776230666527,
+      "path": "apps/life-map/app/api/life-map/verify/route.ts",
+      "accessCount": 2,
+      "lastAccessed": 1780313935023,
       "type": "file"
     },
     {
-      "path": "layouts/partials/index_profile.html",
-      "accessCount": 1,
-      "lastAccessed": 1776230769354,
+      "path": "apps/life-map/lib/export-map.ts",
+      "accessCount": 2,
+      "lastAccessed": 1780313935354,
       "type": "file"
     },
     {
-      "path": "layouts/gallery/list.html",
-      "accessCount": 1,
-      "lastAccessed": 1776230798496,
+      "path": "apps/life-map/lib/life-map-token.ts",
+      "accessCount": 2,
+      "lastAccessed": 1780313935585,
       "type": "file"
     },
     {
-      "path": "layouts/shortcodes/gallery-images.html",
-      "accessCount": 1,
-      "lastAccessed": 1776230798548,
+      "path": "apps/life-map/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1780313936720,
       "type": "file"
     },
     {
-      "path": "themes/PaperMod/layouts/_default/baseof.html",
-      "accessCount": 1,
-      "lastAccessed": 1776329824909,
+      "path": "apps/life-map/components/LifeMap/ExportButton.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1780313943684,
       "type": "file"
     },
     {
-      "path": "themes/PaperMod/layouts/partials/footer.html",
-      "accessCount": 1,
-      "lastAccessed": 1776329828098,
+      "path": "apps/life-map/app/layout.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1780313943769,
       "type": "file"
     },
     {
-      "path": "themes/PaperMod/layouts/partials/head.html",
-      "accessCount": 1,
-      "lastAccessed": 1776329843848,
+      "path": "apps/life-map/tailwind.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1780313943822,
       "type": "file"
     },
     {
-      "path": "chat-designs-preview.html",
+      "path": "content/posts/my-life-story.md",
       "accessCount": 1,
-      "lastAccessed": 1776332150658,
+      "lastAccessed": 1780304742536,
       "type": "file"
     },
     {
-      "path": "server/nginx-chat-location.conf",
+      "path": "content/posts/生活/kan-wan-shenmi-fusu-ganxiang.md",
       "accessCount": 1,
-      "lastAccessed": 1779083715344,
+      "lastAccessed": 1780304774089,
+      "type": "file"
+    },
+    {
+      "path": "content/posts/技术/2026-03-13-ai-coding-tools-selection.md",
+      "accessCount": 1,
+      "lastAccessed": 1780304775165,
+      "type": "file"
+    },
+    {
+      "path": "apps/life-map/.env.example",
+      "accessCount": 1,
+      "lastAccessed": 1780313936736,
+      "type": "file"
+    },
+    {
+      "path": "apps/life-map/next.config.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1780313943993,
       "type": "file"
     }
   ],

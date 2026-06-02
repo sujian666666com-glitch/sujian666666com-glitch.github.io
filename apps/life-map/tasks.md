@@ -34,3 +34,20 @@
 - 现象 / 缺陷：原 LifeMap 是深色科技图谱，人物关系权重不足，“她”没有作为贯穿高中到大学分手阶段的重要青春支线完整呈现。
 - 正确期望行为：LifeMap 应像一本暖色手绘人生冒险手账，默认呈现人物关系，路线模式展示成长闯关路径，“她”作为高权重人物和完整青春支线存在。
 - 本次修复方式：在不改变密码验证、服务端数据保护和部署路径的前提下，扩展数据结构、重写地图布局和视觉层，并补充交互高亮、详情面板和多宽度验收。
+
+## LifeMap v3：密度与叙事节奏改造
+
+- [x] 新增 OpenSpec 变更 `enhance-life-map-density`，记录减密度、分层展示与手账详情目标。
+- [x] 新增 `lib/life-map-display.ts`，前端推导 mapLabel、displayTier、shellKind。
+- [x] 拆分 LifeMapNode 分形组件：人物贴纸、关卡标记、青春小路、Boss 旗帜、城堡、ghost 节点。
+- [x] 默认分层：青春支线 side_quest 为 ghost，点击「她」聚焦完整小路并 fitView 框选。
+- [x] 批量调整 `modePosition` 坐标，拉开家庭/成长/青春支线区域间距。
+- [x] 重写 LifeMapPanel 为手账页：JournalHeader、StickyNote、StoryPath、BossStickers、PaperChipList。
+- [x] Canvas minZoom / fitView / 高度适配更大画布。
+- [x] 完成 `npm run lint`、`npm run typecheck`、`npm run build` 验收。
+
+备注：
+
+- 现象 / 缺陷：v2 虽已是暖色手账，但所有节点仍共用密集矩形卡片，地图像表格；详情面板 DetailGrid 仍有强字段表感。
+- 正确期望行为：地图节点可扫读、有呼吸区与主次层级；详情像手账页；点击「她」后青春支线成为独立剧情小路。
+- 本次修复方式：仅改展示层与 modePosition 坐标，不改 API 契约与 server-only 数据保护；消费已有 visualKind / importance 字段驱动分形渲染与分层。

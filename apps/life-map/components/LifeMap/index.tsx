@@ -122,7 +122,9 @@ export function LifeMap() {
               暖色人生冒险手账
             </h1>
             <p className="mt-3 text-base leading-7 text-[#7A6A58]">人物关系是地图骨架，闯关路线是成长路径。</p>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#7A6A58]">点击人物会高亮 TA 影响过的关卡；点击她会展开完整青春支线。</p>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#7A6A58]">
+              默认只见主要人物与主线；点击人物会高亮 TA 影响过的关卡；点击她会展开完整青春小路。
+            </p>
           </div>
           {unlocked && payload ? <ExportButton targetId="life-map-export-surface" /> : null}
         </header>

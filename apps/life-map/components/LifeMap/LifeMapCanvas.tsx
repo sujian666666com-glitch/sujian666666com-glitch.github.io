@@ -53,16 +53,26 @@ function LifeMapCanvasInner({ payload, isMobile }: { payload: LifeMapPayload; is
     [filtered.nodes, selectedNodeId, isMobile, mapMode, focusContext]
   );
   const edges = useMemo(
-    () => toReactFlowEdges(filtered.edges, focusContext.highlightedEdgeIds, focusContext.hasFocus),
+    () =>
+      toReactFlowEdges(
+        filtered.edges,
+        focusContext.highlightedEdgeIds,
+        focusContext.hasFocus,
+        focusContext.youthFocus
+      ),
     [filtered.edges, focusContext]
   );
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
-      fitView({ padding: isMobile ? 0.18 : 0.12, duration: 450 });
+      if (focusContext.youthFocus && focusContext.focusNodeIds.length > 0) {
+        fitView({ nodes: focusContext.focusNodeIds.map((id) => ({ id })), padding: 0.28, duration: 520 });
+        return;
+      }
+      fitView({ padding: isMobile ? 0.2 : 0.18, duration: 450 });
     }, 90);
     return () => window.clearTimeout(timeout);
-  }, [fitView, isMobile, nodes.length, mapMode, selectedFilter, selectedStageId]);
+  }, [fitView, focusContext.focusNodeIds, focusContext.youthFocus, isMobile, nodes.length, mapMode, selectedFilter, selectedStageId]);
 
   useEffect(() => {
     if (selectedNodeId && !filtered.nodes.some((node) => node.id === selectedNodeId)) {
@@ -71,7 +81,10 @@ function LifeMapCanvasInner({ payload, isMobile }: { payload: LifeMapPayload; is
   }, [filtered.nodes, selectedNodeId, setSelectedNode]);
 
   return (
-    <div id="life-map-export-surface" className="life-map-paper-surface relative h-[640px] overflow-hidden rounded-[8px] border border-[#D8C5A8] bg-[#F7F1E5] shadow-[0_24px_60px_rgba(83,59,33,0.18)] md:h-[720px]">
+    <div
+      id="life-map-export-surface"
+      className="life-map-paper-surface relative h-[640px] overflow-hidden rounded-[8px] border border-[#D8C5A8] bg-[#F7F1E5] shadow-[0_24px_60px_rgba(83,59,33,0.18)] md:h-[780px]"
+    >
       <div className="paper-grain pointer-events-none absolute inset-0 z-0" />
       <div className="pointer-events-none absolute left-8 top-8 z-0 h-16 w-28 rounded-[50%] border-2 border-[#7B9B6F]/45 bg-[#7B9B6F]/10" />
       <div className="pointer-events-none absolute bottom-10 right-12 z-0 h-20 w-36 rounded-t-full border-2 border-[#B76E3C]/25 bg-[#D6A84F]/10" />
@@ -91,8 +104,8 @@ function LifeMapCanvasInner({ payload, isMobile }: { payload: LifeMapPayload; is
           edges={edges}
           nodeTypes={nodeTypes}
           fitView
-          fitViewOptions={{ padding: isMobile ? 0.18 : 0.12 }}
-          minZoom={isMobile ? 0.12 : 0.24}
+          fitViewOptions={{ padding: isMobile ? 0.2 : 0.18 }}
+          minZoom={isMobile ? 0.08 : 0.18}
           maxZoom={1.35}
           nodesDraggable={false}
           onNodeClick={(_, node) => {

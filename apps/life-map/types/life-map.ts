@@ -104,11 +104,24 @@ export interface LifeStage {
   nodeIds: string[];
 }
 
+export type MapDisplayTier = "hero" | "full" | "compact" | "ghost";
+
+export type NodeShellKind =
+  | "person-sticker"
+  | "quest-marker"
+  | "youth-story"
+  | "boss-flag"
+  | "goal-castle"
+  | "compact-ghost";
+
 export type LifeFlowNodeData = LifeNodeData & {
   selected: boolean;
   dimmed: boolean;
   highlighted: boolean;
   mapMode: LifeMapMode;
+  displayTier: MapDisplayTier;
+  mapLabel: string;
+  shellKind: NodeShellKind;
 } & Record<string, unknown>;
 
 export type LifeMapFilterId =

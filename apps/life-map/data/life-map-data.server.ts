@@ -24,8 +24,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["grandma", "her", "future-me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 80, y: 0 } },
     modePosition: {
-      relationship: { desktop: { x: 920, y: 360 }, mobile: { x: 120, y: 120 } },
-      route: { desktop: { x: 360, y: 500 }, mobile: { x: 80, y: 0 } }
+      relationship: { desktop: { x: 780, y: 420 }, mobile: { x: 120, y: 200 } },
+      route: { desktop: { x: 200, y: 980 }, mobile: { x: 80, y: 0 } }
     }
   },
   {
@@ -50,8 +50,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 260, y: 80 }, mobile: { x: 40, y: 180 } },
     modePosition: {
-      relationship: { desktop: { x: 650, y: 130 }, mobile: { x: 40, y: 300 } },
-      route: { desktop: { x: 120, y: 430 }, mobile: { x: 260, y: 180 } }
+      relationship: { desktop: { x: 360, y: 160 }, mobile: { x: 40, y: 340 } },
+      route: { desktop: { x: 200, y: 860 }, mobile: { x: 260, y: 180 } }
     }
   },
   {
@@ -73,8 +73,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 40, y: 360 } },
     modePosition: {
-      relationship: { desktop: { x: 450, y: 330 }, mobile: { x: 40, y: 480 } },
-      route: { desktop: { x: 80, y: 620 }, mobile: { x: 40, y: 360 } }
+      relationship: { desktop: { x: 300, y: 360 }, mobile: { x: 40, y: 520 } },
+      route: { desktop: { x: 140, y: 780 }, mobile: { x: 40, y: 360 } }
     }
   },
   {
@@ -96,8 +96,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me", "grandma"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 260, y: 360 } },
     modePosition: {
-      relationship: { desktop: { x: 520, y: 560 }, mobile: { x: 260, y: 480 } },
-      route: { desktop: { x: 220, y: 700 }, mobile: { x: 260, y: 360 } }
+      relationship: { desktop: { x: 360, y: 540 }, mobile: { x: 260, y: 520 } },
+      route: { desktop: { x: 280, y: 860 }, mobile: { x: 260, y: 360 } }
     }
   },
   {
@@ -119,8 +119,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me", "grandma"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 40, y: 540 } },
     modePosition: {
-      relationship: { desktop: { x: 850, y: 690 }, mobile: { x: 40, y: 660 } },
-      route: { desktop: { x: 260, y: 790 }, mobile: { x: 40, y: 540 } }
+      relationship: { desktop: { x: 400, y: 700 }, mobile: { x: 40, y: 700 } },
+      route: { desktop: { x: 340, y: 920 }, mobile: { x: 40, y: 540 } }
     }
   },
   {
@@ -142,8 +142,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 260, y: 540 } },
     modePosition: {
-      relationship: { desktop: { x: 1130, y: 710 }, mobile: { x: 260, y: 660 } },
-      route: { desktop: { x: 380, y: 760 }, mobile: { x: 260, y: 540 } }
+      relationship: { desktop: { x: 460, y: 860 }, mobile: { x: 260, y: 700 } },
+      route: { desktop: { x: 420, y: 880 }, mobile: { x: 260, y: 540 } }
     }
   },
   {
@@ -165,8 +165,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 40, y: 720 } },
     modePosition: {
-      relationship: { desktop: { x: 1320, y: 570 }, mobile: { x: 40, y: 840 } },
-      route: { desktop: { x: 480, y: 700 }, mobile: { x: 40, y: 720 } }
+      relationship: { desktop: { x: 320, y: 860 }, mobile: { x: 40, y: 860 } },
+      route: { desktop: { x: 500, y: 840 }, mobile: { x: 40, y: 720 } }
     }
   },
   {
@@ -194,8 +194,8 @@ const nodes: LifeNodeData[] = [
     branchWeight: "important",
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 260, y: 720 } },
     modePosition: {
-      relationship: { desktop: { x: 1260, y: 130 }, mobile: { x: 260, y: 840 } },
-      route: { desktop: { x: 1200, y: 120 }, mobile: { x: 260, y: 720 } }
+      relationship: { desktop: { x: 1040, y: 200 }, mobile: { x: 260, y: 860 } },
+      route: { desktop: { x: 1080, y: 180 }, mobile: { x: 260, y: 720 } }
     }
   },
   {
@@ -218,8 +218,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 40, y: 900 } },
     modePosition: {
-      relationship: { desktop: { x: 1540, y: 330 }, mobile: { x: 40, y: 1020 } },
-      route: { desktop: { x: 1900, y: 330 }, mobile: { x: 40, y: 900 } }
+      relationship: { desktop: { x: 1280, y: 480 }, mobile: { x: 40, y: 1040 } },
+      route: { desktop: { x: 2100, y: 280 }, mobile: { x: 40, y: 900 } }
     }
   },
   {
@@ -241,8 +241,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 260, y: 900 } },
     modePosition: {
-      relationship: { desktop: { x: 1580, y: 520 }, mobile: { x: 260, y: 1020 } },
-      route: { desktop: { x: 1940, y: 520 }, mobile: { x: 260, y: 900 } }
+      relationship: { desktop: { x: 1340, y: 640 }, mobile: { x: 260, y: 1040 } },
+      route: { desktop: { x: 2160, y: 380 }, mobile: { x: 260, y: 900 } }
     }
   },
   {
@@ -265,8 +265,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 40, y: 1080 } },
     modePosition: {
-      relationship: { desktop: { x: 1220, y: 930 }, mobile: { x: 40, y: 1200 } },
-      route: { desktop: { x: 2240, y: 390 }, mobile: { x: 40, y: 1080 } }
+      relationship: { desktop: { x: 1220, y: 800 }, mobile: { x: 40, y: 1220 } },
+      route: { desktop: { x: 1920, y: 220 }, mobile: { x: 40, y: 1080 } }
     }
   },
   {
@@ -288,8 +288,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me", "grandma"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 260, y: 1080 } },
     modePosition: {
-      relationship: { desktop: { x: 1550, y: 800 }, mobile: { x: 260, y: 1200 } },
-      route: { desktop: { x: 2920, y: 110 }, mobile: { x: 260, y: 1080 } }
+      relationship: { desktop: { x: 1240, y: 980 }, mobile: { x: 260, y: 1220 } },
+      route: { desktop: { x: 2480, y: 60 }, mobile: { x: 260, y: 1080 } }
     }
   },
   {
@@ -314,8 +314,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["grandma", "father", "aunt", "brother"],
     position: { desktop: { x: 0, y: 240 }, mobile: { x: 40, y: 0 } },
     modePosition: {
-      relationship: { desktop: { x: 260, y: 190 }, mobile: { x: 40, y: 1380 } },
-      route: { desktop: { x: 80, y: 620 }, mobile: { x: 40, y: 1320 } }
+      relationship: { desktop: { x: 260, y: 260 }, mobile: { x: 40, y: 1400 } },
+      route: { desktop: { x: 180, y: 900 }, mobile: { x: 40, y: 1320 } }
     }
   },
   {
@@ -337,8 +337,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["grandma", "brother", "future-me"],
     position: { desktop: { x: 0, y: 0 }, mobile: { x: 260, y: 1260 } },
     modePosition: {
-      relationship: { desktop: { x: 300, y: 510 }, mobile: { x: 260, y: 1380 } },
-      route: { desktop: { x: 360, y: 720 }, mobile: { x: 260, y: 1260 } }
+      relationship: { desktop: { x: 400, y: 420 }, mobile: { x: 260, y: 1400 } },
+      route: { desktop: { x: 320, y: 820 }, mobile: { x: 260, y: 1260 } }
     }
   },
   {
@@ -363,8 +363,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["me"],
     position: { desktop: { x: 500, y: 240 }, mobile: { x: 40, y: 360 } },
     modePosition: {
-      relationship: { desktop: { x: 620, y: 820 }, mobile: { x: 40, y: 1560 } },
-      route: { desktop: { x: 440, y: 520 }, mobile: { x: 40, y: 1500 } }
+      relationship: { desktop: { x: 620, y: 920 }, mobile: { x: 40, y: 1580 } },
+      route: { desktop: { x: 440, y: 760 }, mobile: { x: 40, y: 1500 } }
     }
   },
   {
@@ -396,8 +396,8 @@ const nodes: LifeNodeData[] = [
     },
     position: { desktop: { x: 760, y: 240 }, mobile: { x: 260, y: 540 } },
     modePosition: {
-      relationship: { desktop: { x: 820, y: 920 }, mobile: { x: 260, y: 1560 } },
-      route: { desktop: { x: 760, y: 420 }, mobile: { x: 260, y: 1500 } }
+      relationship: { desktop: { x: 820, y: 980 }, mobile: { x: 260, y: 1580 } },
+      route: { desktop: { x: 700, y: 620 }, mobile: { x: 260, y: 1500 } }
     }
   },
   {
@@ -427,8 +427,8 @@ const nodes: LifeNodeData[] = [
     ],
     position: { desktop: { x: 1020, y: 240 }, mobile: { x: 40, y: 720 } },
     modePosition: {
-      relationship: { desktop: { x: 1060, y: 840 }, mobile: { x: 40, y: 1740 } },
-      route: { desktop: { x: 1020, y: 340 }, mobile: { x: 40, y: 1680 } }
+      relationship: { desktop: { x: 980, y: 900 }, mobile: { x: 40, y: 1760 } },
+      route: { desktop: { x: 960, y: 480 }, mobile: { x: 40, y: 1680 } }
     }
   },
   {
@@ -461,8 +461,8 @@ const nodes: LifeNodeData[] = [
       { label: "和自我证明的关系", value: "她变成另一条人生线的象征：如果我更好，会不会结局不同。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 1220, y: 310 }, mobile: { x: 40, y: 1920 } },
-      route: { desktop: { x: 1200, y: 300 }, mobile: { x: 40, y: 1860 } }
+      relationship: { desktop: { x: 1180, y: 40 }, mobile: { x: 40, y: 1960 } },
+      route: { desktop: { x: 1100, y: 60 }, mobile: { x: 40, y: 1860 } }
     }
   },
   {
@@ -494,8 +494,8 @@ const nodes: LifeNodeData[] = [
       { label: "和自我证明的关系", value: "后来想出人头地，也带着想证明自己配得上某种人生的念头。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 1440, y: 230 }, mobile: { x: 260, y: 1920 } },
-      route: { desktop: { x: 1420, y: 210 }, mobile: { x: 260, y: 1860 } }
+      relationship: { desktop: { x: 1480, y: 20 }, mobile: { x: 260, y: 1960 } },
+      route: { desktop: { x: 1380, y: 20 }, mobile: { x: 260, y: 1860 } }
     }
   },
   {
@@ -527,8 +527,8 @@ const nodes: LifeNodeData[] = [
       { label: "和另一条人生线的关系", value: "那条可能更勇敢、更成熟的线，从这里开始变得清晰。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 1610, y: 360 }, mobile: { x: 40, y: 2100 } },
-      route: { desktop: { x: 1600, y: 330 }, mobile: { x: 40, y: 2040 } }
+      relationship: { desktop: { x: 1780, y: 120 }, mobile: { x: 40, y: 2140 } },
+      route: { desktop: { x: 1660, y: 100 }, mobile: { x: 40, y: 2040 } }
     }
   },
   {
@@ -560,8 +560,8 @@ const nodes: LifeNodeData[] = [
       { label: "和自我证明的关系", value: "后来想变好，也像是在补当年不够笃定的自己。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 1810, y: 260 }, mobile: { x: 260, y: 2100 } },
-      route: { desktop: { x: 1790, y: 230 }, mobile: { x: 260, y: 2040 } }
+      relationship: { desktop: { x: 2080, y: 30 }, mobile: { x: 260, y: 2140 } },
+      route: { desktop: { x: 1940, y: 40 }, mobile: { x: 260, y: 2040 } }
     }
   },
   {
@@ -593,8 +593,8 @@ const nodes: LifeNodeData[] = [
       { label: "和另一条人生线的关系", value: "这像是另一条人生线最亮的证据：原来真的差一点能走下去。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 2020, y: 360 }, mobile: { x: 40, y: 2280 } },
-      route: { desktop: { x: 1990, y: 330 }, mobile: { x: 40, y: 2220 } }
+      relationship: { desktop: { x: 2380, y: 130 }, mobile: { x: 40, y: 2320 } },
+      route: { desktop: { x: 2220, y: 120 }, mobile: { x: 40, y: 2220 } }
     }
   },
   {
@@ -626,8 +626,8 @@ const nodes: LifeNodeData[] = [
       { label: "和出人头地的关系", value: "后来想证明自己，也夹着想证明当年的选择和喜欢不是轻飘飘的。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 2220, y: 220 }, mobile: { x: 260, y: 2280 } },
-      route: { desktop: { x: 2180, y: 210 }, mobile: { x: 260, y: 2220 } }
+      relationship: { desktop: { x: 2680, y: 20 }, mobile: { x: 260, y: 2320 } },
+      route: { desktop: { x: 2500, y: 40 }, mobile: { x: 260, y: 2220 } }
     }
   },
   {
@@ -660,8 +660,8 @@ const nodes: LifeNodeData[] = [
       { label: "和自我证明的关系", value: "想变好的一部分，来自对这段失败关系的长期反刍。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 2410, y: 360 }, mobile: { x: 40, y: 2460 } },
-      route: { desktop: { x: 2360, y: 340 }, mobile: { x: 40, y: 2400 } }
+      relationship: { desktop: { x: 2980, y: 120 }, mobile: { x: 40, y: 2500 } },
+      route: { desktop: { x: 2780, y: 120 }, mobile: { x: 40, y: 2400 } }
     }
   },
   {
@@ -693,8 +693,8 @@ const nodes: LifeNodeData[] = [
       { label: "和另一条人生线的关系", value: "沉默让想象空间变大：如果当时不同，会不会后来也不同。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 2580, y: 220 }, mobile: { x: 260, y: 2460 } },
-      route: { desktop: { x: 2520, y: 210 }, mobile: { x: 260, y: 2400 } }
+      relationship: { desktop: { x: 3280, y: 30 }, mobile: { x: 260, y: 2500 } },
+      route: { desktop: { x: 3060, y: 40 }, mobile: { x: 260, y: 2400 } }
     }
   },
   {
@@ -726,8 +726,8 @@ const nodes: LifeNodeData[] = [
       { label: "和出人头地的关系", value: "想出人头地不只是为了赢，也是想让过去的自己知道，他没有一直停在那里。" }
     ],
     modePosition: {
-      relationship: { desktop: { x: 2770, y: 330 }, mobile: { x: 40, y: 2640 } },
-      route: { desktop: { x: 2680, y: 330 }, mobile: { x: 40, y: 2580 } }
+      relationship: { desktop: { x: 3580, y: 130 }, mobile: { x: 40, y: 2680 } },
+      route: { desktop: { x: 3340, y: 120 }, mobile: { x: 40, y: 2580 } }
     }
   },
   {
@@ -759,8 +759,8 @@ const nodes: LifeNodeData[] = [
     },
     position: { desktop: { x: 1540, y: 240 }, mobile: { x: 40, y: 1080 } },
     modePosition: {
-      relationship: { desktop: { x: 1740, y: 710 }, mobile: { x: 260, y: 2640 } },
-      route: { desktop: { x: 1660, y: 570 }, mobile: { x: 260, y: 2580 } }
+      relationship: { desktop: { x: 1680, y: 760 }, mobile: { x: 260, y: 2680 } },
+      route: { desktop: { x: 1220, y: 360 }, mobile: { x: 260, y: 2580 } }
     }
   },
   {
@@ -790,8 +790,8 @@ const nodes: LifeNodeData[] = [
     ],
     position: { desktop: { x: 1800, y: 240 }, mobile: { x: 260, y: 1260 } },
     modePosition: {
-      relationship: { desktop: { x: 1900, y: 890 }, mobile: { x: 40, y: 2820 } },
-      route: { desktop: { x: 1960, y: 470 }, mobile: { x: 40, y: 2760 } }
+      relationship: { desktop: { x: 1820, y: 920 }, mobile: { x: 40, y: 2860 } },
+      route: { desktop: { x: 1480, y: 260 }, mobile: { x: 40, y: 2760 } }
     }
   },
   {
@@ -816,8 +816,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["opencv-teacher", "reality-reminder"],
     position: { desktop: { x: 2060, y: 240 }, mobile: { x: 40, y: 1440 } },
     modePosition: {
-      relationship: { desktop: { x: 1370, y: 1110 }, mobile: { x: 260, y: 2820 } },
-      route: { desktop: { x: 2260, y: 370 }, mobile: { x: 260, y: 2760 } }
+      relationship: { desktop: { x: 1380, y: 1080 }, mobile: { x: 260, y: 2860 } },
+      route: { desktop: { x: 1740, y: 180 }, mobile: { x: 260, y: 2760 } }
     }
   },
   {
@@ -842,8 +842,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["future-me"],
     position: { desktop: { x: 2320, y: 240 }, mobile: { x: 260, y: 1620 } },
     modePosition: {
-      relationship: { desktop: { x: 1550, y: 1080 }, mobile: { x: 40, y: 3000 } },
-      route: { desktop: { x: 2560, y: 280 }, mobile: { x: 40, y: 2940 } }
+      relationship: { desktop: { x: 1520, y: 1120 }, mobile: { x: 40, y: 3040 } },
+      route: { desktop: { x: 2000, y: 120 }, mobile: { x: 40, y: 2940 } }
     }
   },
   {
@@ -873,8 +873,8 @@ const nodes: LifeNodeData[] = [
     ],
     position: { desktop: { x: 2580, y: 80 }, mobile: { x: 40, y: 1800 } },
     modePosition: {
-      relationship: { desktop: { x: 1780, y: 1110 }, mobile: { x: 260, y: 3000 } },
-      route: { desktop: { x: 2760, y: 190 }, mobile: { x: 260, y: 2940 } }
+      relationship: { desktop: { x: 1720, y: 1140 }, mobile: { x: 260, y: 3040 } },
+      route: { desktop: { x: 2260, y: 80 }, mobile: { x: 260, y: 2940 } }
     }
   },
   {
@@ -898,8 +898,8 @@ const nodes: LifeNodeData[] = [
     relatedPeopleIds: ["grandma", "brother", "future-me", "her"],
     position: { desktop: { x: 2840, y: 240 }, mobile: { x: 260, y: 1980 } },
     modePosition: {
-      relationship: { desktop: { x: 1880, y: 160 }, mobile: { x: 40, y: 3180 } },
-      route: { desktop: { x: 3040, y: 120 }, mobile: { x: 40, y: 3120 } }
+      relationship: { desktop: { x: 1880, y: 180 }, mobile: { x: 40, y: 3220 } },
+      route: { desktop: { x: 2520, y: 40 }, mobile: { x: 40, y: 3120 } }
     }
   }
 ];

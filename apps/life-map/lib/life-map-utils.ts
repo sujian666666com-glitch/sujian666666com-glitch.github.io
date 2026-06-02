@@ -1,4 +1,10 @@
 import type { Edge, Node } from "@xyflow/react";
+import {
+  getMapLabel,
+  getNodeDisplayTier,
+  getNodeShellKind,
+  getYouthFocusNodeIds
+} from "@/lib/life-map-display";
 import type { LifeEdgeData, LifeFlowNodeData, LifeMapFilterId, LifeMapMode, LifeMapPayload, LifeNodeData } from "@/types/life-map";
 
 const filterTagMap: Record<Exclude<LifeMapFilterId, "all">, string[]> = {
@@ -52,9 +58,17 @@ export function getFocusContext(payload: LifeMapPayload, selectedNodeId: string 
   const selectedNode = payload.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const highlightedNodeIds = new Set<string>();
   const highlightedEdgeIds = new Set<string>();
+  const youthFocus = selectedNodeId === "her";
 
   if (!selectedNode || selectedNode.id === "me") {
-    return { selectedNode, highlightedNodeIds, highlightedEdgeIds, hasFocus: false };
+    return {
+      selectedNode,
+      highlightedNodeIds,
+      highlightedEdgeIds,
+      hasFocus: false,
+      youthFocus: false,
+      focusNodeIds: [] as string[]
+    };
   }
 
   highlightedNodeIds.add(selectedNode.id);
@@ -90,7 +104,16 @@ export function getFocusContext(payload: LifeMapPayload, selectedNodeId: string 
     }
   });
 
-  return { selectedNode, highlightedNodeIds, highlightedEdgeIds, hasFocus: true };
+  const focusNodeIds = youthFocus ? getYouthFocusNodeIds(payload.nodes) : [];
+
+  return {
+    selectedNode,
+    highlightedNodeIds,
+    highlightedEdgeIds,
+    hasFocus: true,
+    youthFocus,
+    focusNodeIds
+  };
 }
 
 export function toReactFlowNodes(
@@ -101,45 +124,65 @@ export function toReactFlowNodes(
   highlightedNodeIds: Set<string>,
   hasFocus: boolean
 ): Node<LifeFlowNodeData, "lifeMapNode">[] {
-  return nodes.map((node, index) => ({
-    id: node.id,
-    type: "lifeMapNode",
-    position:
-      (isMobile ? node.modePosition?.[mapMode]?.mobile : node.modePosition?.[mapMode]?.desktop) ??
-      (isMobile ? node.position?.mobile : node.position?.desktop) ??
-      { x: isMobile ? (index % 2 === 0 ? 40 : 260) : index * 260, y: isMobile ? index * 180 : 220 },
-    data: {
-      ...node,
-      selected: node.id === selectedNodeId,
-      highlighted: highlightedNodeIds.has(node.id),
-      dimmed: hasFocus && !highlightedNodeIds.has(node.id),
-      mapMode
-    } satisfies LifeFlowNodeData
-  }));
+  return nodes.map((node, index) => {
+    const displayTier = getNodeDisplayTier(node, mapMode, highlightedNodeIds, selectedNodeId, hasFocus);
+    const shellKind = getNodeShellKind(node, displayTier);
+
+    return {
+      id: node.id,
+      type: "lifeMapNode",
+      ariaLabel: getMapLabel(node),
+      position:
+        (isMobile ? node.modePosition?.[mapMode]?.mobile : node.modePosition?.[mapMode]?.desktop) ??
+        (isMobile ? node.position?.mobile : node.position?.desktop) ??
+        { x: isMobile ? (index % 2 === 0 ? 40 : 280) : index * 320, y: isMobile ? index * 280 : 280 },
+      data: {
+        ...node,
+        selected: node.id === selectedNodeId,
+        highlighted: highlightedNodeIds.has(node.id),
+        dimmed: hasFocus && !highlightedNodeIds.has(node.id),
+        mapMode,
+        displayTier,
+        mapLabel: getMapLabel(node),
+        shellKind
+      } satisfies LifeFlowNodeData
+    };
+  });
 }
 
-export function toReactFlowEdges(edges: LifeEdgeData[], highlightedEdgeIds: Set<string>, hasFocus: boolean): Edge[] {
-  return edges.map((edge) => ({
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    label: edge.relationLabel ?? edge.label,
-    animated: !hasFocus && (edge.relation === "UNLOCKS" || edge.relation === "TRIGGERS"),
-    type: "bezier",
-    style: {
-      stroke: getEdgeColor(edge),
-      strokeDasharray: getEdgeDash(edge),
-      strokeWidth: getEdgeWidth(edge, highlightedEdgeIds.has(edge.id), hasFocus),
-      opacity: hasFocus && !highlightedEdgeIds.has(edge.id) ? 0.16 : 0.92,
-      filter: highlightedEdgeIds.has(edge.id) ? "drop-shadow(0 3px 0 rgba(255, 249, 236, 0.75))" : undefined
-    },
-    labelStyle: {
-      fill: hasFocus && !highlightedEdgeIds.has(edge.id) ? "#7A6A58" : "#332A22",
-      fontWeight: 800,
-      opacity: hasFocus && !highlightedEdgeIds.has(edge.id) ? 0.22 : 0.9
-    },
-    labelBgStyle: { fill: "#FFF9EC", fillOpacity: hasFocus && !highlightedEdgeIds.has(edge.id) ? 0.22 : 0.88 }
-  }));
+export function toReactFlowEdges(
+  edges: LifeEdgeData[],
+  highlightedEdgeIds: Set<string>,
+  hasFocus: boolean,
+  youthFocus = false
+): Edge[] {
+  return edges.map((edge) => {
+    const highlighted = highlightedEdgeIds.has(edge.id);
+    const isYouthEdge = edge.lineStyle === "youth-branch";
+    const ghostEdge = hasFocus && !highlighted;
+
+    return {
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      label: ghostEdge ? undefined : (edge.relationLabel ?? edge.label),
+      animated: (youthFocus && isYouthEdge && highlighted) || (!hasFocus && (edge.relation === "UNLOCKS" || edge.relation === "TRIGGERS")),
+      type: "bezier",
+      style: {
+        stroke: getEdgeColor(edge),
+        strokeDasharray: getEdgeDash(edge),
+        strokeWidth: getEdgeWidth(edge, highlighted, hasFocus),
+        opacity: ghostEdge ? (isYouthEdge ? 0.08 : 0.12) : 0.92,
+        filter: highlighted ? "drop-shadow(0 3px 0 rgba(255, 249, 236, 0.75))" : undefined
+      },
+      labelStyle: {
+        fill: ghostEdge ? "#7A6A58" : "#332A22",
+        fontWeight: 800,
+        opacity: ghostEdge ? 0.15 : 0.9
+      },
+      labelBgStyle: { fill: "#FFF9EC", fillOpacity: ghostEdge ? 0.15 : 0.88 }
+    };
+  });
 }
 
 export function getInitialNodeId(payload: LifeMapPayload | null) {

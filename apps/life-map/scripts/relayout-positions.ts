@@ -1,0 +1,134 @@
+/** One-time layout map for LifeMap density refactor. Only modePosition coordinates. */
+export const RELAYOUT_POSITIONS: Record<
+  string,
+  { relationship: { desktop: { x: number; y: number }; mobile: { x: number; y: number } }; route: { desktop: { x: number; y: number }; mobile: { x: number; y: number } } }
+> = {
+  me: {
+    relationship: { desktop: { x: 780, y: 420 }, mobile: { x: 120, y: 200 } },
+    route: { desktop: { x: 200, y: 980 }, mobile: { x: 80, y: 0 } }
+  },
+  grandma: {
+    relationship: { desktop: { x: 360, y: 160 }, mobile: { x: 40, y: 340 } },
+    route: { desktop: { x: 200, y: 860 }, mobile: { x: 260, y: 180 } }
+  },
+  father: {
+    relationship: { desktop: { x: 300, y: 360 }, mobile: { x: 40, y: 520 } },
+    route: { desktop: { x: 140, y: 780 }, mobile: { x: 40, y: 360 } }
+  },
+  aunt: {
+    relationship: { desktop: { x: 360, y: 540 }, mobile: { x: 260, y: 520 } },
+    route: { desktop: { x: 280, y: 860 }, mobile: { x: 260, y: 360 } }
+  },
+  brother: {
+    relationship: { desktop: { x: 400, y: 700 }, mobile: { x: 40, y: 700 } },
+    route: { desktop: { x: 340, y: 920 }, mobile: { x: 40, y: 540 } }
+  },
+  "cousin-sis": {
+    relationship: { desktop: { x: 460, y: 860 }, mobile: { x: 260, y: 700 } },
+    route: { desktop: { x: 420, y: 880 }, mobile: { x: 260, y: 540 } }
+  },
+  "cousin-bro": {
+    relationship: { desktop: { x: 320, y: 860 }, mobile: { x: 40, y: 860 } },
+    route: { desktop: { x: 500, y: 840 }, mobile: { x: 40, y: 720 } }
+  },
+  her: {
+    relationship: { desktop: { x: 1040, y: 200 }, mobile: { x: 260, y: 860 } },
+    route: { desktop: { x: 1080, y: 180 }, mobile: { x: 260, y: 720 } }
+  },
+  roommate: {
+    relationship: { desktop: { x: 1280, y: 480 }, mobile: { x: 40, y: 1040 } },
+    route: { desktop: { x: 2100, y: 280 }, mobile: { x: 40, y: 900 } }
+  },
+  "reality-reminder": {
+    relationship: { desktop: { x: 1340, y: 640 }, mobile: { x: 260, y: 1040 } },
+    route: { desktop: { x: 2160, y: 380 }, mobile: { x: 260, y: 900 } }
+  },
+  "opencv-teacher": {
+    relationship: { desktop: { x: 1220, y: 800 }, mobile: { x: 40, y: 1220 } },
+    route: { desktop: { x: 1920, y: 220 }, mobile: { x: 40, y: 1080 } }
+  },
+  "future-me": {
+    relationship: { desktop: { x: 1240, y: 980 }, mobile: { x: 260, y: 1220 } },
+    route: { desktop: { x: 2480, y: 60 }, mobile: { x: 260, y: 1080 } }
+  },
+  "town-start": {
+    relationship: { desktop: { x: 260, y: 260 }, mobile: { x: 40, y: 1400 } },
+    route: { desktop: { x: 180, y: 900 }, mobile: { x: 40, y: 1320 } }
+  },
+  "family-duty": {
+    relationship: { desktop: { x: 400, y: 420 }, mobile: { x: 260, y: 1400 } },
+    route: { desktop: { x: 320, y: 820 }, mobile: { x: 260, y: 1260 } }
+  },
+  "primary-gift": {
+    relationship: { desktop: { x: 620, y: 920 }, mobile: { x: 40, y: 1580 } },
+    route: { desktop: { x: 440, y: 760 }, mobile: { x: 40, y: 1500 } }
+  },
+  "middle-lost": {
+    relationship: { desktop: { x: 820, y: 980 }, mobile: { x: 260, y: 1580 } },
+    route: { desktop: { x: 700, y: 620 }, mobile: { x: 260, y: 1500 } }
+  },
+  "middle-awaken": {
+    relationship: { desktop: { x: 980, y: 900 }, mobile: { x: 40, y: 1760 } },
+    route: { desktop: { x: 960, y: 480 }, mobile: { x: 40, y: 1680 } }
+  },
+  "youth-meet": {
+    relationship: { desktop: { x: 1180, y: 40 }, mobile: { x: 40, y: 1960 } },
+    route: { desktop: { x: 1100, y: 60 }, mobile: { x: 40, y: 1860 } }
+  },
+  "youth-found": {
+    relationship: { desktop: { x: 1480, y: 20 }, mobile: { x: 260, y: 1960 } },
+    route: { desktop: { x: 1380, y: 20 }, mobile: { x: 260, y: 1860 } }
+  },
+  "youth-apart": {
+    relationship: { desktop: { x: 1780, y: 120 }, mobile: { x: 40, y: 2140 } },
+    route: { desktop: { x: 1660, y: 100 }, mobile: { x: 40, y: 2040 } }
+  },
+  "youth-unnamed": {
+    relationship: { desktop: { x: 2080, y: 30 }, mobile: { x: 260, y: 2140 } },
+    route: { desktop: { x: 1940, y: 40 }, mobile: { x: 260, y: 2040 } }
+  },
+  "youth-first-kiss": {
+    relationship: { desktop: { x: 2380, y: 130 }, mobile: { x: 40, y: 2320 } },
+    route: { desktop: { x: 2220, y: 120 }, mobile: { x: 40, y: 2220 } }
+  },
+  "youth-together": {
+    relationship: { desktop: { x: 2680, y: 20 }, mobile: { x: 260, y: 2320 } },
+    route: { desktop: { x: 2500, y: 40 }, mobile: { x: 260, y: 2220 } }
+  },
+  "youth-breakup": {
+    relationship: { desktop: { x: 2980, y: 120 }, mobile: { x: 40, y: 2500 } },
+    route: { desktop: { x: 2780, y: 120 }, mobile: { x: 40, y: 2400 } }
+  },
+  "youth-no-contact": {
+    relationship: { desktop: { x: 3280, y: 30 }, mobile: { x: 260, y: 2500 } },
+    route: { desktop: { x: 3060, y: 40 }, mobile: { x: 260, y: 2400 } }
+  },
+  "youth-regret": {
+    relationship: { desktop: { x: 3580, y: 130 }, mobile: { x: 40, y: 2680 } },
+    route: { desktop: { x: 3340, y: 120 }, mobile: { x: 40, y: 2580 } }
+  },
+  "college-delay-boss": {
+    relationship: { desktop: { x: 1680, y: 760 }, mobile: { x: 260, y: 2680 } },
+    route: { desktop: { x: 1220, y: 360 }, mobile: { x: 260, y: 2580 } }
+  },
+  "amusement-awaken": {
+    relationship: { desktop: { x: 1820, y: 920 }, mobile: { x: 40, y: 2860 } },
+    route: { desktop: { x: 1480, y: 260 }, mobile: { x: 40, y: 2760 } }
+  },
+  "ai-career": {
+    relationship: { desktop: { x: 1380, y: 1080 }, mobile: { x: 260, y: 2860 } },
+    route: { desktop: { x: 1740, y: 180 }, mobile: { x: 260, y: 2760 } }
+  },
+  "shenzhen-intern": {
+    relationship: { desktop: { x: 1520, y: 1120 }, mobile: { x: 40, y: 3040 } },
+    route: { desktop: { x: 2000, y: 120 }, mobile: { x: 40, y: 2940 } }
+  },
+  "rhythm-rebuild": {
+    relationship: { desktop: { x: 1720, y: 1140 }, mobile: { x: 260, y: 3040 } },
+    route: { desktop: { x: 2260, y: 80 }, mobile: { x: 260, y: 2940 } }
+  },
+  "final-goal": {
+    relationship: { desktop: { x: 1880, y: 180 }, mobile: { x: 40, y: 3220 } },
+    route: { desktop: { x: 2520, y: 40 }, mobile: { x: 40, y: 3120 } }
+  }
+};
