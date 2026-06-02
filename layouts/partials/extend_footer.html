@@ -1,3 +1,58 @@
+{{- if .IsHome }}
+<script>
+  (function () {
+    var root = document.querySelector("[data-dispatch-lang-root]");
+    if (!root) return;
+
+    var storageKey = "dispatch-lang";
+    var buttons = root.querySelectorAll("[data-dispatch-lang-button]");
+    var panels = root.querySelectorAll("[data-dispatch-lang-panel]");
+    var supported = { zh: true, en: true };
+
+    function getSavedLang() {
+      try {
+        return window.localStorage.getItem(storageKey);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveLang(lang) {
+      try {
+        window.localStorage.setItem(storageKey, lang);
+      } catch (error) {
+        return;
+      }
+    }
+
+    function setLang(lang) {
+      var nextLang = supported[lang] ? lang : "zh";
+      root.setAttribute("data-lang", nextLang);
+
+      panels.forEach(function (panel) {
+        panel.hidden = panel.getAttribute("data-dispatch-lang-panel") !== nextLang;
+      });
+
+      buttons.forEach(function (button) {
+        var isActive = button.getAttribute("data-dispatch-lang-button") === nextLang;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      saveLang(nextLang);
+    }
+
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setLang(button.getAttribute("data-dispatch-lang-button"));
+      });
+    });
+
+    setLang(getSavedLang() || "zh");
+  })();
+</script>
+{{- end }}
+
 {{- if not (.Param "hideChat") }}
 {{- partial "chat-widget.html" . -}}
 {{- end }}

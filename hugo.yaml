@@ -29,7 +29,39 @@ params:
   masthead:
     issue: "VOL. I · NO. 06"
     dateline: "Tuesday, the 2nd of June"
-    statement: "记录技术、生活与持续的实验。"
+    dispatch:
+      zh:
+        label: "A PERSONAL DISPATCH"
+        title:
+          - "把问题拆开，"
+          - "把系统建起，"
+          - "把生活继续"
+        primaryCta: "浏览文章 →"
+        secondaryCta: "关于我"
+        proofAria: "最新文章"
+        dateLabel: "日期"
+        categoryLabel: "分类"
+        readLabel: "阅读"
+        wordsLabel: "字数"
+        readArticle: "阅读全文"
+        fallbackTitle: "新的 dispatch 正在整理中"
+        fallbackSummary: "等第一篇文章发布后，这里会自动呈现最新内容的日期、分类、阅读时间和摘要。"
+      en:
+        label: "A PERSONAL DISPATCH"
+        title:
+          - "Break the problem down,"
+          - "Build the system up,"
+          - "Keep life moving."
+        primaryCta: "Read Notes →"
+        secondaryCta: "About"
+        proofAria: "Latest article"
+        dateLabel: "Date"
+        categoryLabel: "Category"
+        readLabel: "Read"
+        wordsLabel: "Words"
+        readArticle: "Read Article"
+        fallbackTitle: "A new dispatch is being drafted"
+        fallbackSummary: "Once the first article is published, this card will show its date, category, reading time, and summary."
 
   # Profile 模式 - 极简设计
   profileMode:
