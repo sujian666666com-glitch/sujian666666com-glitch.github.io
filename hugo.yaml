@@ -23,9 +23,13 @@ outputs:
 
 params:
   env: production
-  defaultTheme: dark
+  defaultTheme: light
   author: "苏健"
   description: "AI 工程师 | 记录技术、生活与思考"
+  masthead:
+    issue: "VOL. I · NO. 06"
+    dateline: "Tuesday, the 2nd of June"
+    statement: "记录技术、生活与持续的实验。"
 
   # Profile 模式 - 极简设计
   profileMode:
@@ -106,6 +110,10 @@ menu:
       url: /gallery/
       weight: 30
       identifier: gallery
+    - name: 关于
+      url: /about/
+      weight: 35
+      identifier: about
     - name: 小虾
       url: /shrimp-diary/
       weight: 40

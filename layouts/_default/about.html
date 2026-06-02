@@ -1,0 +1,35 @@
+{{- define "main" }}
+<article class="about-document" aria-labelledby="about-title">
+  <aside class="about-document__rail" aria-label="关于页导航">
+    <nav class="about-document__toc">
+      <span>ABOUT INDEX</span>
+      {{- if .Fragments.Headings }}
+      {{ .TableOfContents }}
+      {{- else }}
+      <ol>
+        <li><a href="#about-title">关于</a></li>
+      </ol>
+      {{- end }}
+    </nav>
+  </aside>
+
+  <div class="about-document__main">
+    <header class="about-document__header">
+      {{ partial "breadcrumbs.html" . }}
+      <p class="about-document__label">PERSONAL NOTE</p>
+      <h1 id="about-title">{{ .Title }}</h1>
+      {{- with .Description }}
+      <p class="about-document__description">{{ . | markdownify }}</p>
+      {{- end }}
+    </header>
+
+    {{- if .Content }}
+    <div class="post-content about-document__content">
+      {{- if not (.Param "disableAnchoredHeadings") }}
+      {{- partial "anchored_headings.html" .Content -}}
+      {{- else }}{{ .Content }}{{ end }}
+    </div>
+    {{- end }}
+  </div>
+</article>
+{{- end }}

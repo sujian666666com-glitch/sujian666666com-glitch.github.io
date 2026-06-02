@@ -1,0 +1,58 @@
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 · system: editorial-DNA */
+:root {
+  --color-paper: oklch(94.5% 0.018 78);
+  --color-paper-2: oklch(91.5% 0.020 76);
+  --color-paper-3: oklch(87.5% 0.022 72);
+  --color-ink: oklch(16% 0.030 48);
+  --color-ink-2: oklch(26% 0.022 52);
+  --color-muted: oklch(48% 0.016 62);
+  --color-rule: oklch(72% 0.012 72);
+  --color-rule-soft: oklch(82% 0.010 74);
+  --color-accent: oklch(52% 0.125 48);
+  --color-accent-ink: oklch(42% 0.115 42);
+  --color-focus: oklch(52% 0.125 48);
+
+  --font-display: "Instrument Serif", "Cormorant Garamond", "Playfair Display", "Noto Serif SC", "Songti SC", ui-serif, Georgia, serif;
+  --font-body: "Newsreader", "Literata", "Noto Serif SC", "Source Han Serif SC", ui-serif, Georgia, serif;
+  --font-mono: "IBM Plex Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6.5rem;
+  --space-4xl: 10rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-display: clamp(3.4rem, 8vw + 1rem, 8.4rem);
+  --text-display-s: clamp(2.5rem, 4.6vw + 1rem, 5rem);
+
+  --lh-tight: 0.98;
+  --lh-snug: 1.16;
+  --lh-normal: 1.55;
+  --lh-relaxed: 1.72;
+  --tracking-label: 0.18em;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+
+  --radius-card: 0;
+  --radius-pill: 0;
+  --radius-input: 0;
+  --rule-hair: 1px;
+
+  --editorial-layout-max: min(1240px, calc(100vw - var(--gap) * 2));
+}
