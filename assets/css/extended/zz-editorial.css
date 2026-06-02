@@ -264,10 +264,10 @@ a {
   left: 50%;
   right: auto;
   z-index: 1020;
-  width: min(88vw, 430px);
-  min-width: min(88vw, 360px);
+  width: min(88vw, 360px);
+  min-width: min(88vw, 300px);
   margin: 0;
-  padding: 30px 30px 10px;
+  padding: 24px 22px 8px;
   overflow: visible;
   border: var(--rule-hair) solid color-mix(in oklch, var(--color-ink) 18%, transparent);
   border-bottom: 5px solid color-mix(in oklch, var(--color-accent) 74%, var(--color-ink));
@@ -289,10 +289,10 @@ a {
 .masthead .sub-menu::before {
   content: "";
   position: absolute;
-  top: -19px;
+  top: -16px;
   left: 50%;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border-top: var(--rule-hair) solid color-mix(in oklch, var(--color-ink) 18%, transparent);
   border-left: var(--rule-hair) solid color-mix(in oklch, var(--color-ink) 18%, transparent);
   background: color-mix(in oklch, var(--color-paper) 90%, white);
@@ -328,12 +328,12 @@ a {
 .masthead .sub-menu li a,
 .masthead .sub-menu li a.nav-card-link {
   display: grid !important;
-  grid-template-columns: 72px minmax(0, 1fr) 24px;
+  grid-template-columns: 56px minmax(0, 1fr) 20px;
   align-items: center;
-  gap: 14px;
-  min-height: 112px;
+  gap: 12px;
+  min-height: 88px;
   width: 100%;
-  padding: 18px 0;
+  padding: 13px 0;
   color: var(--color-ink) !important;
   font-family: var(--font-body);
   letter-spacing: 0;
@@ -352,21 +352,21 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
+  width: 56px;
   min-width: 0;
 }
 
 .nav-card-link__icon img {
   display: block;
-  width: 54px;
-  height: 54px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
   filter: sepia(0.16) saturate(0.9);
 }
 
 .nav-card-link__copy {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -374,7 +374,7 @@ a {
   display: block;
   color: var(--color-ink);
   font-family: var(--font-body);
-  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
   font-weight: 700;
   line-height: var(--lh-snug);
   letter-spacing: 0;
@@ -384,7 +384,7 @@ a {
   display: block;
   color: var(--color-muted);
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  font-size: clamp(0.88rem, 1vw, 1rem);
   font-weight: 600;
   line-height: var(--lh-snug);
   letter-spacing: 0;
@@ -396,7 +396,7 @@ a {
   justify-content: center;
   color: var(--color-ink);
   font-family: var(--font-body);
-  font-size: 2.4rem;
+  font-size: 1.9rem;
   font-weight: 700;
   line-height: 1;
   transform: translateY(-0.04em);
@@ -702,9 +702,9 @@ a {
   .masthead .sub-menu {
     top: calc(100% + 12px);
     display: block;
-    width: min(calc(100vw - 24px), 380px);
+    width: min(calc(100vw - 24px), 330px);
     min-width: 0;
-    padding: 24px 18px 8px;
+    padding: 20px 14px 6px;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -721,32 +721,32 @@ a {
 
   .masthead .sub-menu li a,
   .masthead .sub-menu li a.nav-card-link {
-    grid-template-columns: 58px minmax(0, 1fr) 20px;
-    gap: 10px;
-    min-height: 92px;
-    padding: 14px 0 !important;
+    grid-template-columns: 46px minmax(0, 1fr) 18px;
+    gap: 9px;
+    min-height: 76px;
+    padding: 11px 0 !important;
     white-space: normal;
   }
 
   .nav-card-link__icon {
-    width: 58px;
+    width: 46px;
   }
 
   .nav-card-link__icon img {
-    width: 46px;
-    height: 46px;
+    width: 36px;
+    height: 36px;
   }
 
   .nav-card-link__title {
-    font-size: 1.35rem;
+    font-size: 1.12rem;
   }
 
   .nav-card-link__description {
-    font-size: 0.98rem;
+    font-size: 0.86rem;
   }
 
   .nav-card-link__arrow {
-    font-size: 2rem;
+    font-size: 1.65rem;
   }
 
   .dispatch-hero__statement {
