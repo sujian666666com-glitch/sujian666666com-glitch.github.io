@@ -29,6 +29,8 @@ params:
   masthead:
     issue: "VOL. I · NO. 06"
     dateline: "Tuesday, the 2nd of June"
+    datelineZh: "2026年6月2日，星期二"
+    datelineEn: "Tuesday, the 2nd of June"
     dispatch:
       zh:
         label: "A PERSONAL DISPATCH"

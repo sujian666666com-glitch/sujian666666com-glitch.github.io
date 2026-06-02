@@ -2,10 +2,15 @@
 {{- $labelText := (site.Params.label.text | default site.Title) -}}
 {{- $masthead := site.Params.masthead -}}
 {{- $issue := $masthead.issue | default "VOL. I · NO. 01" -}}
-{{- $dateline := $masthead.dateline | default (now.Format "Monday, the 2nd of January") -}}
+{{- $datelineZh := $masthead.datelineZh | default "2026年6月2日，星期二" -}}
+{{- $datelineEn := $masthead.datelineEn | default ($masthead.dateline | default (now.Format "Monday, the 2nd of January")) -}}
 {{- $brandAvatar := site.Params.masthead.avatar | default "/nav-avatar.png" -}}
 <header class="header masthead{{ if .IsHome }} masthead--home{{ end }}">
     <div class="masthead__rule" aria-hidden="true"></div>
+    <div class="site-lang-toggle" role="group" aria-label="Language">
+        <button class="site-lang-toggle__button is-active" type="button" data-site-lang-button="zh" aria-pressed="true">ZH</button>
+        <button class="site-lang-toggle__button" type="button" data-site-lang-button="en" aria-pressed="false">EN</button>
+    </div>
     <div class="masthead__plate">
         <div class="masthead__issue">{{ $issue }}</div>
         <a class="masthead__brand" href="{{ "" | absLangURL }}" accesskey="h" title="{{ $labelText }} (Alt + H)">
@@ -17,7 +22,10 @@
             <span class="masthead__brand-word">Blog</span>
             <span class="sr-only">{{ $labelText }}</span>
         </a>
-        <time class="masthead__date" datetime="{{ now.Format "2006-01-02" }}">{{ $dateline }}</time>
+        <time class="masthead__date" datetime="{{ now.Format "2006-01-02" }}">
+            <span data-site-lang-panel="zh">{{ $datelineZh }}</span>
+            <span data-site-lang-panel="en" hidden>{{ $datelineEn }}</span>
+        </time>
     </div>
 
     <nav class="nav masthead__nav" aria-label="主导航">
@@ -29,6 +37,13 @@
             {{- $pageURL := $currentPage.Permalink | absLangURL }}
             {{- $isSearch := eq .Identifier "search" }}
             {{- $hasChildren := gt (len .Children) 0 }}
+            {{- $navEn := .Name -}}
+            {{- if eq .Identifier "home" }}{{- $navEn = "Home" -}}{{- end -}}
+            {{- if eq .Identifier "daily" }}{{- $navEn = "Daily" -}}{{- end -}}
+            {{- if eq .Identifier "posts" }}{{- $navEn = "Blog" -}}{{- end -}}
+            {{- if eq .Identifier "gallery" }}{{- $navEn = "Notes" -}}{{- end -}}
+            {{- if eq .Identifier "about" }}{{- $navEn = "About" -}}{{- end -}}
+            {{- if eq .Identifier "shrimp-diary" }}{{- $navEn = "Shrimp" -}}{{- end -}}
             <li class="menu-item{{ if $hasChildren }} menu-item-has-children{{ end }}">
                 <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}{{ cond $isSearch " (Alt + /)" "" }}"
                 {{- cond $isSearch (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr) }}>
@@ -37,7 +52,8 @@
                         <img class="nav-avatar__image" src="{{ $brandAvatar | relURL }}" alt="关于" width="32" height="32">
                         {{- else -}}
                         {{- .Pre }}
-                        {{- .Name -}}
+                        <span data-site-lang-panel="zh">{{- .Name -}}</span>
+                        <span data-site-lang-panel="en" hidden>{{- $navEn -}}</span>
                         {{ .Post -}}
                         {{- if $hasChildren }}<span class="menu-arrow" aria-hidden="true">⌄</span>{{- end }}
                         {{- end -}}
@@ -46,7 +62,13 @@
                 {{- if $hasChildren }}
                 <ul class="sub-menu">
                     {{- range .Children }}
-                    <li><a href="{{ .URL | absLangURL }}"><span>{{ .Name }}</span></a></li>
+                    {{- $childEn := .Name -}}
+                    {{- if eq .Name "技术" }}{{- $childEn = "Tech" -}}{{- end -}}
+                    {{- if eq .Name "生活" }}{{- $childEn = "Life" -}}{{- end -}}
+                    {{- if eq .Name "思考" }}{{- $childEn = "Thinking" -}}{{- end -}}
+                    {{- if eq .Name "周记" }}{{- $childEn = "Weekly" -}}{{- end -}}
+                    {{- if eq .Name "日记" }}{{- $childEn = "Daily" -}}{{- end -}}
+                    <li><a href="{{ .URL | absLangURL }}"><span data-site-lang-panel="zh">{{ .Name }}</span><span data-site-lang-panel="en" hidden>{{ $childEn }}</span></a></li>
                     {{- end }}
                 </ul>
                 {{- end }}

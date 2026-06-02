@@ -1,17 +1,16 @@
-{{- if .IsHome }}
 <script>
   (function () {
-    var root = document.querySelector("[data-dispatch-lang-root]");
-    if (!root) return;
-
-    var storageKey = "dispatch-lang";
-    var buttons = root.querySelectorAll("[data-dispatch-lang-button]");
-    var panels = root.querySelectorAll("[data-dispatch-lang-panel]");
+    var storageKey = "site-lang";
+    var legacyStorageKey = "dispatch-lang";
     var supported = { zh: true, en: true };
+    var buttons = document.querySelectorAll("[data-site-lang-button], [data-dispatch-lang-button]");
+    var panels = document.querySelectorAll("[data-site-lang-panel], [data-dispatch-lang-panel]");
+
+    if (!buttons.length && !panels.length) return;
 
     function getSavedLang() {
       try {
-        return window.localStorage.getItem(storageKey);
+        return window.localStorage.getItem(storageKey) || window.localStorage.getItem(legacyStorageKey);
       } catch (error) {
         return null;
       }
@@ -20,21 +19,30 @@
     function saveLang(lang) {
       try {
         window.localStorage.setItem(storageKey, lang);
+        window.localStorage.setItem(legacyStorageKey, lang);
       } catch (error) {
         return;
       }
     }
 
+    function panelLang(panel) {
+      return panel.getAttribute("data-site-lang-panel") || panel.getAttribute("data-dispatch-lang-panel");
+    }
+
+    function buttonLang(button) {
+      return button.getAttribute("data-site-lang-button") || button.getAttribute("data-dispatch-lang-button");
+    }
+
     function setLang(lang) {
       var nextLang = supported[lang] ? lang : "zh";
-      root.setAttribute("data-lang", nextLang);
+      document.documentElement.setAttribute("data-lang", nextLang);
 
       panels.forEach(function (panel) {
-        panel.hidden = panel.getAttribute("data-dispatch-lang-panel") !== nextLang;
+        panel.hidden = panelLang(panel) !== nextLang;
       });
 
       buttons.forEach(function (button) {
-        var isActive = button.getAttribute("data-dispatch-lang-button") === nextLang;
+        var isActive = buttonLang(button) === nextLang;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
       });
@@ -44,14 +52,13 @@
 
     buttons.forEach(function (button) {
       button.addEventListener("click", function () {
-        setLang(button.getAttribute("data-dispatch-lang-button"));
+        setLang(buttonLang(button));
       });
     });
 
     setLang(getSavedLang() || "zh");
   })();
 </script>
-{{- end }}
 
 {{- if not (.Param "hideChat") }}
 {{- partial "chat-widget.html" . -}}
