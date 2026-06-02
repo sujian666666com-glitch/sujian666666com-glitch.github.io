@@ -86,7 +86,8 @@ a {
 .masthead__brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.18em;
+  justify-content: center;
+  gap: 0.11em;
   min-width: 0;
   color: var(--color-ink);
   font-family: var(--font-display);
@@ -97,19 +98,48 @@ a {
   box-shadow: none;
 }
 
-.masthead__brand-avatar {
-  width: 0.9em;
-  height: 0.9em;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  object-fit: cover;
-  border: var(--rule-hair) solid var(--color-rule);
-  transform: translateY(0.03em);
-}
-
-.masthead__brand-copy {
+.masthead__brand-word {
   display: inline-flex;
   align-items: baseline;
+}
+
+.masthead__no-logo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.78em;
+  height: 0.84em;
+  flex: 0 0 auto;
+  margin-inline: -0.02em -0.01em;
+  transform: translateY(0.04em);
+  color: currentColor;
+  line-height: 1;
+}
+
+.masthead__no-hook {
+  position: absolute;
+  inset: -0.08em -0.05em -0.04em -0.18em;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 1.04em;
+  line-height: 1;
+}
+
+.masthead__no-avatar {
+  position: relative;
+  z-index: 2;
+  width: 0.47em;
+  height: 0.47em;
+  margin-left: -0.16em;
+  margin-top: -0.02em;
+  border-radius: 50%;
+  object-fit: cover;
+  border: var(--rule-hair) solid var(--color-paper);
+  box-shadow: 0 0 0 var(--rule-hair) var(--color-rule);
 }
 
 .masthead__brand:hover {

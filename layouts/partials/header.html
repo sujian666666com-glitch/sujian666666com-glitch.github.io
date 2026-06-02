@@ -9,8 +9,12 @@
     <div class="masthead__plate">
         <div class="masthead__issue">{{ $issue }}</div>
         <a class="masthead__brand" href="{{ "" | absLangURL }}" accesskey="h" title="{{ $labelText }} (Alt + H)">
-            <img class="masthead__brand-avatar" src="{{ $brandAvatar | relURL }}" alt="" width="64" height="64" aria-hidden="true">
-            <span class="masthead__brand-copy">の Blog</span>
+            <span class="masthead__brand-word">Jian</span>
+            <span class="masthead__no-logo" aria-hidden="true">
+                <span class="masthead__no-hook">の</span>
+                <img class="masthead__no-avatar" src="{{ $brandAvatar | relURL }}" alt="" width="64" height="64">
+            </span>
+            <span class="masthead__brand-word">Blog</span>
             <span class="sr-only">{{ $labelText }}</span>
         </a>
         <time class="masthead__date" datetime="{{ now.Format "2006-01-02" }}">{{ $dateline }}</time>
