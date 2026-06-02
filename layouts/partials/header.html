@@ -68,7 +68,44 @@
                     {{- if eq .Name "思考" }}{{- $childEn = "Thinking" -}}{{- end -}}
                     {{- if eq .Name "周记" }}{{- $childEn = "Weekly" -}}{{- end -}}
                     {{- if eq .Name "日记" }}{{- $childEn = "Daily" -}}{{- end -}}
-                    <li><a href="{{ .URL | absLangURL }}"><span data-site-lang-panel="zh">{{ .Name }}</span><span data-site-lang-panel="en" hidden>{{ $childEn }}</span></a></li>
+                    {{- $childIcon := "" -}}
+                    {{- if eq .Name "技术" }}{{- $childIcon = "/images/nav-tabs/icon-tech.png" -}}{{- end -}}
+                    {{- if eq .Name "生活" }}{{- $childIcon = "/images/nav-tabs/icon-life.png" -}}{{- end -}}
+                    {{- if eq .Name "思考" }}{{- $childIcon = "/images/nav-tabs/icon-thinking.png" -}}{{- end -}}
+                    {{- if eq .Name "周记" }}{{- $childIcon = "/images/nav-tabs/icon-weekly.png" -}}{{- end -}}
+                    {{- if eq .Name "日记" }}{{- $childIcon = "/images/nav-tabs/icon-daily.png" -}}{{- end -}}
+                    {{- $childDescriptionZh := "" -}}
+                    {{- $childDescriptionEn := "" -}}
+                    {{- if eq .Name "周记" -}}
+                    {{- $childDescriptionZh = "记录每周生活碎片" -}}
+                    {{- $childDescriptionEn = "Weekly life fragments" -}}
+                    {{- end -}}
+                    {{- if eq .Name "日记" -}}
+                    {{- $childDescriptionZh = "私密日常与想法" -}}
+                    {{- $childDescriptionEn = "Private days and thoughts" -}}
+                    {{- end -}}
+                    <li>
+                        <a class="nav-card-link" href="{{ .URL | absLangURL }}">
+                            <span class="nav-card-link__icon" aria-hidden="true">
+                                {{- with $childIcon -}}
+                                <img src="{{ . | relURL }}" alt="" width="48" height="48">
+                                {{- end -}}
+                            </span>
+                            <span class="nav-card-link__copy">
+                                <span class="nav-card-link__title">
+                                    <span data-site-lang-panel="zh">{{ .Name }}</span>
+                                    <span data-site-lang-panel="en" hidden>{{ $childEn }}</span>
+                                </span>
+                                {{- if $childDescriptionZh }}
+                                <span class="nav-card-link__description">
+                                    <span data-site-lang-panel="zh">{{ $childDescriptionZh }}</span>
+                                    <span data-site-lang-panel="en" hidden>{{ $childDescriptionEn }}</span>
+                                </span>
+                                {{- end }}
+                            </span>
+                            <span class="nav-card-link__arrow" aria-hidden="true">›</span>
+                        </a>
+                    </li>
                     {{- end }}
                 </ul>
                 {{- end }}
