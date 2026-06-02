@@ -35,3 +35,6 @@ openspec/changes/*/.runs/
 # OMC 插件本地运行时状态（勿提交）
 .omc/state/
 .omc/sessions/
+
+# 本地私人笔记，不能发布到 Hugo 内容目录
+private-notes/
