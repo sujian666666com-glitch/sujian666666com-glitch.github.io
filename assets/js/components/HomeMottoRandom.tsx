@@ -85,7 +85,7 @@ export function StairMotto() {
       <path
         className="home-motto__star"
         style={{ "--motto-delay": "1530ms" } as React.CSSProperties}
-        d="M1034 58 C1041 73 1046 78 1061 84 C1046 90 1041 96 1035 111 C1028 96 1023 90 1008 84 C1023 78 1028 73 1034 58Z"
+        d="M1102 34 C1108 48 1113 52 1127 58 C1113 64 1109 69 1103 83 C1097 69 1092 64 1078 58 C1092 52 1096 48 1102 34Z"
       />
     </svg>
   );
