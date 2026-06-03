@@ -122,6 +122,7 @@
 - [x] 锁定博客重构设计 DNA 到根目录 `design.md`。
 - [x] 将 tokens 导出到 Hugo CSS 入口，并让现有页面引用 token 名称。
 - [x] 按 Split Studio 重构首页首屏与最新文章 proof card。
+- [x] 收紧首页大屏首屏留白，避免 masthead 下方和两侧空白过重。
 - [ ] 按 Long Document / Index-First / Almanac 变体梳理文章页、归档页和每日新闻页。
 - [x] 在 320 / 375 / 414 / 768 px 验证无横向滚动、无按钮两行、无内容重叠。
 
@@ -129,6 +130,11 @@
 - 现象 / 缺陷 · 首页和 About 页仍残留冷白工作台结构，且 About 页只有内容 front matter，没有 Long Document 布局。
 - 正确期望行为 · 首页使用 N6 masthead + Split Studio proof card，About 页进入暖纸文档阅读流；移动端 320 / 375 / 414 / 768 px 不应横向滚动或按钮换行。
 - 本次方式 · 导出 `tokens.css`，新增末尾响应式收口 `zz-editorial.css`，重写首页/header/footer partial，新增 About layout 与 `about.css`，保留非本次范围页面所需的 animate.css 与旧样式以避免误伤。
+
+## Implementation Note — 2026-06-03
+- 现象 / 缺陷 · 首页大屏打开后，masthead 和主内容都被 1240px 容器限制，且 dispatch hero 顶部 padding 在 2048px 宽屏上约为 104px，motto 插画最高 512px，导致导航下方和两侧留白显得过重。
+- 正确期望行为 · 首页仍保留刊物式暖纸和居中 masthead，但首屏内容应更早出现，motto 区域应在桌面宽屏上更饱满，主要操作按钮不应被过大的纵向留白推到首屏底部。
+- 本次方式 · 为首页单独增加 `--editorial-home-layout-max`，只放宽 home masthead 与 dispatch hero 容器；收紧 dispatch hero 顶部 padding；略降桌面 motto 高度上限并放宽 motto 宽度，不改 About、归档、文章页布局规则。
 
 ## Exports
 当前 `design.md` 是 source of truth。首次实现落地时，还需要输出 `tokens.css`；如后续需要 Tailwind v4 `@theme`、DTCG `tokens.json` 或 shadcn/ui CSS variables，再追加到本节。

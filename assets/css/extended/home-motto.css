@@ -1,6 +1,6 @@
 .main .profile.dispatch-hero .dispatch-hero__statement.dispatch-hero__statement--motto {
-  width: min(100%, 76rem);
-  max-width: 76rem;
+  width: min(100%, 88rem);
+  max-width: 88rem;
   margin: 0 auto;
   overflow: visible;
   color: var(--color-ink);
@@ -16,7 +16,7 @@
 }
 
 .home-motto-root:empty {
-  height: clamp(17rem, 39vw, 32rem);
+  height: clamp(14rem, min(30vw, 48vh), 29rem);
 }
 
 .home-motto {
@@ -31,8 +31,8 @@
   position: relative;
   display: block;
   width: 100%;
-  height: clamp(17rem, 39vw, 32rem);
-  max-height: 64vh;
+  height: clamp(14rem, min(30vw, 48vh), 29rem);
+  max-height: 58vh;
   padding: 0;
   border: 0;
   overflow: clip;
