@@ -1,7 +1,5 @@
 <div class="profile dispatch-hero" data-dispatch-lang-root>
     {{- with site.Params.profileMode }}
-    {{- $zhTitle := site.Params.masthead.dispatch.zh.title | default (slice "把问题拆开，" "把系统建起，" "把生活继续") -}}
-    {{- $enTitle := site.Params.masthead.dispatch.en.title | default (slice "Break the problem down," "Build the system up," "Keep life moving.") -}}
     {{- $zhLabel := site.Params.masthead.dispatch.zh.label | default "A PERSONAL DISPATCH" -}}
     {{- $enLabel := site.Params.masthead.dispatch.en.label | default "A PERSONAL DISPATCH" -}}
     {{- $zhPrimary := site.Params.masthead.dispatch.zh.primaryCta | default "浏览文章 →" -}}
@@ -16,17 +14,15 @@
                     <span data-dispatch-lang-panel="en" hidden>{{ $enLabel }}</span>
                 </p>
             </div>
-            <h1 id="dispatch-title" class="dispatch-hero__statement">
-                <span class="dispatch-hero__statement-copy" data-dispatch-lang-panel="zh">
-                    {{- range $zhTitle }}
-                    <span>{{ . }}</span>
-                    {{- end }}
-                </span>
-                <span class="dispatch-hero__statement-copy" data-dispatch-lang-panel="en" hidden>
-                    {{- range $enTitle }}
-                    <span>{{ . }}</span>
-                    {{- end }}
-                </span>
+            <h1 id="dispatch-title" class="dispatch-hero__statement dispatch-hero__statement--motto">
+                <span class="home-motto-root" data-home-motto-root></span>
+                <noscript>
+                    <span class="home-motto__noscript">
+                        <span>Break the problem down,</span>
+                        <span>Build the system up,</span>
+                        <span>Keep life moving.</span>
+                    </span>
+                </noscript>
             </h1>
             <div class="dispatch-hero__actions">
                 <a class="dispatch-cta dispatch-cta--primary" href="{{ "/posts/" | absURL }}">

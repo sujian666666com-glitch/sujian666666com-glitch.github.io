@@ -12,5 +12,9 @@
   },
   "devDependencies": {
     "wrangler": "^3.99.0"
+  },
+  "dependencies": {
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   }
 }

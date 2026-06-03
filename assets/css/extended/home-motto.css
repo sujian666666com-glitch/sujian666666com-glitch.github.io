@@ -1,0 +1,299 @@
+.main .profile.dispatch-hero .dispatch-hero__statement.dispatch-hero__statement--motto {
+  width: min(100%, 76rem);
+  max-width: 76rem;
+  margin: 0 auto;
+  overflow: visible;
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: 0;
+  text-wrap: initial;
+}
+
+.home-motto-root {
+  display: block;
+  width: 100%;
+}
+
+.home-motto-root:empty {
+  height: clamp(17rem, 39vw, 32rem);
+}
+
+.home-motto {
+  --home-motto-paper: var(--color-paper, #f0e2ce);
+  --home-motto-paper-soft: var(--color-paper-2, #ead9c0);
+  --home-motto-ink: var(--color-ink, #241711);
+  --home-motto-line: color-mix(in oklch, var(--color-ink, #241711) 62%, var(--color-rule, #b9aa91));
+  --home-motto-muted: var(--color-muted, #766b5d);
+  --home-motto-accent: var(--color-accent-ink, #7b4b2f);
+  --home-motto-delay: 0ms;
+  --home-motto-ease: cubic-bezier(0.17, 0.67, 0.22, 1);
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(17rem, 39vw, 32rem);
+  max-height: 64vh;
+  padding: 0;
+  border: 0;
+  overflow: clip;
+  cursor: pointer;
+  border-radius: 2px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  outline: none;
+  letter-spacing: 0;
+  text-align: inherit;
+  user-select: none;
+}
+
+.home-motto__paper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 32% 22%, color-mix(in oklch, var(--home-motto-paper) 70%, white) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 72% 66%, color-mix(in oklch, var(--home-motto-paper-soft) 84%, transparent) 0 1px, transparent 1.8px),
+    repeating-linear-gradient(96deg, transparent 0 17px, rgba(91, 72, 48, 0.028) 18px 19px);
+  background-size: 31px 31px, 43px 43px, auto;
+  opacity: 0.34;
+  mix-blend-mode: multiply;
+}
+
+.home-motto__svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.home-motto__line,
+.home-motto__accent {
+  fill: none;
+  stroke: var(--home-motto-line);
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.82;
+  transition: opacity 220ms ease, stroke 220ms ease;
+}
+
+.home-motto__line--thin,
+.home-motto__accent {
+  stroke-width: 1.55;
+}
+
+.home-motto__line--dashed {
+  opacity: 0.64;
+}
+
+.home-motto__accent {
+  stroke: var(--home-motto-accent);
+  opacity: 0.74;
+}
+
+.home-motto__draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: home-motto-draw 1900ms var(--home-motto-ease) forwards;
+  animation-delay: var(--motto-delay, var(--home-motto-delay));
+}
+
+.home-motto__line--dashed.home-motto__draw {
+  opacity: 0;
+  stroke-dasharray: 0.018 0.029;
+  stroke-dashoffset: 0.58;
+  animation-name: home-motto-dash-appear;
+  animation-duration: 1600ms;
+}
+
+.home-motto__copy {
+  opacity: 0;
+  fill: var(--home-motto-ink);
+  stroke: color-mix(in oklch, var(--home-motto-paper) 72%, transparent);
+  stroke-width: 0.55px;
+  paint-order: stroke;
+  font-family: var(--font-display), "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  transform: translateY(12px);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: home-motto-copy-in 1160ms cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation-delay: var(--motto-delay, var(--home-motto-delay));
+}
+
+.home-motto__copy--small {
+  font-size: 40px;
+}
+
+.home-motto__copy--medium {
+  font-size: 46px;
+}
+
+.home-motto__copy--large {
+  font-size: 68px;
+}
+
+.home-motto__copy--xl {
+  font-size: 76px;
+}
+
+.home-motto__dot,
+.home-motto__star {
+  fill: var(--home-motto-ink);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.72);
+  animation: home-motto-mark-in 820ms cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation-delay: var(--motto-delay, var(--home-motto-delay));
+}
+
+.home-motto__dot {
+  fill: color-mix(in oklch, var(--home-motto-ink) 88%, var(--home-motto-accent));
+}
+
+.home-motto__dot--large {
+  opacity: 0;
+}
+
+.home-motto:hover .home-motto__line,
+.home-motto:hover .home-motto__accent {
+  opacity: 1;
+  stroke: color-mix(in oklch, var(--home-motto-ink) 72%, var(--home-motto-accent));
+}
+
+.home-motto:hover .home-motto__paper {
+  opacity: 0.45;
+}
+
+.home-motto:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--home-motto-accent) 68%, transparent);
+}
+
+.home-motto__noscript {
+  display: grid;
+  gap: 0.02em;
+  color: var(--color-ink);
+  font-family: var(--font-display), "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-size: clamp(3.2rem, 7vw + 1rem, 7.6rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: var(--lh-tight, 0.98);
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.home-motto__noscript span {
+  display: block;
+}
+
+@keyframes home-motto-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes home-motto-dash-appear {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 0.58;
+  }
+
+  100% {
+    opacity: 0.64;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes home-motto-copy-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-motto-mark-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) rotate(-6deg);
+  }
+
+  100% {
+    opacity: 0.9;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .main .profile.dispatch-hero .dispatch-hero__statement.dispatch-hero__statement--motto {
+    width: min(100%, 44rem);
+    max-width: 100%;
+  }
+
+  .home-motto {
+    height: clamp(13.25rem, 62vw, 25rem);
+    max-height: none;
+  }
+
+  .home-motto-root:empty {
+    height: clamp(13.25rem, 62vw, 25rem);
+  }
+}
+
+@media (max-width: 414px) {
+  .home-motto {
+    height: clamp(12.5rem, 68vw, 19rem);
+  }
+
+  .home-motto-root:empty {
+    height: clamp(12.5rem, 68vw, 19rem);
+  }
+
+  .home-motto__noscript {
+    font-size: clamp(2.55rem, 12vw, 3.4rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-motto *,
+  .home-motto__noscript {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .home-motto__draw,
+  .home-motto__line--dashed.home-motto__draw {
+    stroke-dashoffset: 0;
+  }
+
+  .home-motto__line--dashed.home-motto__draw {
+    opacity: 0.64;
+  }
+
+  .home-motto__copy,
+  .home-motto__dot,
+  .home-motto__star {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-theme="dark"] .home-motto {
+  --home-motto-paper: oklch(89% 0.018 76);
+  --home-motto-paper-soft: oklch(83% 0.016 76);
+  --home-motto-ink: oklch(21% 0.028 48);
+  --home-motto-line: oklch(34% 0.02 52);
+  --home-motto-muted: oklch(42% 0.016 62);
+  --home-motto-accent: oklch(37% 0.09 44);
+}
