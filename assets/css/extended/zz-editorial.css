@@ -1,7 +1,9 @@
 /* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 · editorial implementation */
 html,
 body {
+  min-height: 100%;
   overflow-x: clip;
+  background: var(--color-paper);
 }
 
 body {
@@ -13,6 +15,15 @@ body {
 
 :root {
   --editorial-home-layout-max: min(1520px, calc(100vw - var(--gap) * 2));
+  --home-masthead-height: 12rem;
+}
+
+body.list {
+  background: var(--color-paper);
+}
+
+.main {
+  background-color: var(--color-paper);
 }
 
 a {
@@ -33,6 +44,7 @@ a {
 
 .main:has(.dispatch-hero) {
   max-width: var(--editorial-home-layout-max);
+  min-height: calc(100svh - var(--home-masthead-height));
 }
 
 .main:has(.about-document) {
@@ -414,12 +426,14 @@ a {
 }
 
 .main .profile.dispatch-hero {
-  display: block;
+  display: grid;
+  align-items: center;
   width: 100%;
   max-width: none;
-  min-height: 0;
+  min-height: max(0px, calc(100svh - var(--home-masthead-height) - var(--gap)));
   margin-inline: 0;
   padding: clamp(1rem, 3vw, 2.75rem) 0 clamp(2.75rem, 6vw, 5.5rem);
+  background: var(--color-paper);
   text-align: initial;
 }
 
@@ -433,7 +447,10 @@ a {
 
 .dispatch-hero__statement-panel {
   min-width: 0;
-  padding-top: var(--space-xs);
+  display: grid;
+  justify-items: center;
+  padding-top: 0;
+  background: var(--color-paper);
   text-align: center;
 }
 

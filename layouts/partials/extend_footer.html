@@ -60,6 +60,33 @@
   })();
 </script>
 
+<script>
+  (function () {
+    var hero = document.querySelector(".dispatch-hero");
+    var masthead = document.querySelector(".masthead");
+
+    if (!hero || !masthead) return;
+
+    function setHomeMastheadHeight() {
+      var height = masthead.getBoundingClientRect().height;
+      if (!height) return;
+      document.documentElement.style.setProperty("--home-masthead-height", Math.ceil(height) + "px");
+    }
+
+    setHomeMastheadHeight();
+    window.addEventListener("resize", setHomeMastheadHeight, { passive: true });
+
+    if ("ResizeObserver" in window) {
+      var observer = new ResizeObserver(setHomeMastheadHeight);
+      observer.observe(masthead);
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(setHomeMastheadHeight).catch(function () {});
+    }
+  })();
+</script>
+
 {{- if not (.Param "hideChat") }}
 {{- partial "chat-widget.html" . -}}
 {{- end }}

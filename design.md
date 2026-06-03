@@ -123,6 +123,7 @@
 - [x] 将 tokens 导出到 Hugo CSS 入口，并让现有页面引用 token 名称。
 - [x] 按 Split Studio 重构首页首屏与最新文章 proof card。
 - [x] 收紧首页大屏首屏留白，避免 masthead 下方和两侧空白过重。
+- [x] 统一首页首屏米白背景，并让 dispatch hero 撑满 header 后剩余首屏高度。
 - [ ] 按 Long Document / Index-First / Almanac 变体梳理文章页、归档页和每日新闻页。
 - [x] 在 320 / 375 / 414 / 768 px 验证无横向滚动、无按钮两行、无内容重叠。
 
@@ -135,6 +136,11 @@
 - 现象 / 缺陷 · 首页大屏打开后，masthead 和主内容都被 1240px 容器限制，且 dispatch hero 顶部 padding 在 2048px 宽屏上约为 104px，motto 插画最高 512px，导致导航下方和两侧留白显得过重。
 - 正确期望行为 · 首页仍保留刊物式暖纸和居中 masthead，但首屏内容应更早出现，motto 区域应在桌面宽屏上更饱满，主要操作按钮不应被过大的纵向留白推到首屏底部。
 - 本次方式 · 为首页单独增加 `--editorial-home-layout-max`，只放宽 home masthead 与 dispatch hero 容器；收紧 dispatch hero 顶部 padding；略降桌面 motto 高度上限并放宽 motto 宽度，不改 About、归档、文章页布局规则。
+
+## Implementation Note — 2026-06-03 · 背景与首屏铺满
+- 现象 / 缺陷 · PaperMod 的 `.list` 背景会覆盖普通 `body` 米白背景，首页主体和 dispatch hero 又是透明背景，导致 header 下方与首屏底部露出接近纯白的 `rgb(245,245,245)` 灰白底。
+- 正确期望行为 · 全站基础纸张背景应统一使用 `--color-paper`；首页 hero 应至少撑满 masthead 后剩余首屏高度，slogan、插画和按钮作为整体在首屏中垂直居中，不因移动端 header 变高而压缩内容。
+- 本次方式 · 覆盖 `html`、`body`、`body.list`、`.main` 和首页 dispatch 区域背景；新增 `--home-masthead-height` 并用首页脚本测量实际 masthead 高度；首页 hero 用该变量计算剩余首屏高度，并将 statement panel 改为居中 grid。
 
 ## Exports
 当前 `design.md` 是 source of truth。首次实现落地时，还需要输出 `tokens.css`；如后续需要 Tailwind v4 `@theme`、DTCG `tokens.json` 或 shadcn/ui CSS variables，再追加到本节。
