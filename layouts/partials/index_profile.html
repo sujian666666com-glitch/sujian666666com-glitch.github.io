@@ -1,17 +1,13 @@
 <div class="profile dispatch-hero" data-dispatch-lang-root>
     {{- with site.Params.profileMode }}
     {{- $zhLabel := site.Params.masthead.dispatch.zh.label | default "A PERSONAL DISPATCH" -}}
-    {{- $enLabel := site.Params.masthead.dispatch.en.label | default "A PERSONAL DISPATCH" -}}
     {{- $zhPrimary := site.Params.masthead.dispatch.zh.primaryCta | default "浏览文章 →" -}}
-    {{- $enPrimary := site.Params.masthead.dispatch.en.primaryCta | default "Read Notes →" -}}
     {{- $zhSecondary := site.Params.masthead.dispatch.zh.secondaryCta | default "关于我" -}}
-    {{- $enSecondary := site.Params.masthead.dispatch.en.secondaryCta | default "About" -}}
     <div class="profile_inner dispatch-hero__inner">
         <section class="dispatch-hero__statement-panel" aria-labelledby="dispatch-title">
             <div class="dispatch-hero__label-row">
                 <p class="dispatch-hero__label">
-                    <span data-dispatch-lang-panel="zh">{{ $zhLabel }}</span>
-                    <span data-dispatch-lang-panel="en" hidden>{{ $enLabel }}</span>
+                    <span>{{ $zhLabel }}</span>
                 </p>
             </div>
             <h1 id="dispatch-title" class="dispatch-hero__statement dispatch-hero__statement--motto">
@@ -26,12 +22,10 @@
             </h1>
             <div class="dispatch-hero__actions">
                 <a class="dispatch-cta dispatch-cta--primary" href="{{ "/posts/" | absURL }}">
-                    <span data-dispatch-lang-panel="zh">{{ $zhPrimary }}</span>
-                    <span data-dispatch-lang-panel="en" hidden>{{ $enPrimary }}</span>
+                    <span>{{ $zhPrimary }}</span>
                 </a>
                 <a class="dispatch-cta dispatch-cta--secondary" href="{{ "/about/" | absURL }}">
-                    <span data-dispatch-lang-panel="zh">{{ $zhSecondary }}</span>
-                    <span data-dispatch-lang-panel="en" hidden>{{ $enSecondary }}</span>
+                    <span>{{ $zhSecondary }}</span>
                 </a>
             </div>
         </section>

@@ -124,6 +124,7 @@
 - [x] 按 Split Studio 重构首页首屏与最新文章 proof card。
 - [x] 收紧首页大屏首屏留白，避免 masthead 下方和两侧空白过重。
 - [x] 统一首页首屏米白背景，并让 dispatch hero 撑满 header 后剩余首屏高度。
+- [x] 将顶部导航替换为截图式 N6 newspaper masthead。
 - [ ] 按 Long Document / Index-First / Almanac 变体梳理文章页、归档页和每日新闻页。
 - [x] 在 320 / 375 / 414 / 768 px 验证无横向滚动、无按钮两行、无内容重叠。
 
@@ -141,6 +142,16 @@
 - 现象 / 缺陷 · PaperMod 的 `.list` 背景会覆盖普通 `body` 米白背景，首页主体和 dispatch hero 又是透明背景，导致 header 下方与首屏底部露出接近纯白的 `rgb(245,245,245)` 灰白底。
 - 正确期望行为 · 全站基础纸张背景应统一使用 `--color-paper`；首页 hero 应至少撑满 masthead 后剩余首屏高度，slogan、插画和按钮作为整体在首屏中垂直居中，不因移动端 header 变高而压缩内容。
 - 本次方式 · 覆盖 `html`、`body`、`body.list`、`.main` 和首页 dispatch 区域背景；新增 `--home-masthead-height` 并用首页脚本测量实际 masthead 高度；首页 hero 用该变量计算剩余首屏高度，并将 statement panel 改为居中 grid。
+
+## Implementation Note — 2026-06-03 · 顶部报纸刊头
+- 现象 / 缺陷 · 当前 masthead 已有刊物结构，但顶部留白、品牌字号、底部双线和菜单文字仍偏轻，且“关于”被头像替代、语言切换按钮外露，和用户提供的复古报纸刊头截图不一致。
+- 正确期望行为 · 顶部应呈现大幅暖纸留白、上方发丝线、左侧期号、右侧英文日期、居中 `Jian の Blog` 与头像标识、下方中文导航；隐藏语言切换后，历史 `site-lang` / `dispatch-lang` 缓存不应让页面切到英文。
+- 本次方式 · 重写 header partial 的可见语言与“关于”渲染，新增稳定 `dateISO` 配置；首页 CTA 固定输出中文；footer 语言脚本降级为中文兜底；在 `zz-editorial.css` 中放大 masthead、增加纸张纹理、双底线、导航下划线和移动端流式下拉菜单，不改文章页、daily、小纸条、聊天组件和 LifeMap 业务逻辑。
+
+## Implementation Note — 2026-06-03 · 图片 Logo 报刊 Header
+- 现象 / 缺陷 · 上一版继续用文字、CSS 结构和头像模拟 `Jian の Blog` 标识，方向与参考图不一致，也容易让 Logo 插画比例、笔触和留白失真。
+- 正确期望行为 · Logo 必须作为图片资源加载；Header 的 HTML/CSS 只负责报刊版式、左右刊号日期、下方中文导航和下拉交互，不再绘制或拼接 Logo。
+- 本次方式 · 从 `image/image.png` 裁出仅包含主 Logo 的 `static/logo/jian-no-blog.png`，并将外圈连通纸底透明化，避免 Header 中出现矩形底；在 `hugo.yaml` 配置 `params.masthead.logo` 并由 `header.html` 渲染 `<img>`；`zz-editorial.css` 改为平面旧纸色、发丝线、底部双线和响应式换行，移除渐变、阴影、圆角容器以及旧的 `.masthead__brand-word` / `.masthead__no-*` 视觉依赖。
 
 ## Exports
 当前 `design.md` 是 source of truth。首次实现落地时，还需要输出 `tokens.css`；如后续需要 Tailwind v4 `@theme`、DTCG `tokens.json` 或 shadcn/ui CSS variables，再追加到本节。

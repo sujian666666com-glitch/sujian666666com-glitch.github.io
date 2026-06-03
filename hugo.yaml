@@ -1,5 +1,6 @@
 baseURL: https://sujian.online/
 languageCode: zh-cn
+defaultContentLanguage: zh-cn
 title: "Jian の Blog"
 theme: PaperMod
 
@@ -28,6 +29,8 @@ params:
   description: "AI 工程师 | 记录技术、生活与思考"
   masthead:
     issue: "VOL. I · NO. 06"
+    logo: "/logo/jian-no-blog.png"
+    dateISO: "2026-06-02"
     dateline: "Tuesday, the 2nd of June"
     datelineZh: "2026年6月2日，星期二"
     datelineEn: "Tuesday, the 2nd of June"

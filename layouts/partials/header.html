@@ -4,115 +4,82 @@
 {{- $issue := $masthead.issue | default "VOL. I · NO. 01" -}}
 {{- $datelineZh := $masthead.datelineZh | default "2026年6月2日，星期二" -}}
 {{- $datelineEn := $masthead.datelineEn | default ($masthead.dateline | default (now.Format "Monday, the 2nd of January")) -}}
-{{- $brandAvatar := site.Params.masthead.avatar | default "/nav-avatar.png" -}}
+{{- $dateISO := $masthead.dateISO | default "2026-06-02" -}}
+{{- $brandLogo := $masthead.logo | default "/logo/jian-no-blog.png" -}}
 <header class="header masthead{{ if .IsHome }} masthead--home{{ end }}">
-    <div class="masthead__rule" aria-hidden="true"></div>
-    <div class="site-lang-toggle" role="group" aria-label="Language">
-        <button class="site-lang-toggle__button is-active" type="button" data-site-lang-button="zh" aria-pressed="true">ZH</button>
-        <button class="site-lang-toggle__button" type="button" data-site-lang-button="en" aria-pressed="false">EN</button>
-    </div>
-    <div class="masthead__plate">
-        <div class="masthead__issue">{{ $issue }}</div>
+    <div class="masthead__inner">
+        <div class="masthead__rule" aria-hidden="true"></div>
+        <div class="masthead__meta">
+            <div class="masthead__issue">{{ $issue }}</div>
+            <time class="masthead__date" datetime="{{ $dateISO }}" aria-label="{{ $datelineZh }}">{{ $datelineEn }}</time>
+        </div>
         <a class="masthead__brand" href="{{ "" | absLangURL }}" accesskey="h" title="{{ $labelText }} (Alt + H)">
-            <span class="masthead__brand-word">Jian</span>
-            <span class="masthead__no-logo" aria-hidden="true">
-                <span class="masthead__no-hook">の</span>
-                <img class="masthead__no-avatar" src="{{ $brandAvatar | relURL }}" alt="" width="64" height="64">
-            </span>
-            <span class="masthead__brand-word">Blog</span>
-            <span class="sr-only">{{ $labelText }}</span>
+            <img class="masthead__logo-image" src="{{ $brandLogo | relURL }}" alt="{{ $labelText }}" width="1380" height="410" decoding="async">
         </a>
-        <time class="masthead__date" datetime="{{ now.Format "2006-01-02" }}">
-            <span data-site-lang-panel="zh">{{ $datelineZh }}</span>
-            <span data-site-lang-panel="en" hidden>{{ $datelineEn }}</span>
-        </time>
-    </div>
 
-    <nav class="nav masthead__nav" aria-label="主导航">
-        {{- $currentPage := . }}
-        <ul id="menu">
-            {{- range site.Menus.main }}
-            {{- if not .Parent }}
-            {{- $menuItemURL := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL)) | absLangURL }}
-            {{- $pageURL := $currentPage.Permalink | absLangURL }}
-            {{- $isSearch := eq .Identifier "search" }}
-            {{- $hasChildren := gt (len .Children) 0 }}
-            {{- $navEn := .Name -}}
-            {{- if eq .Identifier "home" }}{{- $navEn = "Home" -}}{{- end -}}
-            {{- if eq .Identifier "daily" }}{{- $navEn = "Daily" -}}{{- end -}}
-            {{- if eq .Identifier "posts" }}{{- $navEn = "Blog" -}}{{- end -}}
-            {{- if eq .Identifier "gallery" }}{{- $navEn = "Notes" -}}{{- end -}}
-            {{- if eq .Identifier "about" }}{{- $navEn = "About" -}}{{- end -}}
-            {{- if eq .Identifier "shrimp-diary" }}{{- $navEn = "Shrimp" -}}{{- end -}}
-            <li class="menu-item{{ if $hasChildren }} menu-item-has-children{{ end }}">
-                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}{{ cond $isSearch " (Alt + /)" "" }}"
-                {{- cond $isSearch (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr) }}>
-                    <span {{- if eq $menuItemURL $pageURL }} class="active" {{- end }}>
-                        {{- if eq .Identifier "about" -}}
-                        <img class="nav-avatar__image" src="{{ $brandAvatar | relURL }}" alt="关于" width="32" height="32">
-                        {{- else -}}
-                        {{- .Pre }}
-                        <span data-site-lang-panel="zh">{{- .Name -}}</span>
-                        <span data-site-lang-panel="en" hidden>{{- $navEn -}}</span>
-                        {{ .Post -}}
-                        {{- if $hasChildren }}<span class="menu-arrow" aria-hidden="true">⌄</span>{{- end }}
+        <nav class="nav masthead__nav" aria-label="主导航">
+            {{- $currentPage := . }}
+            <ul id="menu">
+                {{- range site.Menus.main }}
+                {{- if not .Parent }}
+                {{- $menuItemURL := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL)) | absLangURL }}
+                {{- $pageURL := $currentPage.Permalink | absLangURL }}
+                {{- $isSearch := eq .Identifier "search" }}
+                {{- $hasChildren := gt (len .Children) 0 }}
+                <li class="menu-item{{ if $hasChildren }} menu-item-has-children{{ end }}">
+                    <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}{{ cond $isSearch " (Alt + /)" "" }}"
+                    {{- cond $isSearch (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr) }}>
+                        <span {{- if eq $menuItemURL $pageURL }} class="active" {{- end }}>
+                            {{- .Pre }}
+                            <span>{{- .Name -}}</span>
+                            {{ .Post -}}
+                            {{- if $hasChildren }}<span class="menu-arrow" aria-hidden="true">⌄</span>{{- end }}
+                        </span>
+                    </a>
+                    {{- if $hasChildren }}
+                    <ul class="sub-menu">
+                        {{- range .Children }}
+                        {{- $childIcon := "" -}}
+                        {{- if eq .Name "技术" }}{{- $childIcon = "/images/nav-tabs/icon-tech.png" -}}{{- end -}}
+                        {{- if eq .Name "生活" }}{{- $childIcon = "/images/nav-tabs/icon-life.png" -}}{{- end -}}
+                        {{- if eq .Name "思考" }}{{- $childIcon = "/images/nav-tabs/icon-thinking.png" -}}{{- end -}}
+                        {{- if eq .Name "周记" }}{{- $childIcon = "/images/nav-tabs/icon-weekly.png" -}}{{- end -}}
+                        {{- if eq .Name "日记" }}{{- $childIcon = "/images/nav-tabs/icon-daily.png" -}}{{- end -}}
+                        {{- $childDescriptionZh := "" -}}
+                        {{- if eq .Name "周记" -}}
+                        {{- $childDescriptionZh = "记录每周生活碎片" -}}
                         {{- end -}}
-                    </span>
-                </a>
-                {{- if $hasChildren }}
-                <ul class="sub-menu">
-                    {{- range .Children }}
-                    {{- $childEn := .Name -}}
-                    {{- if eq .Name "技术" }}{{- $childEn = "Tech" -}}{{- end -}}
-                    {{- if eq .Name "生活" }}{{- $childEn = "Life" -}}{{- end -}}
-                    {{- if eq .Name "思考" }}{{- $childEn = "Thinking" -}}{{- end -}}
-                    {{- if eq .Name "周记" }}{{- $childEn = "Weekly" -}}{{- end -}}
-                    {{- if eq .Name "日记" }}{{- $childEn = "Daily" -}}{{- end -}}
-                    {{- $childIcon := "" -}}
-                    {{- if eq .Name "技术" }}{{- $childIcon = "/images/nav-tabs/icon-tech.png" -}}{{- end -}}
-                    {{- if eq .Name "生活" }}{{- $childIcon = "/images/nav-tabs/icon-life.png" -}}{{- end -}}
-                    {{- if eq .Name "思考" }}{{- $childIcon = "/images/nav-tabs/icon-thinking.png" -}}{{- end -}}
-                    {{- if eq .Name "周记" }}{{- $childIcon = "/images/nav-tabs/icon-weekly.png" -}}{{- end -}}
-                    {{- if eq .Name "日记" }}{{- $childIcon = "/images/nav-tabs/icon-daily.png" -}}{{- end -}}
-                    {{- $childDescriptionZh := "" -}}
-                    {{- $childDescriptionEn := "" -}}
-                    {{- if eq .Name "周记" -}}
-                    {{- $childDescriptionZh = "记录每周生活碎片" -}}
-                    {{- $childDescriptionEn = "Weekly life fragments" -}}
-                    {{- end -}}
-                    {{- if eq .Name "日记" -}}
-                    {{- $childDescriptionZh = "私密日常与想法" -}}
-                    {{- $childDescriptionEn = "Private days and thoughts" -}}
-                    {{- end -}}
-                    <li>
-                        <a class="nav-card-link" href="{{ .URL | absLangURL }}">
-                            <span class="nav-card-link__icon" aria-hidden="true">
-                                {{- with $childIcon -}}
-                                <img src="{{ . | relURL }}" alt="" width="48" height="48">
-                                {{- end -}}
-                            </span>
-                            <span class="nav-card-link__copy">
-                                <span class="nav-card-link__title">
-                                    <span data-site-lang-panel="zh">{{ .Name }}</span>
-                                    <span data-site-lang-panel="en" hidden>{{ $childEn }}</span>
+                        {{- if eq .Name "日记" -}}
+                        {{- $childDescriptionZh = "私密日常与想法" -}}
+                        {{- end -}}
+                        <li>
+                            <a class="nav-card-link" href="{{ .URL | absLangURL }}">
+                                <span class="nav-card-link__icon" aria-hidden="true">
+                                    {{- with $childIcon -}}
+                                    <img src="{{ . | relURL }}" alt="" width="48" height="48">
+                                    {{- end -}}
                                 </span>
-                                {{- if $childDescriptionZh }}
-                                <span class="nav-card-link__description">
-                                    <span data-site-lang-panel="zh">{{ $childDescriptionZh }}</span>
-                                    <span data-site-lang-panel="en" hidden>{{ $childDescriptionEn }}</span>
+                                <span class="nav-card-link__copy">
+                                    <span class="nav-card-link__title">
+                                        <span>{{ .Name }}</span>
+                                    </span>
+                                    {{- if $childDescriptionZh }}
+                                    <span class="nav-card-link__description">
+                                        <span>{{ $childDescriptionZh }}</span>
+                                    </span>
+                                    {{- end }}
                                 </span>
-                                {{- end }}
-                            </span>
-                            <span class="nav-card-link__arrow" aria-hidden="true">›</span>
-                        </a>
-                    </li>
+                                <span class="nav-card-link__arrow" aria-hidden="true">›</span>
+                            </a>
+                        </li>
+                        {{- end }}
+                    </ul>
                     {{- end }}
-                </ul>
+                </li>
                 {{- end }}
-            </li>
-            {{- end }}
-            {{- end }}
-        </ul>
-    </nav>
+                {{- end }}
+            </ul>
+        </nav>
+    </div>
 </header>
 {{- end }}

@@ -1,62 +1,24 @@
 <script>
   (function () {
-    var storageKey = "site-lang";
-    var legacyStorageKey = "dispatch-lang";
-    var supported = { zh: true, en: true };
     var buttons = document.querySelectorAll("[data-site-lang-button], [data-dispatch-lang-button]");
     var panels = document.querySelectorAll("[data-site-lang-panel], [data-dispatch-lang-panel]");
 
+    document.documentElement.setAttribute("data-lang", "zh");
+
     if (!buttons.length && !panels.length) return;
-
-    function getSavedLang() {
-      try {
-        return window.localStorage.getItem(storageKey) || window.localStorage.getItem(legacyStorageKey);
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function saveLang(lang) {
-      try {
-        window.localStorage.setItem(storageKey, lang);
-        window.localStorage.setItem(legacyStorageKey, lang);
-      } catch (error) {
-        return;
-      }
-    }
 
     function panelLang(panel) {
       return panel.getAttribute("data-site-lang-panel") || panel.getAttribute("data-dispatch-lang-panel");
     }
 
-    function buttonLang(button) {
-      return button.getAttribute("data-site-lang-button") || button.getAttribute("data-dispatch-lang-button");
-    }
-
-    function setLang(lang) {
-      var nextLang = supported[lang] ? lang : "zh";
-      document.documentElement.setAttribute("data-lang", nextLang);
-
-      panels.forEach(function (panel) {
-        panel.hidden = panelLang(panel) !== nextLang;
-      });
-
-      buttons.forEach(function (button) {
-        var isActive = buttonLang(button) === nextLang;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-pressed", String(isActive));
-      });
-
-      saveLang(nextLang);
-    }
-
-    buttons.forEach(function (button) {
-      button.addEventListener("click", function () {
-        setLang(buttonLang(button));
-      });
+    panels.forEach(function (panel) {
+      panel.hidden = panelLang(panel) !== "zh";
     });
 
-    setLang(getSavedLang() || "zh");
+    buttons.forEach(function (button) {
+      button.hidden = true;
+      button.setAttribute("aria-pressed", "false");
+    });
   })();
 </script>
 
