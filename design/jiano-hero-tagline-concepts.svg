@@ -1,0 +1,134 @@
+<svg width="3720" height="620" viewBox="0 0 3720 620" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="paperNoise" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="4" seed="19" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0.35 0 0 0 0.62  0 0.28 0 0 0.52  0 0 0.18 0 0.42  0 0 0 0.18 0"/>
+      <feBlend in="SourceGraphic" mode="multiply"/>
+    </filter>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#6f6254" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .board { fill: #f4eadc; filter: url(#paperNoise) url(#softShadow); }
+      .label { font: 18px "Songti SC", "Noto Serif CJK SC", serif; fill: #6f6254; letter-spacing: 0; }
+      .brand { font: italic 20px Georgia, "Times New Roman", serif; fill: #8b6a4f; opacity: .7; }
+      .copy { font-family: Georgia, "Times New Roman", serif; font-style: italic; fill: #1f130f; letter-spacing: 0; }
+      .small { font-size: 40px; }
+      .medium { font-size: 46px; }
+      .large { font-size: 68px; }
+      .xl { font-size: 76px; }
+      .line { fill: none; stroke: #6f6254; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+      .thin { stroke-width: 1.5; opacity: .7; }
+      .dash { stroke-dasharray: 4 8; }
+      .accent { stroke: #9a5a35; }
+      .note { font: 16px "Songti SC", "Noto Serif CJK SC", serif; fill: #8b6a4f; opacity: .88; }
+      .dot { fill: #1f130f; opacity: .9; }
+      .star { fill: #1f130f; opacity: .9; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="5.5" orient="auto">
+      <path d="M1,1 L10,5.5 L1,10" fill="none" stroke="#6f6254" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowAccent" markerWidth="12" markerHeight="12" refX="9" refY="5.5" orient="auto">
+      <path d="M1,1 L10,5.5 L1,10" fill="none" stroke="#9a5a35" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect width="3720" height="620" fill="#efe3d0"/>
+
+  <!-- 方案一：台阶上升版 -->
+  <g transform="translate(0 50)">
+    <rect class="board" x="0" y="0" width="1200" height="520"/>
+    <text class="label" x="42" y="38">方案一 / 台阶上升版</text>
+    <text class="brand" x="1005" y="40">Jiano Blog</text>
+
+    <path class="line" d="M50 438 C160 439, 252 438, 330 438 L330 318 C420 319, 504 318, 590 318 L590 220 C675 221, 762 220, 850 220 L850 132 C947 133, 1044 132, 1152 132"/>
+    <path class="line thin" d="M52 442 C164 446, 245 443, 330 444"/>
+    <path class="line thin" d="M589 322 C670 326, 760 323, 850 325"/>
+    <path class="line thin dash" d="M142 350 C158 286, 198 244, 260 224" marker-end="url(#arrow)"/>
+    <path class="line thin dash" d="M604 230 C626 185, 675 154, 735 142" marker-end="url(#arrow)"/>
+    <path class="line thin accent" d="M936 86 C960 69, 996 64, 1022 76" marker-end="url(#arrowAccent)"/>
+
+    <text class="copy small" x="76" y="350">Break the</text>
+    <text class="copy small" x="76" y="400">problem down,</text>
+    <text class="copy medium" x="414" y="230">Build the</text>
+    <text class="copy medium" x="414" y="286">system up,</text>
+    <text class="copy large" x="873" y="91">Keep life</text>
+    <text class="copy large" x="873" y="170">moving.</text>
+
+    <path class="line thin accent" d="M872 184 C925 176, 1000 174, 1062 180"/>
+    <path class="line thin" d="M1072 76 l10 -28 M1072 76 l28 2 M1072 76 l-20 19 M1072 76 l-22 -20"/>
+    <path class="star" d="M1033 57 C1041 73,1045 77,1060 84 C1045 90,1040 95,1034 111 C1028 95,1023 90,1008 84 C1023 77,1028 73,1033 57Z"/>
+    <circle class="dot" cx="366" cy="308" r="4"/>
+    <circle class="dot" cx="810" cy="210" r="3"/>
+    <path class="line thin" d="M258 438 l22 -15 M282 438 l18 -12 M1015 194 l28 -4 M1008 204 l44 2"/>
+
+    <text class="note" x="765" y="448">动画建议：台阶线条从左下到右上描边出现，三句文字依次淡入。</text>
+  </g>
+
+  <!-- 方案二：循环圆环版 -->
+  <g transform="translate(1260 50)">
+    <rect class="board" x="0" y="0" width="1200" height="520"/>
+    <text class="label" x="42" y="38">方案二 / 循环圆环版</text>
+    <text class="brand" x="1005" y="40">Jiano Blog</text>
+
+    <path class="line" d="M326 355 C228 288, 225 170, 338 104" marker-end="url(#arrow)"/>
+    <path class="line" d="M862 105 C980 174, 970 307, 858 374" marker-end="url(#arrow)"/>
+    <path class="line thin dash" d="M315 396 C430 463, 711 467, 884 393"/>
+    <path class="line thin dash" d="M325 88 C466 24, 716 23, 873 89"/>
+
+    <text class="copy medium" text-anchor="middle" x="600" y="89">Break the</text>
+    <text class="copy medium" text-anchor="middle" x="600" y="143">problem down,</text>
+
+    <text class="copy xl" text-anchor="middle" x="600" y="242">Keep life</text>
+    <text class="copy xl" text-anchor="middle" x="600" y="329">moving.</text>
+    <path class="line thin accent" d="M506 350 C558 342, 652 341, 715 348"/>
+
+    <text class="copy medium" text-anchor="middle" x="600" y="424">Build the</text>
+    <text class="copy medium" text-anchor="middle" x="600" y="478">system up,</text>
+
+    <path class="star" d="M252 248 C260 263,265 268,280 275 C265 281,260 286,253 302 C247 286,242 281,227 275 C242 268,247 263,252 248Z"/>
+    <path class="star" d="M948 246 C956 262,961 267,976 274 C961 280,956 286,949 302 C943 286,938 280,923 274 C938 267,943 262,948 246Z"/>
+    <circle class="dot" cx="362" cy="103" r="3.5"/>
+    <circle class="dot" cx="839" cy="377" r="3.5"/>
+    <path class="line thin" d="M409 163 l26 5 M762 159 l-26 6 M441 413 l-25 3 M759 413 l27 4"/>
+
+    <text class="note" x="706" y="448">动画建议：圆形箭头路径描边出现，中心文字先淡入，上下文字后淡入。</text>
+  </g>
+
+  <!-- 方案三：漩涡聚焦版 -->
+  <g transform="translate(2520 50)">
+    <rect class="board" x="0" y="0" width="1200" height="520"/>
+    <text class="label" x="42" y="38">方案三 / 漩涡聚焦版</text>
+    <text class="brand" x="1005" y="40">Jiano Blog</text>
+
+    <path class="line thin dash" d="M440 88 C578 29, 784 67, 844 176 C913 301, 792 423, 634 419 C450 414, 337 263, 412 149 C488 34, 722 44, 835 155"/>
+    <path class="line" d="M468 131 C583 69, 754 91, 810 185 C877 297, 770 379, 648 378 C510 376, 431 269, 492 181 C548 101, 712 104, 789 188"/>
+    <path class="line thin" d="M530 174 C609 126, 725 141, 760 205 C800 279, 727 333, 648 331 C559 329, 510 266, 552 214 C591 166, 688 168, 731 214"/>
+    <path class="line thin dash" d="M592 214 C636 188, 700 198, 718 232 C739 272, 697 299, 654 294 C611 289, 592 259, 615 237"/>
+
+    <text class="copy large" text-anchor="middle" x="645" y="233">Keep life</text>
+    <text class="copy large" text-anchor="middle" x="645" y="312">moving.</text>
+    <path class="line thin accent" d="M558 331 C605 323, 680 323, 734 329"/>
+
+    <text class="copy medium" x="75" y="224">Break the</text>
+    <text class="copy medium" x="75" y="280">problem down,</text>
+    <path class="line thin" d="M74 304 C138 300, 224 302, 286 306"/>
+    <circle class="dot" cx="310" cy="305" r="9"/>
+    <path class="line thin" d="M319 304 C362 286, 389 260, 427 234"/>
+
+    <text class="copy medium" x="895" y="224">Build the</text>
+    <text class="copy medium" x="895" y="280">system up,</text>
+    <path class="line thin" d="M895 304 C952 302, 1018 303, 1082 306"/>
+    <circle class="dot" cx="874" cy="305" r="8"/>
+    <path class="line thin" d="M864 304 C817 285, 792 259, 760 234"/>
+
+    <path class="star" d="M1016 72 C1025 91,1030 96,1049 105 C1030 113,1025 119,1017 137 C1009 119,1004 113,985 105 C1004 96,1009 91,1016 72Z"/>
+    <circle class="dot" cx="410" cy="108" r="2.4"/>
+    <circle class="dot" cx="790" cy="380" r="2.4"/>
+    <circle class="dot" cx="524" cy="408" r="2.2"/>
+    <circle class="dot" cx="819" cy="116" r="2.2"/>
+    <path class="line thin" d="M382 86 l18 4 M850 92 l24 -4 M340 351 l-25 14 M880 352 l27 13"/>
+
+    <text class="note" x="712" y="448">动画建议：漩涡线条轻微旋转或描边出现，左右文字淡入，节点依次点亮。</text>
+  </g>
+</svg>
