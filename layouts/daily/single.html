@@ -8,7 +8,7 @@
   </aside>
 
   <div class="daily-doc-main">
-    <header class="daily-doc-header" data-motion="hero">
+    <header class="daily-doc-header animate__animated animate__fadeInDown animate__fast">
       {{ partial "breadcrumbs.html" . }}
 
       <div class="daily-doc-header__meta">
@@ -56,7 +56,7 @@
     {{- end }}
 
     {{- if .Content }}
-    <div class="post-content daily-news-content" data-motion="reveal">
+    <div class="post-content daily-news-content animate__animated animate__fadeInUp animate__fast">
       {{- if not (.Param "disableAnchoredHeadings") }}
       {{- partial "anchored_headings.html" .Content -}}
       {{- else }}{{ .Content }}{{ end }}

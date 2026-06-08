@@ -1,18 +1,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap">
-
-{{- $siteMotionSections := slice "posts" "daily" }}
-{{- $shouldLoadSiteMotion := or .IsHome (in $siteMotionSections .Section) }}
-{{- if $shouldLoadSiteMotion }}
-{{- $siteMotion := resources.Get "js/site-motion.ts" | js.Build (dict "target" "es2018") | resources.Minify }}
-{{- if not site.Params.assets.disableFingerprinting }}
-{{- $siteMotion = $siteMotion | fingerprint }}
-<script defer crossorigin="anonymous" src="{{ $siteMotion.RelPermalink }}" integrity="{{ $siteMotion.Data.Integrity }}"></script>
-{{- else }}
-<script defer crossorigin="anonymous" src="{{ $siteMotion.RelPermalink }}"></script>
-{{- end }}
-{{- end }}
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
 
 {{- if .IsHome }}
 {{- $homeMottoDefines := dict "process.env.NODE_ENV" `"production"` }}
