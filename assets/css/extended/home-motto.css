@@ -143,8 +143,7 @@
   font-size: 76px;
 }
 
-.home-motto__dot,
-.home-motto__star {
+.home-motto__dot {
   fill: var(--home-motto-ink);
   opacity: 0;
   transform-box: fill-box;
@@ -282,8 +281,7 @@
   }
 
   .home-motto__copy,
-  .home-motto__dot,
-  .home-motto__star {
+  .home-motto__dot {
     opacity: 1;
     transform: none;
   }

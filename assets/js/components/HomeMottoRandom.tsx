@@ -82,11 +82,6 @@ export function StairMotto() {
 
       <circle className="home-motto__dot" cx="366" cy="308" r="4" style={{ "--motto-delay": "1160ms" } as React.CSSProperties} />
       <circle className="home-motto__dot" cx="810" cy="210" r="3" style={{ "--motto-delay": "1260ms" } as React.CSSProperties} />
-      <path
-        className="home-motto__star"
-        style={{ "--motto-delay": "1530ms" } as React.CSSProperties}
-        d="M1102 34 C1108 48 1113 52 1127 58 C1113 64 1109 69 1103 83 C1097 69 1092 64 1078 58 C1092 52 1096 48 1102 34Z"
-      />
     </svg>
   );
 }
@@ -155,16 +150,6 @@ export function CircularMotto() {
         system up,
       </text>
 
-      <path
-        className="home-motto__star"
-        style={{ "--motto-delay": "1040ms" } as React.CSSProperties}
-        d="M252 248 C260 263 265 268 280 275 C265 281 260 286 253 302 C247 286 242 281 227 275 C242 268 247 263 252 248Z"
-      />
-      <path
-        className="home-motto__star"
-        style={{ "--motto-delay": "1120ms" } as React.CSSProperties}
-        d="M948 246 C956 262 961 267 976 274 C961 280 956 286 949 302 C943 286 938 280 923 274 C938 267 943 262 948 246Z"
-      />
       <circle className="home-motto__dot" cx="362" cy="103" r="3.5" style={{ "--motto-delay": "900ms" } as React.CSSProperties} />
       <circle className="home-motto__dot" cx="839" cy="377" r="3.5" style={{ "--motto-delay": "980ms" } as React.CSSProperties} />
     </svg>
@@ -247,11 +232,6 @@ export function VortexMotto() {
 
       <circle className="home-motto__dot" cx="410" cy="108" r="2.4" style={{ "--motto-delay": "680ms" } as React.CSSProperties} />
       <circle className="home-motto__dot" cx="790" cy="380" r="2.4" style={{ "--motto-delay": "760ms" } as React.CSSProperties} />
-      <path
-        className="home-motto__star"
-        style={{ "--motto-delay": "1740ms" } as React.CSSProperties}
-        d="M1016 72 C1025 91 1030 96 1049 105 C1030 113 1025 119 1017 137 C1009 119 1004 113 985 105 C1004 96 1009 91 1016 72Z"
-      />
     </svg>
   );
 }
