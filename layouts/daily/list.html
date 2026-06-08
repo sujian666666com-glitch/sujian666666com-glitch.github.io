@@ -10,7 +10,7 @@
   </aside>
 
   <div class="daily-doc-main">
-    <header class="daily-magazine-hero animate__animated animate__fadeInDown animate__fast" id="daily-top">
+    <header class="daily-magazine-hero" data-motion="hero" id="daily-top">
       <div class="daily-magazine-hero__masthead">
         <span class="daily-magazine-hero__brand">DAILY NEWS</span>
         <span class="daily-magazine-hero__rule" aria-hidden="true"></span>
@@ -52,9 +52,8 @@
 
     <div class="daily-archive-list" id="daily-list">
       {{- range $index, $page := $paginator.Pages }}
-      {{- $delay := add 80 (mul $index 45) -}}
       {{- $cover := .Params.cover.image -}}
-      <article class="daily-archive-item animate__animated animate__fadeInUp animate__fast" style="--animate-delay: {{ $delay }}ms;">
+      <article class="daily-archive-item" data-motion="reveal">
         <a class="daily-archive-item__link" href="{{ .RelPermalink }}" aria-label="阅读 {{ .Title | plainify }}">
           <div class="daily-archive-item__date" aria-label="{{ .Date.Format "2006年01月02日" }}">
             <span>{{ .Date.Format "2006" }}</span>
@@ -89,7 +88,7 @@
     </div>
 
     {{- if gt $paginator.TotalPages 1 }}
-    <footer class="daily-magazine-pagination animate__animated animate__fadeInUp animate__fast">
+    <footer class="daily-magazine-pagination" data-motion="reveal">
       {{- if $paginator.HasPrev }}
       <a class="daily-magazine-pagination__prev" href="{{ $paginator.Prev.URL }}">上一页</a>
       {{- end }}

@@ -153,5 +153,10 @@
 - 正确期望行为 · Logo 必须作为图片资源加载；Header 的 HTML/CSS 只负责报刊版式、左右刊号日期、下方中文导航和下拉交互，不再绘制或拼接 Logo。
 - 本次方式 · 从 `image/image.png` 裁出仅包含主 Logo 的 `static/logo/jian-no-blog.png`，并将外圈连通纸底透明化，避免 Header 中出现矩形底；在 `hugo.yaml` 配置 `params.masthead.logo` 并由 `header.html` 渲染 `<img>`；`zz-editorial.css` 改为平面旧纸色、发丝线、底部双线和响应式换行，移除渐变、阴影、圆角容器以及旧的 `.masthead__brand-word` / `.masthead__no-*` 视觉依赖。
 
+## Implementation Note — 2026-06-08 · GSAP 主站动效治理
+- 现象 / 缺陷 · 主站依赖 animate.css CDN 和模板内分散的 `animate__*` 类做全页入场，和本设计系统的 motion-cut 原则冲突，也难以统一 reduced-motion、无 JS 降级和滚动性能策略。
+- 正确期望行为 · 动效应集中、克制、可降级；页面默认静态可见，只在 JS 可用且用户未开启 reduced motion 时，对 masthead、关键标题区和列表项做轻量 `transform / opacity` reveal。
+- 本次方式 · 新增 `assets/js/site-motion.ts`，通过 Hugo Pipes 本地打包 GSAP Core + ScrollTrigger；模板将旧 animate.css 类收敛为 `data-motion="hero"` / `data-motion="reveal"` 标记；移除 jsDelivr animate.css CDN；使用 `gsap.timeline()`、`ScrollTrigger.batch()`、`gsap.matchMedia()` 与 `gsap.utils.clamp()` 管理首屏和列表动效，不改聊天、小纸条、where globe、LifeMap 或后端 API。
+
 ## Exports
 当前 `design.md` 是 source of truth。首次实现落地时，还需要输出 `tokens.css`；如后续需要 Tailwind v4 `@theme`、DTCG `tokens.json` 或 shadcn/ui CSS variables，再追加到本节。

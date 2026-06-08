@@ -497,14 +497,6 @@
   box-shadow: none;
 }
 
-.page-header.animate__animated {
-  --animate-delay: 80ms;
-}
-
-.page-footer.animate__animated {
-  --animate-delay: 180ms;
-}
-
 .blog-hero .home-search {
   width: 100%;
 }

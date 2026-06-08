@@ -41,7 +41,7 @@
 
 {{- if $useBlogArchive }}
 <section class="blog-archive-page blog-archive-page--{{ $blogArchiveTone }}" aria-label="{{ .Title | default "博客索引" }}">
-  <header class="blog-archive-hero animate__animated animate__fadeInDown animate__fast">
+  <header class="blog-archive-hero" data-motion="hero">
     <div class="blog-archive-hero__pattern" aria-hidden="true"></div>
     <div class="blog-archive-hero__inner">
       {{- partial "breadcrumbs.html" . }}
@@ -67,7 +67,7 @@
   </header>
 
   {{- if .Content }}
-  <div class="blog-archive-intro animate__animated animate__fadeInUp animate__fast">
+  <div class="blog-archive-intro" data-motion="reveal">
     {{- if not (.Param "disableAnchoredHeadings") }}
     {{- partial "anchored_headings.html" .Content -}}
     {{- else }}{{ .Content }}{{ end }}
@@ -78,8 +78,7 @@
   <div class="blog-archive-years">
     {{- range $yearIndex, $yearGroup := ($blogArchivePages.ByDate.Reverse).GroupByPublishDate "2006" }}
     {{- if ne $yearGroup.Key "0001" }}
-    {{- $delay := add 80 (mul $yearIndex 70) }}
-    <section class="blog-archive-year animate__animated animate__fadeInUp animate__fast" style="--animate-delay: {{ $delay }}ms;" aria-labelledby="blog-year-{{ $yearGroup.Key }}">
+    <section class="blog-archive-year" data-motion="reveal" aria-labelledby="blog-year-{{ $yearGroup.Key }}">
       <h2 id="blog-year-{{ $yearGroup.Key }}">
         <span>{{ $yearGroup.Key }}</span>
         <sup>{{ len $yearGroup.Pages }}</sup>
@@ -107,7 +106,7 @@
     {{- end }}
   </div>
   {{- else }}
-  <div class="blog-archive-empty animate__animated animate__fadeInUp animate__fast">
+  <div class="blog-archive-empty" data-motion="reveal">
     暂时还没有可展示的博客文章。
   </div>
   {{- end }}
@@ -121,7 +120,7 @@
 
   <div class="daily-doc-main">
     {{- if not .IsHome | and .Title }}
-    <header class="daily-doc-header article-list-header animate__animated animate__fadeInDown animate__fast">
+    <header class="daily-doc-header article-list-header" data-motion="hero">
       {{- partial "breadcrumbs.html" . }}
 
       <div class="daily-doc-header__meta">
@@ -151,7 +150,7 @@
     {{- end }}
 
     {{- if .Content }}
-    <div class="post-content article-doc-content article-list-intro animate__animated animate__fadeInUp animate__fast">
+    <div class="post-content article-doc-content article-list-intro" data-motion="reveal">
       {{- if not (.Param "disableAnchoredHeadings") }}
       {{- partial "anchored_headings.html" .Content -}}
       {{- else }}{{ .Content }}{{ end }}
@@ -162,9 +161,8 @@
       {{- range $index, $page := $paginator.Pages }}
       {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
       {{- $hasCover := and .Params.cover.image (not $isHidden) }}
-      {{- $delay := add 80 (mul $index 45) }}
-      <article class="article-archive-item {{ if $hasCover }}article-archive-item--with-cover{{ else }}article-archive-item--no-cover{{ end }} animate__animated animate__fadeInUp animate__fast"
-        style="--animate-delay: {{ $delay }}ms;">
+      <article class="article-archive-item {{ if $hasCover }}article-archive-item--with-cover{{ else }}article-archive-item--no-cover{{ end }}"
+        data-motion="reveal">
         <a class="article-archive-item__link" href="{{ .RelPermalink }}" aria-label="阅读 {{ .Title | plainify }}">
           <time class="article-archive-item__date" {{ if not .Date.IsZero }}datetime="{{ .Date.Format "2006-01-02" }}"{{ end }}>
             {{- if .Date.IsZero }}
@@ -204,7 +202,7 @@
     </div>
 
     {{- if gt $paginator.TotalPages 1 }}
-    <footer class="daily-magazine-pagination article-list-pagination animate__animated animate__fadeInUp animate__fast">
+    <footer class="daily-magazine-pagination article-list-pagination" data-motion="reveal">
       {{- if $paginator.HasPrev }}
       <a class="daily-magazine-pagination__prev" href="{{ $paginator.Prev.URL }}">
         上一页
@@ -241,7 +239,7 @@
 {{- else }}
 
 {{- if not .IsHome | and .Title }}
-<header class="page-header animate__animated animate__fadeInDown animate__fast">
+<header class="page-header" data-motion="hero">
   {{- partial "breadcrumbs.html" . }}
   <h1>
     {{ .Title }}
@@ -267,7 +265,7 @@
 {{- end }}
 
 {{- if .Content }}
-<div class="post-content animate__animated animate__fadeInUp animate__fast">
+<div class="post-content" data-motion="reveal">
   {{- if not (.Param "disableAnchoredHeadings") }}
   {{- partial "anchored_headings.html" .Content -}}
   {{- else }}{{ .Content }}{{ end }}
@@ -282,10 +280,9 @@
 {{- range $index, $page := $paginator.Pages }}
 {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
 {{- $hasCover := and .Params.cover.image (not $isHidden) }}
-{{- $delay := add 80 (mul $index 70) }}
 
-<article class="post-entry post-card {{ with .Section }}post-card--{{ . }}{{ end }} {{ if $hasCover }}post-card--with-cover{{ else }}post-card--no-cover{{ end }} animate__animated animate__fadeInUp animate__fast"
-  style="--animate-delay: {{ $delay }}ms;">
+<article class="post-entry post-card {{ with .Section }}post-card--{{ . }}{{ end }} {{ if $hasCover }}post-card--with-cover{{ else }}post-card--no-cover{{ end }}"
+  data-motion="reveal">
   <div class="post-card__body">
     <header class="entry-header">
       <h2 class="entry-hint-parent">
@@ -324,7 +321,7 @@
 </div>
 
 {{- if gt $paginator.TotalPages 1 }}
-<footer class="page-footer animate__animated animate__fadeInUp animate__fast">
+<footer class="page-footer" data-motion="reveal">
   <nav class="pagination">
     {{- if $paginator.HasPrev }}
     <a class="prev" href="{{ $paginator.Prev.URL }}">
