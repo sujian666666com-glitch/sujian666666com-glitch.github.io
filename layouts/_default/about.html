@@ -1,34 +1,170 @@
 {{- define "main" }}
+{{- $profile := .Params.profile | default dict -}}
+{{- $contact := .Params.contact | default dict -}}
+{{- $name := $profile.name | default site.Params.author -}}
+{{- $role := $profile.role | default "AI Engineer" -}}
 <article class="about-document" aria-labelledby="about-title">
   <aside class="about-document__rail" aria-label="关于页导航">
     <nav class="about-document__toc">
       <span>ABOUT INDEX</span>
-      {{- if .Fragments.Headings }}
-      {{ .TableOfContents }}
-      {{- else }}
       <ol>
-        <li><a href="#about-title">关于</a></li>
+        <li><a href="#profile-card">你好呀</a></li>
+        <li><a href="#directions">我的方向</a></li>
+        <li><a href="#tech-stack">技术栈</a></li>
+        <li><a href="#doing">正在做的事</a></li>
+        <li><a href="#writing">博客会写什么</a></li>
+        <li><a href="#beyond">技术之外</a></li>
+        <li><a href="#keywords">关键词</a></li>
+        <li><a href="#contact">联系我</a></li>
+        <li><a href="#motto">座右铭</a></li>
       </ol>
-      {{- end }}
     </nav>
   </aside>
 
   <div class="about-document__main">
-    <header class="about-document__header">
-      {{ partial "breadcrumbs.html" . }}
-      <p class="about-document__label">PERSONAL NOTE</p>
-      <h1 id="about-title">{{ .Title }}</h1>
-      {{- with .Description }}
-      <p class="about-document__description">{{ . | markdownify }}</p>
-      {{- end }}
-    </header>
+    <section id="profile-card" class="about-profile-card" aria-labelledby="about-title">
+      <div class="about-profile-card__portrait">
+        {{- with $profile.avatar }}
+        <img src="{{ . | relURL }}" alt="{{ $name }}的头像" width="160" height="160" loading="eager" decoding="async">
+        {{- end }}
+        <div class="about-profile-card__stamp" aria-hidden="true">
+          <span>PROFILE</span>
+          <strong>{{ $role }}</strong>
+        </div>
+      </div>
 
-    {{- if .Content }}
-    <div class="post-content about-document__content">
-      {{- if not (.Param "disableAnchoredHeadings") }}
-      {{- partial "anchored_headings.html" .Content -}}
-      {{- else }}{{ .Content }}{{ end }}
+      <div class="about-profile-card__copy">
+        <p class="about-document__label">PERSONAL FILE</p>
+        <h1 id="about-title">你好，我是{{ $name }}</h1>
+        <p class="about-profile-card__role">{{ $role }}</p>
+
+        {{- with $profile.tags }}
+        <ul class="about-tag-list about-tag-list--compact" aria-label="身份标签">
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+        {{- end }}
+
+        {{- with $profile.intro }}
+        <div class="about-profile-card__intro">
+          {{- range . }}
+          <p>{{ . }}</p>
+          {{- end }}
+        </div>
+        {{- end }}
+      </div>
+    </section>
+
+    <div class="about-card-grid">
+      {{- with .Params.directions }}
+      <section id="directions" class="about-panel about-panel--directions" aria-labelledby="directions-title">
+        <p class="about-panel__kicker">FOCUS</p>
+        <h2 id="directions-title">我的方向</h2>
+        <ul class="about-line-list">
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+
+      {{- with .Params.techstack }}
+      <section id="tech-stack" class="about-panel about-panel--stack" aria-labelledby="tech-stack-title">
+        <p class="about-panel__kicker">STACK</p>
+        <h2 id="tech-stack-title">技术栈</h2>
+        <div class="about-stack-table-wrap">
+          <table class="about-stack-table">
+            <caption class="sr-only">苏健的技术栈</caption>
+            <tbody>
+              {{- range . }}
+              <tr>
+                <th scope="row">{{ .type }}</th>
+                <td>{{ .tech }}</td>
+              </tr>
+              {{- end }}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {{- end }}
+
+      {{- with .Params.doing }}
+      <section id="doing" class="about-panel" aria-labelledby="doing-title">
+        <p class="about-panel__kicker">NOW</p>
+        <h2 id="doing-title">正在做的事</h2>
+        <ul class="about-check-list">
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+
+      {{- with .Params.writing }}
+      <section id="writing" class="about-panel" aria-labelledby="writing-title">
+        <p class="about-panel__kicker">NOTES</p>
+        <h2 id="writing-title">博客会写什么</h2>
+        <ul class="about-check-list about-check-list--quiet">
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+
+      {{- with .Params.beyond }}
+      <section id="beyond" class="about-panel about-panel--small" aria-labelledby="beyond-title">
+        <p class="about-panel__kicker">OFFLINE</p>
+        <h2 id="beyond-title">技术之外</h2>
+        <ul class="about-line-list about-line-list--small">
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+
+      {{- with .Params.keywords }}
+      <section id="keywords" class="about-panel about-panel--small" aria-labelledby="keywords-title">
+        <p class="about-panel__kicker">KEYWORDS</p>
+        <h2 id="keywords-title">关键词</h2>
+        <ul class="about-tag-list">
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+
+      <section id="contact" class="about-panel about-panel--small" aria-labelledby="contact-title">
+        <p class="about-panel__kicker">CONTACT</p>
+        <h2 id="contact-title">联系我</h2>
+        <dl class="about-contact-list">
+          {{- with $contact.email }}
+          <div>
+            <dt>Email</dt>
+            <dd><a href="{{ printf "mailto:%s" . | safeURL }}">{{ . }}</a></dd>
+          </div>
+          {{- end }}
+          {{- with $contact.githubUrl }}
+          <div>
+            <dt>GitHub</dt>
+            <dd><a href="{{ . | safeURL }}">{{ $contact.githubLabel | default . }}</a></dd>
+          </div>
+          {{- end }}
+        </dl>
+      </section>
     </div>
+
+    {{- with .Params.motto }}
+    <section id="motto" class="about-motto-card" aria-labelledby="motto-title">
+      <p class="about-panel__kicker">MOTTO</p>
+      <h2 id="motto-title">座右铭</h2>
+      <blockquote>
+        <p>{{ . }}</p>
+      </blockquote>
+    </section>
     {{- end }}
   </div>
 </article>

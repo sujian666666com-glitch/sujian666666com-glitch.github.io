@@ -125,6 +125,7 @@
 - [x] 收紧首页大屏首屏留白，避免 masthead 下方和两侧空白过重。
 - [x] 统一首页首屏米白背景，并让 dispatch hero 撑满 header 后剩余首屏高度。
 - [x] 将顶部导航替换为截图式 N6 newspaper masthead。
+- [x] 将 About 页面升级为个人资料卡 / 技术名片式卡片布局。
 - [ ] 按 Long Document / Index-First / Almanac 变体梳理文章页、归档页和每日新闻页。
 - [x] 在 320 / 375 / 414 / 768 px 验证无横向滚动、无按钮两行、无内容重叠。
 
@@ -152,6 +153,11 @@
 - 现象 / 缺陷 · 上一版继续用文字、CSS 结构和头像模拟 `Jian の Blog` 标识，方向与参考图不一致，也容易让 Logo 插画比例、笔触和留白失真。
 - 正确期望行为 · Logo 必须作为图片资源加载；Header 的 HTML/CSS 只负责报刊版式、左右刊号日期、下方中文导航和下拉交互，不再绘制或拼接 Logo。
 - 本次方式 · 从 `image/image.png` 裁出仅包含主 Logo 的 `static/logo/jian-no-blog.png`，并将外圈连通纸底透明化，避免 Header 中出现矩形底；在 `hugo.yaml` 配置 `params.masthead.logo` 并由 `header.html` 渲染 `<img>`；`zz-editorial.css` 改为平面旧纸色、发丝线、底部双线和响应式换行，移除渐变、阴影、圆角容器以及旧的 `.masthead__brand-word` / `.masthead__no-*` 视觉依赖。
+
+## Implementation Note — 2026-06-08 · About 个人资料卡
+- 现象 / 缺陷 · 当前 About 页主要依赖普通 Markdown 段落、列表和表格，信息量偏少，视觉层级不足，不能承担个人档案卡、技术名片和博客主人介绍页的作用。
+- 正确期望行为 · About 页应保留复古报纸、暖纸背景、黑棕文字和发丝线语言；首屏呈现大个人资料卡，下方以两列卡片展示方向、技术栈、正在做的事、写作内容、技术之外、关键词、联系和座右铭；移动端收为单列且不横向溢出。
+- 本次方式 · 将 `content/about/_index.md` 改为结构化资料数据；重写 `layouts/_default/about.html` 的 About 专属语义结构；重写 `assets/css/extended/about.css` 的资料卡、卡片网格、技术栈表格、标签和响应式收口；不修改导航、首页、文章页或公共业务逻辑。
 
 ## Exports
 当前 `design.md` 是 source of truth。首次实现落地时，还需要输出 `tokens.css`；如后续需要 Tailwind v4 `@theme`、DTCG `tokens.json` 或 shadcn/ui CSS variables，再追加到本节。

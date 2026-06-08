@@ -1,38 +1,72 @@
 ---
 title: "关于"
 layout: "about"
+description: "AI Engineer · Agent Builder · Long-term Learning"
+profile:
+  avatar: "/nav-avatar.png"
+  name: "苏健"
+  role: "AI Engineer"
+  tags:
+    - "终身学习者"
+    - "开源爱好者"
+    - "Agent Builder"
+  intro:
+    - "你好，我是苏健。"
+    - "一名正在 AI 方向持续深耕的工程师。"
+    - "关注人工智能、机器学习、AI Agent、开源项目与工程化实践。"
+    - "这个博客用来记录我的技术学习、项目实践、每日科技新闻，以及一些生活里的观察。"
+directions:
+  - "人工智能 / 机器学习"
+  - "AI Agent / LangChain / 多 Agent 协作"
+  - "Web 全栈开发 / 后端服务 / 工程化"
+  - "机器视觉 / 图像识别"
+  - "开源项目与个人工具构建"
+techstack:
+  - type: "编程语言"
+    tech: "Python / JavaScript / TypeScript / Go"
+  - type: "前端"
+    tech: "React / Next.js / Vite / Tailwind CSS"
+  - type: "后端"
+    tech: "FastAPI / Flask / Node.js"
+  - type: "AI / ML"
+    tech: "PyTorch / TensorFlow / LangChain"
+  - type: "数据库"
+    tech: "PostgreSQL / Redis / MySQL"
+  - type: "工程化"
+    tech: "Docker / Git / Linux / Nginx"
+  - type: "工具"
+    tech: "VS Code / Vim / Cursor / Codex"
+doing:
+  - "构建自己的 AI Agent 工具体系"
+  - "维护个人博客与每日科技新闻"
+  - "学习 Go、工程化与后端架构"
+  - "探索机器视觉、AI 应用落地与自动化工作流"
+  - "持续提升从「写功能」到「做系统」的能力"
+writing:
+  - "AI 与大模型相关观察"
+  - "项目开发记录"
+  - "技术踩坑笔记"
+  - "每日科技新闻"
+  - "工程实践总结"
+  - "一些生活、成长和思考"
+beyond:
+  - "喜欢火影忍者"
+  - "喜欢研究新工具"
+  - "喜欢把复杂东西做简单"
+  - "偶尔记录生活片段"
+keywords:
+  - "AI Engineer"
+  - "Agent"
+  - "Machine Learning"
+  - "Open Source"
+  - "Python"
+  - "React"
+  - "Go"
+  - "Docker"
+  - "Long-term Learning"
+contact:
+  email: "1917980791@qq.com"
+  githubLabel: "github.com/sujian666666-com-glitch"
+  githubUrl: "https://github.com/sujian666666-com-glitch"
+motto: "以工程为基础，以 AI 为方向，持续构建真实可用的东西。"
 ---
-
-## 👋 你好！
-
-我是 **苏健**，一名 AI 工程师。
-
-### 🚀 关于我
-
-- 🎯 专注于人工智能与机器学习
-- 💻 热爱编程与开源
-- 📚 终身学习者
-- ✨ 喜欢探索新技术
-- 🎮 喜欢整点火影忍者
-
-### 🛠️ 技术栈
-
-| 领域 | 技术工具 |
-|------|----------|
-| 编程语言 | Python, JavaScript, Go |
-| AI/ML | PyTorch, TensorFlow, LangChain |
-| 云服务 | AWS, Docker, Kubernetes |
-| 开发工具 | Git, VS Code, Vim |
-
-### 📫 联系方式
-
-- **Email**: 1917980791@qq.com
-- **GitHub**: [github.com/sujian666666com-glitch](https://github.com/sujian666666com-glitch/)
-
-### 💭 座右铭
-
-> 保持好奇心，持续学习，创造价值。
-
----
-
-*感谢你的访问！*
