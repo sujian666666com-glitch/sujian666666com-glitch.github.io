@@ -40,10 +40,12 @@ const MIN_CHUNK_LEN = 20
 const EMBEDDING_BATCH_SIZE =
   Math.max(1, parseInt(String(process.env.RAG_EMBEDDING_BATCH_SIZE || '1'), 10) || 1)
 const CONTENT_ROOTS = [
+  join(REPO_ROOT, 'content/about'),
   join(REPO_ROOT, 'content/posts'),
   join(REPO_ROOT, 'content/daily'),
   join(REPO_ROOT, 'content/shrimp-diary'),
 ]
+const INDEX_PAGES_TO_EMBED = new Set(['content/about/_index.md'])
 
 function sha256(text) {
   return createHash('sha256').update(text).digest('hex')
@@ -67,6 +69,9 @@ function contentUrlFromRelative(relPath, siteBase) {
   const base = (siteBase || '').replace(/\/$/, '')
   const m = relPath.replace(/\\/g, '/').match(/^content\/(.+)\.md$/i)
   if (!base || !m) return ''
+  if (m[1].endsWith('/_index')) {
+    return `${base}/${m[1].slice(0, -'/_index'.length)}/`
+  }
   return `${base}/${m[1]}/`
 }
 
@@ -96,6 +101,12 @@ function stripFrontMatter(raw) {
   const end = rest.indexOf('\n---')
   if (end === -1) return raw
   return rest.slice(end + 4).replace(/^\r?\n/, '')
+}
+
+function embeddingTextFromMarkdown(raw) {
+  const body = stripMarkdownNoise(stripFrontMatter(raw))
+  if (body.length >= MIN_CHUNK_LEN) return body
+  return stripMarkdownNoise(raw)
 }
 
 function stripMarkdownNoise(s) {
@@ -144,8 +155,11 @@ async function walkMarkdownFiles(dir, acc = []) {
     if (e.isDirectory()) {
       if (e.name === 'node_modules' || e.name.startsWith('.')) continue
       await walkMarkdownFiles(p, acc)
-    } else if (e.isFile() && e.name.endsWith('.md') && !e.name.endsWith('_index.md')) {
-      acc.push(p)
+    } else if (e.isFile() && e.name.endsWith('.md')) {
+      const rel = relative(REPO_ROOT, p).replace(/\\/g, '/')
+      if (!e.name.endsWith('_index.md') || INDEX_PAGES_TO_EMBED.has(rel)) {
+        acc.push(p)
+      }
     }
   }
   return acc
@@ -259,7 +273,7 @@ async function main() {
     }
 
     const title = extractTitleFromFrontMatter(raw)
-    const body = stripMarkdownNoise(stripFrontMatter(raw))
+    const body = embeddingTextFromMarkdown(raw)
     const url = contentUrlFromRelative(rel, siteBase)
     for (const piece of chunkText(body)) {
       plainChunks.push({ source: rel, text: piece, title, url, contentHash: hash })
