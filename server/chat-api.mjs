@@ -151,6 +151,28 @@ function cosineSimilarity(a, b) {
   return d === 0 ? -1 : dot / d;
 }
 
+function lexicalRagBoost(query, chunk) {
+  const q = String(query || '').toLowerCase();
+  const source = String(chunk.source || '').toLowerCase();
+  const title = String(chunk.title || '').toLowerCase();
+  const text = String(chunk.text || '').toLowerCase();
+  let boost = 0;
+
+  if (/(苏健|关于|博主|作者|你是谁|是谁)/.test(q) && source === 'content/about/_index.md') {
+    boost += 0.24;
+  }
+
+  const keywords = Array.from(q.matchAll(/[\p{Script=Han}A-Za-z0-9_-]{2,}/gu))
+    .map((m) => m[0])
+    .filter((word) => !['请根据', '简要回答'].includes(word));
+  for (const word of keywords.slice(0, 8)) {
+    if (title.includes(word)) boost += 0.08;
+    if (text.includes(word)) boost += 0.04;
+    if (source.includes(word)) boost += 0.03;
+  }
+  return Math.min(boost, 0.35);
+}
+
 function textFromContent(content) {
   if (typeof content === 'string') return content;
   if (Array.isArray(content)) {
@@ -276,7 +298,7 @@ async function enrichMessagesWithRag(body) {
   const scored = [];
   for (const c of idx.chunks) {
     if (!c.embedding || !c.text) continue;
-    const score = cosineSimilarity(qVec, c.embedding);
+    const score = cosineSimilarity(qVec, c.embedding) + lexicalRagBoost(qText, c);
     if (score >= 0) scored.push({ s: score, c });
   }
   scored.sort((a, b) => b.s - a.s);
