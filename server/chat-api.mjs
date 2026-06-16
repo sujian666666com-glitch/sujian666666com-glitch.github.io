@@ -14,10 +14,17 @@ const BIGMODEL_ANTHROPIC_BASE_URL = normalizeBaseUrl(
     process.env.ANTHROPIC_BASE_URL ||
     'https://open.bigmodel.cn/api/anthropic',
 );
-const BIGMODEL_EMBEDDING_BASE_URL = String(
-  process.env.BIGMODEL_EMBEDDING_BASE_URL || 'https://open.bigmodel.cn/api/paas/v4',
+const RAG_EMBEDDING_PROVIDER = String(process.env.RAG_EMBEDDING_PROVIDER || 'siliconflow').trim();
+const RAG_EMBEDDING_BASE_URL = String(
+  process.env.RAG_EMBEDDING_BASE_URL ||
+    process.env.BIGMODEL_EMBEDDING_BASE_URL ||
+    (RAG_EMBEDDING_PROVIDER === 'bigmodel'
+      ? 'https://open.bigmodel.cn/api/paas/v4'
+      : 'https://api.siliconflow.cn/v1'),
 ).replace(/\/$/, '');
-const RAG_EMBEDDING_MODEL = String(process.env.RAG_EMBEDDING_MODEL || 'embedding-3').trim();
+const RAG_EMBEDDING_MODEL = String(
+  process.env.RAG_EMBEDDING_MODEL || 'Qwen/Qwen3-Embedding-0.6B',
+).trim();
 const RAG_EMBEDDING_DIMENSIONS = parseInt(String(process.env.RAG_EMBEDDING_DIMENSIONS || '1024'), 10) || 1024;
 const BIGMODEL_MAX_TOKENS = parseInt(String(process.env.BIGMODEL_MAX_TOKENS || '2048'), 10) || 2048;
 const RAG_VECTORS_URL = String(process.env.RAG_VECTORS_URL || '').trim();
@@ -159,24 +166,35 @@ function textFromContent(content) {
   return '';
 }
 
-async function fetchEmbeddingVector(model, text, dimensions) {
-  if (!BIGMODEL_API_KEY) {
-    throw new Error('missing BIGMODEL_API_KEY');
+function getEmbeddingApiKey(provider) {
+  if (provider === 'siliconflow') {
+    return String(process.env.SILICONFLOW_API_KEY || '').trim();
+  }
+  if (provider === 'bigmodel') {
+    return BIGMODEL_API_KEY;
+  }
+  return '';
+}
+
+async function fetchEmbeddingVector(config, text) {
+  const apiKey = getEmbeddingApiKey(config.provider);
+  if (!apiKey) {
+    throw new Error(`missing ${config.provider} embedding api key`);
   }
 
   const body = {
-    model,
+    model: config.model,
     input: text.length > 6000 ? text.slice(0, 6000) : text,
   };
-  if (Number.isFinite(dimensions) && dimensions > 0) {
-    body.dimensions = dimensions;
+  if (Number.isFinite(config.dimensions) && config.dimensions > 0) {
+    body.dimensions = config.dimensions;
   }
 
-  const res = await fetch(`${BIGMODEL_EMBEDDING_BASE_URL}/embeddings`, {
+  const res = await fetch(`${config.baseUrl}/embeddings`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${BIGMODEL_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   });
@@ -222,15 +240,16 @@ async function loadRagIndex() {
 function getRagEmbeddingConfig(idx) {
   const model = String(idx.embeddingModel || RAG_EMBEDDING_MODEL).trim();
   const dimensions = parseInt(String(idx.embeddingDimensions || RAG_EMBEDDING_DIMENSIONS), 10) || RAG_EMBEDDING_DIMENSIONS;
-  const provider = String(idx.embeddingProvider || '').trim();
+  const provider = String(idx.embeddingProvider || RAG_EMBEDDING_PROVIDER).trim();
+  const baseUrl = String(idx.embeddingBaseUrl || idx.baseUrl || RAG_EMBEDDING_BASE_URL).replace(/\/$/, '');
 
-  if (provider && provider !== 'bigmodel') {
+  if (provider !== 'siliconflow' && provider !== 'bigmodel') {
     return null;
   }
-  if (!model.startsWith('embedding-')) {
+  if (!model) {
     return null;
   }
-  return { model, dimensions };
+  return { provider, model, dimensions, baseUrl };
 }
 
 async function enrichMessagesWithRag(body) {
@@ -239,7 +258,7 @@ async function enrichMessagesWithRag(body) {
 
   const embedConfig = getRagEmbeddingConfig(idx);
   if (!embedConfig) {
-    console.warn('[RAG] index embedding config is not BigModel-compatible, skip RAG');
+    console.warn('[RAG] index embedding config is not supported, skip RAG');
     return body;
   }
 
@@ -248,7 +267,7 @@ async function enrichMessagesWithRag(body) {
 
   let qVec;
   try {
-    qVec = await fetchEmbeddingVector(embedConfig.model, qText, embedConfig.dimensions);
+    qVec = await fetchEmbeddingVector(embedConfig, qText);
   } catch (err) {
     console.warn('[RAG] query embedding failed', err);
     return body;

@@ -8,8 +8,9 @@ WorkingDirectory=/opt/my-blog-chat
 Environment=CHAT_API_HOST=127.0.0.1
 Environment=CHAT_API_PORT=8788
 Environment=BIGMODEL_ANTHROPIC_BASE_URL=https://open.bigmodel.cn/api/anthropic
-Environment=BIGMODEL_EMBEDDING_BASE_URL=https://open.bigmodel.cn/api/paas/v4
-Environment=RAG_EMBEDDING_MODEL=embedding-3
+Environment=RAG_EMBEDDING_PROVIDER=siliconflow
+Environment=RAG_EMBEDDING_BASE_URL=https://api.siliconflow.cn/v1
+Environment=RAG_EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B
 Environment=RAG_EMBEDDING_DIMENSIONS=1024
 Environment=RAG_VECTORS_URL=https://sujian.online/rag-vectors.json
 Environment=RAG_TOP_K=4

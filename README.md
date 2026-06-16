@@ -40,7 +40,7 @@
 - **静态站点生成器**: Hugo 0.157+
 - **主题**: PaperMod（Profile Mode）
 - **AI 聊天**: VPS Node.js API + 智谱 Coding Plan / Claude API 兼容口（SSE 流式响应）
-- **RAG 检索**: 博客内容向量索引 + 智谱 embedding-3 语义检索
+- **RAG 检索**: 博客内容向量索引 + SiliconFlow Qwen3 embedding 语义检索
 - **留言墙**: VPS Node.js API + SQLite
 - **部署**: 自有服务器 + Nginx + systemd
 - **语言**: 中文
@@ -132,8 +132,8 @@ python3 scripts/daily-cover-prompt.py --date 2026-05-19
 # 本地启动留言墙 API
 npm run wall:dev
 
-# 本地启动聊天 API（需要 BIGMODEL_API_KEY）
-BIGMODEL_API_KEY=your_zhipu_api_key npm run chat:dev
+# 本地启动聊天 API（聊天需要 BIGMODEL_API_KEY；RAG 需要 SILICONFLOW_API_KEY）
+BIGMODEL_API_KEY=your_zhipu_api_key SILICONFLOW_API_KEY=your_siliconflow_api_key npm run chat:dev
 ```
 
 ### 每日新闻正文格式
@@ -166,7 +166,7 @@ BIGMODEL_API_KEY=your_zhipu_api_key npm run chat:dev
 hugo --minify
 
 # 构建或刷新 RAG 向量索引
-BIGMODEL_API_KEY=your_zhipu_api_key npm run build:rag
+SILICONFLOW_API_KEY=your_siliconflow_api_key npm run build:rag
 ```
 
 ### 聊天 API
@@ -175,7 +175,12 @@ BIGMODEL_API_KEY=your_zhipu_api_key npm run build:rag
 |--------|------|
 | `BIGMODEL_API_KEY` | 智谱 API Key，放在 `/etc/my-blog-chat.env` |
 | `BIGMODEL_ANTHROPIC_BASE_URL` | Claude API 兼容口，默认 `https://open.bigmodel.cn/api/anthropic` |
-| `BIGMODEL_EMBEDDING_BASE_URL` | Embedding API 地址，默认 `https://open.bigmodel.cn/api/paas/v4` |
+| `SILICONFLOW_API_KEY` | SiliconFlow API Key，用于 RAG embedding，放在 `/etc/my-blog-chat.env` |
+| `RAG_EMBEDDING_PROVIDER` | Embedding provider，默认 `siliconflow` |
+| `RAG_EMBEDDING_BASE_URL` | Embedding API 地址，默认 `https://api.siliconflow.cn/v1` |
+| `RAG_EMBEDDING_MODEL` | Embedding 模型，默认 `Qwen/Qwen3-Embedding-0.6B` |
+| `RAG_EMBEDDING_DIMENSIONS` | Embedding 维度，默认 `1024` |
+| `RAG_EMBEDDING_BATCH_SIZE` | RAG 构建批量大小，默认 `1`，可按 API 稳定性调大 |
 | `RAG_VECTORS_URL` | 线上博客向量索引地址 |
 | `RAG_TOP_K` | 检索返回的 top-k 文档数 |
 

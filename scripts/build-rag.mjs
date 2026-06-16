@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 /**
- * 构建向量索引：扫描 Markdown → 切块 → BigModel Embedding API → static/rag-vectors.json
+ * 构建向量索引：扫描 Markdown → 切块 → SiliconFlow Embedding API → static/rag-vectors.json
  *
- * 需要环境变量：BIGMODEL_API_KEY（兼容 ANTHROPIC_AUTH_TOKEN）
+ * 需要环境变量：SILICONFLOW_API_KEY
  * 可选：
- * - BIGMODEL_EMBEDDING_BASE_URL（默认 https://open.bigmodel.cn/api/paas/v4）
- * - RAG_EMBEDDING_MODEL（默认 embedding-3）
+ * - RAG_EMBEDDING_PROVIDER（默认 siliconflow）
+ * - RAG_EMBEDDING_BASE_URL（默认 https://api.siliconflow.cn/v1）
+ * - RAG_EMBEDDING_MODEL（默认 Qwen/Qwen3-Embedding-0.6B）
  * - RAG_EMBEDDING_DIMENSIONS（默认 1024）
+ * - RAG_EMBEDDING_BATCH_SIZE（默认 1）
  *
- *   BIGMODEL_API_KEY=xxx node scripts/build-rag.mjs
+ *   SILICONFLOW_API_KEY=xxx node scripts/build-rag.mjs
  *
  * 未设置 KEY 时：写入空索引并退出 0（便于 CI 未配 secret 时仍能通过构建）
  */
@@ -21,16 +23,22 @@ import { fileURLToPath } from 'node:url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const REPO_ROOT = join(__dirname, '..')
 
-const EMBEDDING_PROVIDER = 'bigmodel'
-const EMBEDDING_MODEL = process.env.RAG_EMBEDDING_MODEL || 'embedding-3'
+const EMBEDDING_PROVIDER = String(process.env.RAG_EMBEDDING_PROVIDER || 'siliconflow').trim()
+const EMBEDDING_MODEL =
+  process.env.RAG_EMBEDDING_MODEL || 'Qwen/Qwen3-Embedding-0.6B'
 const EMBEDDING_DIMENSIONS =
   parseInt(String(process.env.RAG_EMBEDDING_DIMENSIONS || '1024'), 10) || 1024
 const BASE_URL =
+  process.env.RAG_EMBEDDING_BASE_URL ||
   process.env.BIGMODEL_EMBEDDING_BASE_URL ||
-  'https://open.bigmodel.cn/api/paas/v4'
+  (EMBEDDING_PROVIDER === 'bigmodel'
+    ? 'https://open.bigmodel.cn/api/paas/v4'
+    : 'https://api.siliconflow.cn/v1')
 const CHUNK_SIZE = 900
 const CHUNK_OVERLAP = 120
 const MIN_CHUNK_LEN = 80
+const EMBEDDING_BATCH_SIZE =
+  Math.max(1, parseInt(String(process.env.RAG_EMBEDDING_BATCH_SIZE || '1'), 10) || 1)
 const CONTENT_ROOTS = [
   join(REPO_ROOT, 'content/posts'),
   join(REPO_ROOT, 'content/daily'),
@@ -102,6 +110,13 @@ function stripMarkdownNoise(s) {
   )
 }
 
+function trimBrokenSurrogateEdges(s) {
+  let out = s
+  if (/[\uD800-\uDBFF]$/.test(out)) out = out.slice(0, -1)
+  if (/^[\uDC00-\uDFFF]/.test(out)) out = out.slice(1)
+  return out.trim()
+}
+
 function chunkText(text) {
   const t = text.replace(/\r\n/g, '\n').trim()
   if (t.length < MIN_CHUNK_LEN) return []
@@ -109,7 +124,7 @@ function chunkText(text) {
   const out = []
   let i = 0
   while (i < t.length) {
-    const piece = t.slice(i, i + CHUNK_SIZE).trim()
+    const piece = trimBrokenSurrogateEdges(t.slice(i, i + CHUNK_SIZE))
     if (piece.length >= MIN_CHUNK_LEN) out.push(piece)
     i += CHUNK_SIZE - CHUNK_OVERLAP
     if (i >= t.length) break
@@ -141,6 +156,7 @@ async function embedBatch(apiKey, inputs) {
   const body = {
     model: EMBEDDING_MODEL,
     input: inputs,
+    encoding_format: 'float',
   }
   if (Number.isFinite(EMBEDDING_DIMENSIONS) && EMBEDDING_DIMENSIONS > 0) {
     body.dimensions = EMBEDDING_DIMENSIONS
@@ -175,7 +191,11 @@ function isReusableIndex(data) {
 }
 
 async function main() {
-  const apiKey = process.env.BIGMODEL_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || ''
+  const apiKey =
+    process.env.SILICONFLOW_API_KEY ||
+    process.env.BIGMODEL_API_KEY ||
+    process.env.ANTHROPIC_AUTH_TOKEN ||
+    ''
   const outPath = join(REPO_ROOT, 'static/rag-vectors.json')
   const siteBase = await readSiteBaseFromHugo()
 
@@ -194,7 +214,7 @@ async function main() {
 
   if (!apiKey) {
     console.warn(
-      '[build-rag] 未设置 BIGMODEL_API_KEY/ANTHROPIC_AUTH_TOKEN，写入空 rag-vectors.json（小 k 将跳过 RAG）',
+      '[build-rag] 未设置 SILICONFLOW_API_KEY/BIGMODEL_API_KEY/ANTHROPIC_AUTH_TOKEN，写入空 rag-vectors.json（小 k 将跳过 RAG）',
     )
     await writeFile(outPath, JSON.stringify(stub), 'utf8')
     return
@@ -253,11 +273,17 @@ async function main() {
 
   const embeddings = []
   if (plainChunks.length > 0) {
-    const batchSize = 8
+    const batchSize = EMBEDDING_BATCH_SIZE
     for (let i = 0; i < plainChunks.length; i += batchSize) {
       const batch = plainChunks.slice(i, i + batchSize)
       const texts = batch.map((c) => c.text)
-      const vecs = await embedBatch(apiKey, texts)
+      let vecs
+      try {
+        vecs = await embedBatch(apiKey, texts)
+      } catch (err) {
+        const sources = batch.map((c) => c.source).join(', ')
+        throw new Error(`embedding 批次失败（batch=${i / batchSize + 1}, sources=${sources}）: ${err.message}`)
+      }
       if (vecs.length !== batch.length) {
         throw new Error('embedding 返回条数与请求不一致')
       }

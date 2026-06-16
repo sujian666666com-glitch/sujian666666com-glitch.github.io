@@ -28,16 +28,16 @@
 
 ### D3: API key 只来自服务器环境变量
 
-聊天上游 key 使用 `BIGMODEL_API_KEY`，并兼容 `ANTHROPIC_AUTH_TOKEN`。RAG embedding 默认复用同一个 key，也允许未来通过环境变量拆分。仓库内只保存环境变量名称和默认非敏感 base URL。
+聊天上游 key 使用 `BIGMODEL_API_KEY`，并兼容 `ANTHROPIC_AUTH_TOKEN`。RAG embedding 使用 `SILICONFLOW_API_KEY`，构建脚本兼容旧 BigModel key 作为迁移兜底，但默认不混用不同 provider 的索引。仓库内只保存环境变量名称和默认非敏感 base URL。
 
-### D4: RAG 统一 BigModel embedding
+### D4: RAG 统一 SiliconFlow embedding
 
-`scripts/build-rag.mjs` 和 `server/chat-api.mjs` 使用同一组 embedding 配置：默认 `BIGMODEL_EMBEDDING_BASE_URL=https://open.bigmodel.cn/api/paas/v4`、`RAG_EMBEDDING_MODEL=embedding-3`、`RAG_EMBEDDING_DIMENSIONS=1024`。索引文件写入这些元数据，查询时优先读取索引元数据，确保维度和模型一致。
+`scripts/build-rag.mjs` 和 `server/chat-api.mjs` 使用同一组 embedding 配置：默认 `RAG_EMBEDDING_PROVIDER=siliconflow`、`RAG_EMBEDDING_BASE_URL=https://api.siliconflow.cn/v1`、`RAG_EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B`、`RAG_EMBEDDING_DIMENSIONS=1024`。索引文件写入这些元数据，查询时优先读取索引元数据，确保 provider、维度和模型一致。
 
-旧索引如果不是 BigModel embedding 或维度不一致，不复用旧向量，重新生成，避免检索质量漂移。
+旧索引如果不是 SiliconFlow embedding 或维度不一致，不复用旧向量，重新生成，避免检索质量漂移。
 
 ## Risks
 
 - Coding Plan key 若未开通对应模型，`/api/chat` 会返回上游错误；前端按现有错误展示处理。
-- 旧 `static/rag-vectors.json` 使用 DashScope 向量，本次切换后需要带 `BIGMODEL_API_KEY` 重新构建，否则 RAG 会被跳过或质量不稳定。
+- 旧 `static/rag-vectors.json` 使用 DashScope/BigModel 向量，本次切换后需要带 `SILICONFLOW_API_KEY` 重新构建，否则 RAG 会被跳过或质量不稳定。
 - Anthropic SSE 事件类型比 OpenAI 更细，本次只映射文本增量和基础错误，复杂 tool_use 不进入范围。

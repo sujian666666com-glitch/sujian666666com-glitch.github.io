@@ -13,9 +13,9 @@
 
 ## 3. RAG embedding 切换
 
-- [x] 3.1 更新 `scripts/build-rag.mjs`，默认使用 BigModel `embedding-3`
-- [x] 3.2 更新 `server/chat-api.mjs`，查询向量使用与索引一致的 BigModel embedding
-- [x] 3.3 避免复用旧 DashScope 或维度不一致的索引向量
+- [x] 3.1 更新 `scripts/build-rag.mjs`，默认使用 SiliconFlow `Qwen/Qwen3-Embedding-0.6B`
+- [x] 3.2 更新 `server/chat-api.mjs`，查询向量使用与索引一致的 SiliconFlow embedding
+- [x] 3.3 避免复用旧 DashScope、BigModel 或维度不一致的索引向量
 
 ## 4. 部署文档与验证
 
