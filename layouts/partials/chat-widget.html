@@ -1,47 +1,31 @@
 {{- /* Chat Widget — HTML shell, JS in static/chat-ui.js */ -}}
-{{- $chat := site.Data.chat -}}
+{{- /* 聊天展示类配置（标题/头像/模型/建议词）改由前端异步拉取 /api/chat-config；
+      systemPrompt 不再出现在 HTML 里，由后端权威注入。 */ -}}
 {{- $proxyURL := site.Params.chat.proxyURL | default (getenv "HUGO_CHAT_PROXY_URL") | default "" -}}
 {{- $proxyFallback := site.Params.chat.proxyFallbackURL | default (getenv "HUGO_CHAT_PROXY_FALLBACK_URL") | default "" -}}
-{{- $defaultModel := $chat.defaultModel | default "qwen3.6-plus" -}}
-{{- $systemPrompt := index $chat "systemPrompt" | default "" -}}
-{{- $suggestedPrompts := $chat.suggestedPrompts | default (slice) -}}
-{{- $assistantAvatar := $chat.assistantAvatarLabel | default "兴旺" -}}
-{{- $assistantAvatarImage := $chat.assistantAvatarImage | default "" -}}
-{{- /* 留空表示用户头像不显示文字；勿用 default「我」否则无法清空 */ -}}
-{{- $userAvatar := index $chat "userAvatarLabel" | default "" -}}
-{{- $panelTitle := $chat.panelTitle | default "小k" -}}
 
 <!-- Bubble Button -->
 <button class="chat-bubble chat-bubble--pulse" id="chatBubble" aria-label="打开聊天">
-  <img src="{{ $assistantAvatarImage }}" alt="打开聊天"/>
+  <img id="chatBubbleImg" alt="打开聊天"/>
 </button>
 
 <!-- Chat Panel -->
 <div class="chat-panel" id="chatPanel"
   data-proxy="{{ $proxyURL }}"
-  data-proxy-fallback="{{ $proxyFallback }}"
-  data-model="{{ $defaultModel }}"
-  data-system-prompt="{{ $systemPrompt }}"
-  data-suggested-prompts="{{ $suggestedPrompts | jsonify }}"
-  data-assistant-avatar="{{ $assistantAvatar }}"
-  data-assistant-avatar-image="{{ $assistantAvatarImage }}"
-  data-user-avatar="{{ $userAvatar }}">
+  data-proxy-fallback="{{ $proxyFallback }}">
   <!-- Header -->
   <div class="chat-header">
     <button class="chat-header-profile" id="chatProfileBtn" type="button" aria-label="查看小 k 资料">
       <span class="chat-header-avatar">
-        <img src="{{ $assistantAvatarImage }}" alt="{{ $panelTitle }}"/>
+        <img id="chatHeaderAvatar" alt=""/>
       </span>
       <span class="chat-header-copy">
-        <span class="chat-header-title">{{ $panelTitle }}</span>
+        <span class="chat-header-title" id="chatHeaderTitle">小k</span>
         <span class="chat-header-subtitle"><span class="chat-status-dot"></span>博客阅读助手</span>
       </span>
     </button>
     <div class="chat-header-actions">
       <select class="chat-model-select" id="chatModelSelect" aria-hidden="true" tabindex="-1">
-        {{- range $chat.models }}
-        <option value="{{ .id }}" {{ if eq .id $defaultModel }}selected{{ end }}>{{ .label }}</option>
-        {{- end }}
       </select>
       <label class="chat-think-toggle" title="启用后可查看模型思考过程" aria-hidden="true">
         <input type="checkbox" id="chatThinkToggle">思考
@@ -68,7 +52,7 @@
     <div class="chat-profile-backdrop" id="chatProfileBackdrop"></div>
     <section class="chat-profile-panel" aria-label="小 k 资料">
       <button class="chat-profile-close" id="chatProfileCloseBtn" type="button" aria-label="关闭资料">×</button>
-      <img class="chat-profile-avatar" src="{{ $assistantAvatarImage }}" alt="{{ $panelTitle }}"/>
+      <img class="chat-profile-avatar" id="chatProfileAvatar" alt=""/>
       <h2>小 k</h2>
       <p>住在博客侧边栏里的阅读小助手，喜欢帮你翻文章、找线索、整理想法。</p>
       <div class="chat-profile-tags">
@@ -93,4 +77,4 @@
   </div>
 </div>
 
-<script src="/chat-ui.js?v=xiao-k-vps-chat-redesign-20260524" defer></script>
+<script src="/chat-ui.js?v=xiao-k-server-config-20260616" defer></script>

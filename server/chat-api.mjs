@@ -1,7 +1,61 @@
 import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.CHAT_API_PORT || 8788);
 const HOST = process.env.CHAT_API_HOST || '127.0.0.1';
+
+// ── 聊天配置：服务端权威持有，绝不下发前端 ──────────────────────────
+// systemPrompt：从独立文件读取（路径可用 CHAT_SYSTEM_PROMPT_PATH 覆盖）。
+// 安全要点：前端不再持有 systemPrompt；后端在转发上游前会丢弃前端传入的任何
+// role==='system' 消息，仅使用这里的权威值 + RAG 片段拼装 system。
+function readTextFile(envKey, defaultRel) {
+  const abs = String(process.env[envKey] || '').trim() || path.join(__dirname, defaultRel);
+  try {
+    return fs.readFileSync(abs, 'utf8').trim();
+  } catch (err) {
+    console.warn(`[config] 读取失败 ${abs}：${err.message}`);
+    return '';
+  }
+}
+
+const CHAT_SYSTEM_PROMPT = readTextFile('CHAT_SYSTEM_PROMPT_PATH', 'system-prompt.txt');
+if (CHAT_SYSTEM_PROMPT) {
+  console.log(`[config] systemPrompt 已加载（${CHAT_SYSTEM_PROMPT.length} 字符）`);
+} else {
+  console.warn('[config] systemPrompt 为空，聊天将无人设兜底');
+}
+
+// 展示类配置：可下发前端（标题/头像/模型列表/建议词），不含任何机密信息。
+function readChatMeta() {
+  const abs = String(process.env.CHAT_CONFIG_PATH || '').trim() || path.join(__dirname, 'chat-meta.json');
+  try {
+    const raw = fs.readFileSync(abs, 'utf8');
+    const obj = JSON.parse(raw);
+    return {
+      panelTitle: String(obj.panelTitle || '小k'),
+      assistantAvatarLabel: String(obj.assistantAvatarLabel || '小k'),
+      assistantAvatarImage: String(obj.assistantAvatarImage || '/avatar.png'),
+      userAvatarLabel: String(obj.userAvatarLabel || ''),
+      defaultModel: String(obj.defaultModel || 'glm-5.1'),
+      models: Array.isArray(obj.models)
+        ? obj.models
+            .map((m) => ({ id: String(m.id || ''), label: String(m.label || m.id || '') }))
+            .filter((m) => m.id)
+        : [],
+      suggestedPrompts: Array.isArray(obj.suggestedPrompts)
+        ? obj.suggestedPrompts.map((s) => String(s)).filter(Boolean)
+        : [],
+    };
+  } catch (err) {
+    console.warn(`[config] chat-meta.json 读取失败 ${abs}：${err.message}`);
+    return null;
+  }
+}
+const CHAT_META = readChatMeta();
 const BIGMODEL_API_KEY = String(
   process.env.BIGMODEL_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || '',
 ).trim();
@@ -60,7 +114,7 @@ function corsHeaders(req) {
   const headers = { Vary: 'Origin' };
   if (ALLOWED_ORIGINS.has(origin)) {
     headers['Access-Control-Allow-Origin'] = origin;
-    headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS';
+    headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS';
     headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization';
     headers['Access-Control-Max-Age'] = '86400';
   }
@@ -323,14 +377,28 @@ async function enrichMessagesWithRag(body) {
       })
       .join('\n\n---\n\n');
 
-  const messages = body.messages.map((m) => ({ ...m }));
-  const si = messages.findIndex((m) => m.role === 'system');
-  if (si >= 0) {
-    const prev = typeof messages[si].content === 'string' ? messages[si].content : '';
-    messages[si] = { ...messages[si], content: `${prev}\n\n${ragBlock}` };
-  } else {
-    messages.unshift({ role: 'system', content: ragBlock });
+  // 安全关键：丢弃前端传入的所有 system 消息，由后端权威注入。
+  // system 拼装顺序：[人设 systemPrompt] + [RAG 片段]
+  const messages = body.messages
+    .filter((m) => m && m.role !== 'system')
+    .map((m) => ({ ...m }));
+  const systemParts = [];
+  if (CHAT_SYSTEM_PROMPT) systemParts.push(CHAT_SYSTEM_PROMPT);
+  if (ragBlock) systemParts.push(ragBlock);
+  if (systemParts.length > 0) {
+    messages.unshift({ role: 'system', content: systemParts.join('\n\n') });
   }
+  return { ...body, messages };
+}
+
+// 安全兜底：丢弃前端所有 system 消息，统一由后端注入权威 systemPrompt。
+// 当 RAG 关闭或 RAG 失败时（enrichMessagesWithRag 未执行或抛错）由此保证人设不丢。
+function ensureServerSystem(body) {
+  if (!CHAT_SYSTEM_PROMPT) return body;
+  const messages = body.messages
+    .filter((m) => m && m.role !== 'system')
+    .map((m) => ({ ...m }));
+  messages.unshift({ role: 'system', content: CHAT_SYSTEM_PROMPT });
   return { ...body, messages };
 }
 
@@ -647,6 +715,10 @@ async function handleChat(req, res) {
     console.warn('[RAG] enrich failed', err);
   }
 
+  // 兜底：无论 RAG 是否启用/是否成功，都确保 system 由后端权威注入。
+  // enrichMessagesWithRag 在 RAG 开启时已处理；这里覆盖 RAG 关闭/失败的情况。
+  body = ensureServerSystem(body);
+
   const wantStream = body.stream !== false;
   const { upstream, error } = await callAnthropicMessages(body, wantStream);
   if (error) {
@@ -685,6 +757,24 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   if (url.pathname === '/health') {
     json(res, req, 200, { ok: true });
+    return;
+  }
+  if (url.pathname.replace(/\/+$/, '') === '/api/chat-config') {
+    // 下发展示类配置（标题/头像/模型列表/建议词）；systemPrompt 绝不在此返回。
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, corsHeaders(req));
+      res.end();
+      return;
+    }
+    if (req.method !== 'GET') {
+      jsonError(res, req, 405, 'Method Not Allowed');
+      return;
+    }
+    if (!CHAT_META) {
+      jsonError(res, req, 500, 'Server configuration error: chat-meta.json not loaded');
+      return;
+    }
+    json(res, req, 200, CHAT_META, { 'Cache-Control': 'public, max-age=300' });
     return;
   }
   if (url.pathname.replace(/\/+$/, '') === '/api/chat') {

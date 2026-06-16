@@ -7,21 +7,80 @@
   var panel = document.getElementById('chatPanel');
   if (!panel) return;
 
-  // ── Configuration from Hugo data attributes ──────────────
+  // ── Configuration ────────────────────────────────────────
+  // proxy 地址仍由 Hugo 渲染（部署配置，非聊天内容）；
+  // 展示类配置（标题/头像/模型/建议词）改为异步拉取 /api/chat-config。
+  // systemPrompt 不在前端持有，由后端权威注入。
   var PROXY_URL = panel.getAttribute('data-proxy') || '';
   var PROXY_FALLBACK = (panel.getAttribute('data-proxy-fallback') || '').trim();
-  var DEFAULT_MODEL = panel.getAttribute('data-model') || 'qwen3.6-plus';
-  var SYSTEM_PROMPT = panel.getAttribute('data-system-prompt') || '';
+
+  // 展示类配置默认值，loadChatConfig() 拉取成功后会覆盖
+  var DEFAULT_MODEL = 'glm-5.1';
   var SUGGESTED_PROMPTS = [];
-  try {
-    var sp = panel.getAttribute('data-suggested-prompts');
-    if (sp) SUGGESTED_PROMPTS = JSON.parse(sp);
-  } catch (_) {}
-  var ASSISTANT_LABEL = panel.getAttribute('data-assistant-avatar') || '兴旺';
-  var ASSISTANT_AVATAR_IMAGE = panel.getAttribute('data-assistant-avatar-image') || '';
-  // data-user-avatar 可为空；勿用 ||「我」否则无法清空
-  var USER_LABEL = panel.getAttribute('data-user-avatar');
-  if (USER_LABEL === null) USER_LABEL = '';
+  var ASSISTANT_LABEL = '小k';
+  var ASSISTANT_AVATAR_IMAGE = '';
+  var USER_LABEL = '';
+
+  // chat-config 接口地址：与 PROXY_URL 同源
+  function chatConfigURL() {
+    if (!PROXY_URL) return '/api/chat-config';
+    try {
+      var u = new URL(PROXY_URL);
+      u.pathname = '/api/chat-config';
+      u.search = '';
+      u.hash = '';
+      return u.toString();
+    } catch (_) {
+      return '/api/chat-config';
+    }
+  }
+
+  var configLoaded = false;
+  function loadChatConfig() {
+    fetch(chatConfigURL(), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (cfg) {
+        if (!cfg) return;
+        configLoaded = true;
+        DEFAULT_MODEL = cfg.defaultModel || DEFAULT_MODEL;
+        SUGGESTED_PROMPTS = Array.isArray(cfg.suggestedPrompts) ? cfg.suggestedPrompts : SUGGESTED_PROMPTS;
+        ASSISTANT_LABEL = cfg.assistantAvatarLabel || ASSISTANT_LABEL;
+        ASSISTANT_AVATAR_IMAGE = cfg.assistantAvatarImage || ASSISTANT_AVATAR_IMAGE;
+        USER_LABEL = cfg.userAvatarLabel != null ? cfg.userAvatarLabel : USER_LABEL;
+
+        applyChatConfig(cfg);
+      })
+      .catch(function () { /* 降级用默认值，不阻塞聊天 */ });
+  }
+
+  // 拿到配置后填充 DOM：头像/标题/模型下拉
+  function applyChatConfig(cfg) {
+    if (ASSISTANT_AVATAR_IMAGE) {
+      var bubbleImg = document.getElementById('chatBubbleImg');
+      if (bubbleImg) bubbleImg.src = ASSISTANT_AVATAR_IMAGE;
+      var headerAvatar = document.getElementById('chatHeaderAvatar');
+      if (headerAvatar) headerAvatar.src = ASSISTANT_AVATAR_IMAGE;
+      var profileAvatar = document.getElementById('chatProfileAvatar');
+      if (profileAvatar) profileAvatar.src = ASSISTANT_AVATAR_IMAGE;
+    }
+    if (cfg.panelTitle) {
+      var titleEl = document.getElementById('chatHeaderTitle');
+      if (titleEl) titleEl.textContent = cfg.panelTitle;
+    }
+    // 填充模型下拉
+    if (modelSelect && Array.isArray(cfg.models) && cfg.models.length > 0) {
+      modelSelect.innerHTML = '';
+      for (var i = 0; i < cfg.models.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = cfg.models[i].id;
+        opt.textContent = cfg.models[i].label;
+        if (cfg.models[i].id === DEFAULT_MODEL) opt.selected = true;
+        modelSelect.appendChild(opt);
+      }
+    }
+    // 配置到位后，若欢迎页已显示，用新配置重渲染一次（补建议词 chips）
+    if (welcomeVisible) showWelcome();
+  }
 
   function makeAvatarEl(role) {
     // 用户侧无文案时不渲染头像（避免出现空灰圈）
@@ -575,9 +634,7 @@
       return m.role === 'user' || m.role === 'assistant';
     }).map(function (m) { return { role: m.role, content: m.content }; });
 
-    if (SYSTEM_PROMPT && String(SYSTEM_PROMPT).trim()) {
-      apiMessages = [{ role: 'system', content: SYSTEM_PROMPT }].concat(apiMessages);
-    }
+    // systemPrompt 不再由前端发送，后端 /api/chat 会权威注入。
 
     var captureThinking = isThinkingEnabled();
     var baseBody = {
@@ -698,4 +755,5 @@
 
   // ── Initialize ───────────────────────────────────────────
   loadHistory();
+  loadChatConfig();
 })();

@@ -1,0 +1,20 @@
+{
+  "_comment": "聊天组件展示类配置（前端通过 /api/chat-config 拉取）。systemPrompt 不在此文件，单独存放在 system-prompt.txt，仅后端内存持有，绝不下发前端。",
+  "panelTitle": "小k",
+  "assistantAvatarLabel": "小k",
+  "assistantAvatarImage": "/avatar.png",
+  "userAvatarLabel": "",
+  "defaultModel": "glm-5.1",
+  "models": [
+    { "id": "glm-5.1", "label": "GLM 5.1" },
+    { "id": "glm-5-turbo", "label": "GLM 5 Turbo" },
+    { "id": "glm-5", "label": "GLM 5" },
+    { "id": "glm-4.7", "label": "GLM 4.7" }
+  ],
+  "suggestedPrompts": [
+    "这个博客主要聊什么话题？",
+    "帮我总结一下最新的一篇文章",
+    "介绍一下博主",
+    "推荐几篇值得读的文章"
+  ]
+}

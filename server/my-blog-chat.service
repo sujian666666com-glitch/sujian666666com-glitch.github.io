@@ -15,6 +15,8 @@ Environment=RAG_EMBEDDING_DIMENSIONS=1024
 Environment=RAG_VECTORS_URL=https://sujian.online/rag-vectors.json
 Environment=RAG_TOP_K=4
 Environment=BLOG_PUBLIC_BASE_URL=https://sujian.online
+Environment=CHAT_SYSTEM_PROMPT_PATH=/opt/my-blog-chat/system-prompt.txt
+Environment=CHAT_CONFIG_PATH=/opt/my-blog-chat/chat-meta.json
 EnvironmentFile=-/etc/my-blog-chat.env
 ExecStart=/usr/bin/node /opt/my-blog-chat/chat-api.mjs
 Restart=always
