@@ -78,8 +78,8 @@
         modelSelect.appendChild(opt);
       }
     }
-    // 配置到位后，若欢迎页已显示，用新配置重渲染一次（补建议词 chips）
-    if (welcomeVisible) showWelcome();
+    // 配置到位后，若欢迎页已显示且没有历史消息，用新配置重渲染一次（补建议词 chips）。
+    if (welcomeVisible && messages.length === 0) showWelcome();
   }
 
   function makeAvatarEl(role) {
@@ -132,12 +132,36 @@
   var thinkToggle = document.getElementById('chatThinkToggle');
   var ragToggle = document.getElementById('chatRagToggle');
   var compatToggle = document.getElementById('chatCompatToggle');
+  var musicBtn = document.getElementById('chatMusicBtn');
+  var musicPanel = document.getElementById('chatMusicPanel');
+  var musicSearchForm = document.getElementById('chatMusicSearchForm');
+  var musicSearchInput = document.getElementById('chatMusicSearchInput');
+  var musicSearchBtn = document.getElementById('chatMusicSearchBtn');
+  var musicStatusEl = document.getElementById('chatMusicStatus');
+  var musicResultsEl = document.getElementById('chatMusicResults');
+  var musicQueueEl = document.getElementById('chatMusicQueue');
+  var musicCoverEl = document.getElementById('chatMusicCover');
+  var musicTitleEl = document.getElementById('chatMusicTitle');
+  var musicArtistEl = document.getElementById('chatMusicArtist');
+  var musicProgressEl = document.getElementById('chatMusicProgress');
+  var musicTimeEl = document.getElementById('chatMusicTime');
+  var musicPrevBtn = document.getElementById('chatMusicPrevBtn');
+  var musicPlayBtn = document.getElementById('chatMusicPlayBtn');
+  var musicNextBtn = document.getElementById('chatMusicNextBtn');
+  var musicVolumeEl = document.getElementById('chatMusicVolume');
 
   // ── State ────────────────────────────────────────────────
   var messages = [];
   var isStreaming = false;
   var abortCtrl = null;
   var welcomeVisible = true;
+  var musicAudio = new Audio();
+  var musicQueue = [];
+  var musicCurrentIndex = -1;
+  var musicSearchAbort = null;
+  var musicSeeking = false;
+  musicAudio.preload = 'none';
+  musicAudio.volume = musicVolumeEl ? Number(musicVolumeEl.value || 0.75) : 0.75;
 
   // ── SVG Helpers ──────────────────────────────────────────
   var CHEVRON_SVG = '<svg class="chat-thinking-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
@@ -154,6 +178,8 @@
   var RE_LINK_MD = new RegExp('\\[([^\\]]+)\\]\\(([^)]+)\\)', 'g');
   var RE_BARE_URL = new RegExp('(^|[^">])(https?:\\/\\/[^\\s<]+)', 'g');
   var RE_URL_TRAIL = new RegExp('[\u3002\uff0c\u3001\uff01\uff1f;\uff1b:\uff1a\uff09\\]\u300d\u3015\u2019\u201d\u00b4\u2018]+$');
+  var RE_PLAY_MARKER = new RegExp('\\{\\{play:([^|{}\\n]{1,80})\\|([^{}\\n]{1,80})\\}\\}');
+  var RE_PLAY_MARKER_ALL = new RegExp('\\{\\{play:([^|{}\\n]{1,80})\\|([^{}\\n]{1,80})\\}\\}', 'g');
 
   function escapeHtml(str) {
     var d = document.createElement('div');
@@ -235,6 +261,35 @@
     return s;
   }
 
+  function extractPlayMarker(raw) {
+    var match = String(raw || '').match(RE_PLAY_MARKER);
+    if (!match) return null;
+    var title = match[1].trim().slice(0, 80);
+    var artist = match[2].trim().slice(0, 80);
+    if (!title || !artist) return null;
+    return { title: title, artist: artist, raw: match[0] };
+  }
+
+  function stripPlayMarkers(raw) {
+    return String(raw || '')
+      .replace(RE_PLAY_MARKER_ALL, '')
+      .replace(/\{\{play:[\s\S]*$/g, '');
+  }
+
+  function renderMusicMarkerCard(marker) {
+    return '<div class="chat-music-marker-card">' +
+      '<span class="chat-music-marker-icon">♪</span>' +
+      '<span>已加入播放器：' + escapeHtml(marker.title) + ' · ' + escapeHtml(marker.artist) + '</span>' +
+      '</div>';
+  }
+
+  function renderAssistantContent(raw) {
+    var marker = extractPlayMarker(raw);
+    var html = renderMarkdown(stripPlayMarkers(raw));
+    if (marker) html += renderMusicMarkerCard(marker);
+    return html;
+  }
+
   // ── Welcome Screen ───────────────────────────────────────
   function createWelcome() {
     var el = document.createElement('div');
@@ -304,6 +359,309 @@
     profileCard.hidden = true;
   }
 
+  // ── Music Player ────────────────────────────────────────
+  function musicApiURL(endpoint, params) {
+    var base = window.location.origin;
+    if (PROXY_URL) {
+      try {
+        base = new URL(PROXY_URL, window.location.href).origin;
+      } catch (_) {}
+    }
+    var url = new URL('/api/music/' + endpoint, base);
+    Object.keys(params || {}).forEach(function (key) {
+      var value = params[key];
+      if (value !== undefined && value !== null && value !== '') {
+        url.searchParams.set(key, String(value));
+      }
+    });
+    return url.toString();
+  }
+
+  function setMusicOpen(open) {
+    if (!musicPanel || !musicBtn) return;
+    musicPanel.hidden = !open;
+    musicBtn.classList.toggle('active', open);
+    musicBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function setMusicStatus(text, tone) {
+    if (!musicStatusEl) return;
+    musicStatusEl.textContent = text || '';
+    musicStatusEl.dataset.tone = tone || '';
+  }
+
+  function setMusicBusy(busy) {
+    if (musicSearchBtn) musicSearchBtn.disabled = !!busy;
+    if (musicSearchInput) musicSearchInput.disabled = !!busy;
+  }
+
+  function formatMusicTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds <= 0) return '0:00';
+    var total = Math.floor(seconds);
+    var min = Math.floor(total / 60);
+    var sec = String(total % 60).padStart(2, '0');
+    return min + ':' + sec;
+  }
+
+  function trackArtists(track) {
+    return Array.isArray(track && track.artists) && track.artists.length
+      ? track.artists.join(' / ')
+      : '未知歌手';
+  }
+
+  function trackDurationSeconds(track) {
+    var duration = Number(track && track.duration);
+    if (!Number.isFinite(duration) || duration <= 0) return 0;
+    return duration > 1000 ? duration / 1000 : duration;
+  }
+
+  function updateMusicTime() {
+    if (!musicTimeEl || !musicProgressEl) return;
+    var duration = Number.isFinite(musicAudio.duration) && musicAudio.duration > 0
+      ? musicAudio.duration
+      : trackDurationSeconds(musicQueue[musicCurrentIndex]);
+    var current = Number.isFinite(musicAudio.currentTime) ? musicAudio.currentTime : 0;
+    musicTimeEl.textContent = formatMusicTime(current) + ' / ' + formatMusicTime(duration);
+    if (!musicSeeking) {
+      musicProgressEl.value = duration > 0 ? String(Math.min(100, (current / duration) * 100)) : '0';
+    }
+  }
+
+  function renderMusicQueue() {
+    if (!musicQueueEl) return;
+    musicQueueEl.innerHTML = '';
+    if (musicQueue.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'chat-music-empty';
+      empty.textContent = '队列还是空的';
+      musicQueueEl.appendChild(empty);
+      return;
+    }
+    for (var i = 0; i < musicQueue.length; i++) {
+      var track = musicQueue[i];
+      var btn = document.createElement('button');
+      btn.className = 'chat-music-queue-item' + (i === musicCurrentIndex ? ' active' : '');
+      btn.type = 'button';
+      btn.setAttribute('data-index', String(i));
+      btn.innerHTML = '<span>' + escapeHtml(track.name || '未知歌曲') + '</span><small>' + escapeHtml(trackArtists(track)) + '</small>';
+      btn.addEventListener('click', function () {
+        var idx = parseInt(this.getAttribute('data-index') || '-1', 10);
+        playMusicAt(idx, true);
+      });
+      musicQueueEl.appendChild(btn);
+    }
+  }
+
+  function updateMusicNowPlaying() {
+    var track = musicQueue[musicCurrentIndex];
+    if (track) {
+      if (musicCoverEl) {
+        if (track.picUrl) {
+          musicCoverEl.src = track.picUrl;
+          musicCoverEl.alt = track.name || '';
+        } else {
+          musicCoverEl.removeAttribute('src');
+          musicCoverEl.alt = '';
+        }
+      }
+      if (musicTitleEl) musicTitleEl.textContent = track.name || '未知歌曲';
+      if (musicArtistEl) musicArtistEl.textContent = trackArtists(track);
+    } else {
+      if (musicCoverEl) {
+        musicCoverEl.removeAttribute('src');
+        musicCoverEl.alt = '';
+      }
+      if (musicTitleEl) musicTitleEl.textContent = '还没有歌曲';
+      if (musicArtistEl) musicArtistEl.textContent = '等待加入队列';
+    }
+    if (musicPlayBtn) {
+      musicPlayBtn.setAttribute('aria-label', musicAudio.paused ? '播放' : '暂停');
+      musicPlayBtn.innerHTML = musicAudio.paused
+        ? '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'
+        : '<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7V5zm6 0h4v14h-4V5z" fill="currentColor"/></svg>';
+    }
+    if (musicPrevBtn) musicPrevBtn.disabled = musicCurrentIndex <= 0;
+    if (musicNextBtn) musicNextBtn.disabled = musicCurrentIndex < 0 || musicCurrentIndex >= musicQueue.length - 1;
+    updateMusicTime();
+    renderMusicQueue();
+  }
+
+  async function fetchMusicJSON(endpoint, params, signal) {
+    var resp = await fetch(musicApiURL(endpoint, params), { cache: 'no-store', signal: signal });
+    var data = null;
+    try { data = await resp.json(); } catch (_) {}
+    if (!resp.ok || (data && data.error)) {
+      var code = data && data.error ? data.error : 'music_unavailable';
+      throw new Error(code);
+    }
+    return data || {};
+  }
+
+  function normalizeMusicText(value) {
+    return String(value || '').toLowerCase().replace(/\s+/g, '');
+  }
+
+  function pickBestMusicMatch(items, marker) {
+    if (!Array.isArray(items) || items.length === 0) return null;
+    var wantedTitle = normalizeMusicText(marker.title);
+    var wantedArtist = normalizeMusicText(marker.artist);
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var titleMatches = normalizeMusicText(item.name) === wantedTitle;
+      var artistMatches = normalizeMusicText(trackArtists(item)).indexOf(wantedArtist) !== -1;
+      if (titleMatches && artistMatches) return item;
+    }
+    return items[0];
+  }
+
+  function renderMusicResults(items) {
+    if (!musicResultsEl) return;
+    musicResultsEl.innerHTML = '';
+    if (!Array.isArray(items) || items.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'chat-music-empty';
+      empty.textContent = '没有搜到合适的歌曲';
+      musicResultsEl.appendChild(empty);
+      return;
+    }
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var btn = document.createElement('button');
+      btn.className = 'chat-music-result';
+      btn.type = 'button';
+      btn.setAttribute('data-index', String(i));
+      btn.innerHTML = '<span>' + escapeHtml(item.name || '未知歌曲') + '</span><small>' + escapeHtml(trackArtists(item)) + '</small>';
+      btn.addEventListener('click', function () {
+        var idx = parseInt(this.getAttribute('data-index') || '-1', 10);
+        if (items[idx]) addMusicTrack(items[idx], true, true);
+      });
+      musicResultsEl.appendChild(btn);
+    }
+  }
+
+  async function searchMusic(query) {
+    if (musicSearchAbort) musicSearchAbort.abort();
+    var controller = new AbortController();
+    musicSearchAbort = controller;
+    setMusicBusy(true);
+    setMusicStatus('正在搜索...', '');
+    try {
+      var data = await fetchMusicJSON('search', { q: query, limit: 10 }, controller.signal);
+      renderMusicResults(data.items || []);
+      setMusicStatus((data.items || []).length ? '选择一首加入队列' : '没有搜到合适的歌曲', (data.items || []).length ? '' : 'warn');
+      return data.items || [];
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        renderMusicResults([]);
+        setMusicStatus(err.message === 'music_unavailable' ? '音乐暂时不可用，聊天不受影响。' : '搜索失败，请稍后再试。', 'warn');
+      }
+      return [];
+    } finally {
+      if (musicSearchAbort === controller) {
+        setMusicBusy(false);
+        musicSearchAbort = null;
+      }
+    }
+  }
+
+  async function ensureMusicUrl(track) {
+    if (track.url || track.playable === false) return track;
+    var data = await fetchMusicJSON('url', { id: track.id });
+    track.url = data.url || '';
+    track.playable = data.playable !== false && Boolean(track.url);
+    return track;
+  }
+
+  async function addMusicTrack(item, shouldPlay, userInitiated) {
+    var track = {
+      id: item.id,
+      name: item.name,
+      artists: Array.isArray(item.artists) ? item.artists : [],
+      album: item.album || '',
+      picUrl: item.picUrl || '',
+      duration: Number(item.duration || 0) || 0,
+    };
+    musicQueue.push(track);
+    var index = musicQueue.length - 1;
+    renderMusicQueue();
+    if (shouldPlay || musicCurrentIndex === -1) {
+      await playMusicAt(index, !!userInitiated);
+    } else {
+      setMusicStatus('已加入队列：' + track.name, '');
+    }
+  }
+
+  async function playMusicAt(index, userInitiated) {
+    if (index < 0 || index >= musicQueue.length) return;
+    musicCurrentIndex = index;
+    updateMusicNowPlaying();
+    var track = musicQueue[musicCurrentIndex];
+    try {
+      setMusicStatus('正在准备：' + track.name, '');
+      await ensureMusicUrl(track);
+      if (!track.playable || !track.url) {
+        setMusicStatus('这首歌暂时不可播放。', 'warn');
+        updateMusicNowPlaying();
+        return;
+      }
+      if (musicAudio.src !== track.url) {
+        musicAudio.src = track.url;
+      }
+      await musicAudio.play();
+      setMusicStatus('正在播放：' + track.name, 'ok');
+    } catch (err) {
+      setMusicOpen(true);
+      setMusicStatus(userInitiated ? '播放失败，请换一首试试。' : '浏览器拦截了自动播放，请点播放按钮。', 'warn');
+    } finally {
+      updateMusicNowPlaying();
+    }
+  }
+
+  async function toggleMusicPlayback() {
+    if (musicCurrentIndex === -1 && musicQueue.length > 0) {
+      await playMusicAt(0, true);
+      return;
+    }
+    if (musicAudio.paused) {
+      try {
+        await musicAudio.play();
+        setMusicStatus('继续播放。', 'ok');
+      } catch (_) {
+        setMusicStatus('浏览器需要你再点一次播放。', 'warn');
+      }
+    } else {
+      musicAudio.pause();
+      setMusicStatus('已暂停。', '');
+    }
+    updateMusicNowPlaying();
+  }
+
+  async function playNextMusic() {
+    if (musicCurrentIndex < musicQueue.length - 1) {
+      await playMusicAt(musicCurrentIndex + 1, true);
+    }
+  }
+
+  async function playPrevMusic() {
+    if (musicCurrentIndex > 0) {
+      await playMusicAt(musicCurrentIndex - 1, true);
+    }
+  }
+
+  async function handleAssistantMusic(content) {
+    var marker = extractPlayMarker(content);
+    if (!marker) return;
+    setMusicOpen(true);
+    setMusicStatus('小 k 正在把歌放进播放器...', '');
+    var items = await searchMusic(marker.title + ' ' + marker.artist);
+    var picked = pickBestMusicMatch(items, marker);
+    if (!picked) {
+      setMusicStatus('没搜到这首歌，先不打扰聊天。', 'warn');
+      return;
+    }
+    await addMusicTrack(picked, true, false);
+  }
+
   // ── Panel Open/Close ─────────────────────────────────────
   bubble.addEventListener('click', function () {
     var isOpen = panel.classList.toggle('open');
@@ -311,7 +669,7 @@
     if (isOpen) {
       if (messages.length === 0 && !welcomeVisible) {
         showWelcome();
-      } else if (messages.length > 0 && messagesEl.children.length === 0) {
+      } else if (messages.length > 0 && (messagesEl.children.length === 0 || document.getElementById('chatWelcome'))) {
         renderAllMessages();
       }
       openProfile();
@@ -336,7 +694,11 @@
   function loadHistory() {
     try {
       var raw = localStorage.getItem(HISTORY_KEY);
-      if (raw) { messages = JSON.parse(raw); if (!Array.isArray(messages)) messages = []; }
+      if (raw) {
+        messages = JSON.parse(raw);
+        if (!Array.isArray(messages)) messages = [];
+        if (messages.length > 0) welcomeVisible = false;
+      }
     } catch (_) { messages = []; }
   }
 
@@ -404,7 +766,7 @@
 
     var textSpan = document.createElement('div');
     textSpan.className = 'chat-msg-text';
-    textSpan.innerHTML = role === 'assistant' ? renderMarkdown(content || '') : escapeHtml(content || '');
+    textSpan.innerHTML = role === 'assistant' ? renderAssistantContent(content || '') : escapeHtml(content || '');
     body.appendChild(bubble);
     bubble.appendChild(textSpan);
 
@@ -550,7 +912,7 @@
           var contentText = delta.content || '';
           if (contentText) {
             assistantMsg.content += contentText;
-            textSpan.innerHTML = renderMarkdown(assistantMsg.content);
+            textSpan.innerHTML = renderAssistantContent(assistantMsg.content);
           }
         } catch (_) {}
       }
@@ -590,7 +952,7 @@
         createThinkingBlock(bodyEl, bubbleEl, thinkText);
       }
     }
-    textSpan.innerHTML = renderMarkdown(contentText);
+    textSpan.innerHTML = renderAssistantContent(contentText);
     scrollToBottom();
   }
 
@@ -632,7 +994,9 @@
 
     var apiMessages = messages.filter(function (m) {
       return m.role === 'user' || m.role === 'assistant';
-    }).map(function (m) { return { role: m.role, content: m.content }; });
+    }).map(function (m) {
+      return { role: m.role, content: m.role === 'assistant' ? stripPlayMarkers(m.content) : m.content };
+    });
 
     // systemPrompt 不再由前端发送，后端 /api/chat 会权威注入。
 
@@ -716,6 +1080,7 @@
             }
 
             saveHistory();
+            handleAssistantMusic(assistantMsg.content);
             done = true;
             break outer;
           } catch (err) {
@@ -743,6 +1108,61 @@
   }
 
   // ── Event Bindings ───────────────────────────────────────
+  if (musicBtn) {
+    musicBtn.addEventListener('click', function () {
+      setMusicOpen(!musicPanel || musicPanel.hidden);
+      if (musicPanel && !musicPanel.hidden && musicSearchInput) musicSearchInput.focus();
+    });
+  }
+  if (musicSearchForm) {
+    musicSearchForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var query = musicSearchInput ? musicSearchInput.value.trim() : '';
+      if (!query) {
+        setMusicStatus('先输入歌曲或歌手。', 'warn');
+        return;
+      }
+      searchMusic(query);
+    });
+  }
+  if (musicPlayBtn) musicPlayBtn.addEventListener('click', toggleMusicPlayback);
+  if (musicPrevBtn) musicPrevBtn.addEventListener('click', playPrevMusic);
+  if (musicNextBtn) musicNextBtn.addEventListener('click', playNextMusic);
+  if (musicVolumeEl) {
+    musicVolumeEl.addEventListener('input', function () {
+      musicAudio.volume = Number(this.value || 0);
+    });
+  }
+  if (musicProgressEl) {
+    musicProgressEl.addEventListener('input', function () {
+      musicSeeking = true;
+    });
+    musicProgressEl.addEventListener('change', function () {
+      var duration = Number.isFinite(musicAudio.duration) ? musicAudio.duration : 0;
+      if (duration > 0) {
+        musicAudio.currentTime = (Number(this.value || 0) / 100) * duration;
+      }
+      musicSeeking = false;
+      updateMusicTime();
+    });
+  }
+  musicAudio.addEventListener('timeupdate', updateMusicTime);
+  musicAudio.addEventListener('loadedmetadata', updateMusicTime);
+  musicAudio.addEventListener('play', updateMusicNowPlaying);
+  musicAudio.addEventListener('pause', updateMusicNowPlaying);
+  musicAudio.addEventListener('ended', function () {
+    if (musicCurrentIndex < musicQueue.length - 1) {
+      playMusicAt(musicCurrentIndex + 1, false);
+    } else {
+      updateMusicNowPlaying();
+      setMusicStatus('队列播放完了。', '');
+    }
+  });
+  musicAudio.addEventListener('error', function () {
+    setMusicStatus('这首歌播放失败，请换一首试试。', 'warn');
+    updateMusicNowPlaying();
+  });
+
   sendBtn.addEventListener('click', sendMessage);
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -756,4 +1176,6 @@
   // ── Initialize ───────────────────────────────────────────
   loadHistory();
   loadChatConfig();
+  renderMusicQueue();
+  updateMusicNowPlaying();
 })();

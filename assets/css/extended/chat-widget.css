@@ -236,9 +236,275 @@
   transform: translateY(-1px);
 }
 
+.chat-header-btn.active {
+  color: #fff;
+  background: var(--chat-accent);
+  border-color: rgba(201, 100, 66, 0.35);
+  box-shadow: 0 10px 20px rgba(201, 100, 66, 0.18);
+}
+
 .chat-header-btn svg {
   width: 16px;
   height: 16px;
+}
+
+.chat-music-panel[hidden] {
+  display: none;
+}
+
+.chat-music-panel {
+  flex-shrink: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(240, 238, 230, 0.82);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 246, 0.78), rgba(250, 249, 245, 0.66)),
+    radial-gradient(circle at 16% 8%, rgba(201, 100, 66, 0.1), transparent 42%);
+}
+
+.chat-music-search {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-music-input {
+  min-width: 0;
+  flex: 1;
+  height: 38px;
+  border: 1px solid rgba(226, 219, 203, 0.95);
+  border-radius: 14px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--chat-text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.chat-music-input:focus {
+  border-color: rgba(201, 100, 66, 0.72);
+  box-shadow: 0 0 0 3px rgba(201, 100, 66, 0.1);
+}
+
+.chat-music-search-btn,
+.chat-music-control {
+  height: 38px;
+  border: 1px solid rgba(240, 238, 230, 0.95);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #6f6a61;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.chat-music-search-btn {
+  min-width: 58px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.chat-music-search-btn:hover:not(:disabled),
+.chat-music-control:hover:not(:disabled) {
+  color: var(--chat-accent-strong);
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateY(-1px);
+}
+
+.chat-music-search-btn:disabled,
+.chat-music-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.chat-music-status {
+  min-height: 18px;
+  color: var(--chat-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.chat-music-status[data-tone="ok"] {
+  color: #4f8f68;
+}
+
+.chat-music-status[data-tone="warn"] {
+  color: #9b4f32;
+}
+
+.chat-music-now {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.chat-music-cover {
+  width: 58px;
+  height: 58px;
+  display: block;
+  border-radius: 15px;
+  object-fit: cover;
+  background:
+    linear-gradient(135deg, rgba(201, 100, 66, 0.18), rgba(255, 255, 255, 0.7)),
+    rgba(255, 255, 255, 0.56);
+  box-shadow: 0 10px 22px rgba(201, 100, 66, 0.12);
+}
+
+.chat-music-main {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.chat-music-title {
+  overflow: hidden;
+  color: var(--chat-text);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-music-artist,
+.chat-music-time {
+  overflow: hidden;
+  color: var(--chat-text-secondary);
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-music-progress,
+.chat-music-volume input {
+  width: 100%;
+  accent-color: var(--chat-accent);
+}
+
+.chat-music-controls {
+  display: grid;
+  grid-template-columns: 38px 42px 38px minmax(94px, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-music-control {
+  width: 100%;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.chat-music-control--primary {
+  color: #fff;
+  background: var(--chat-accent);
+  border-color: rgba(201, 100, 66, 0.34);
+}
+
+.chat-music-control svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chat-music-volume {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(56px, 1fr);
+  gap: 8px;
+  align-items: center;
+  color: var(--chat-text-secondary);
+  font-size: 12px;
+}
+
+.chat-music-results,
+.chat-music-queue {
+  display: grid;
+  gap: 7px;
+}
+
+.chat-music-result,
+.chat-music-queue-item {
+  width: 100%;
+  min-height: 42px;
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid rgba(240, 238, 230, 0.92);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--chat-text);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.chat-music-result:hover,
+.chat-music-queue-item:hover,
+.chat-music-queue-item.active {
+  border-color: rgba(201, 100, 66, 0.28);
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.chat-music-result span,
+.chat-music-queue-item span {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-music-result small,
+.chat-music-queue-item small {
+  overflow: hidden;
+  color: var(--chat-text-secondary);
+  font-size: 11px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-music-empty {
+  padding: 8px 10px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--chat-text-secondary);
+  font-size: 12px;
+}
+
+.chat-music-marker-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(201, 100, 66, 0.18);
+  border-radius: 13px;
+  background: rgba(201, 100, 66, 0.08);
+  color: #7a553f;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.chat-music-marker-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(201, 100, 66, 0.14);
+  color: var(--chat-accent-strong);
+  font-weight: 800;
 }
 
 .chat-messages {
@@ -785,6 +1051,15 @@
     font-size: 15px;
   }
 
+  .chat-music-panel {
+    max-height: 42vh;
+    padding: 10px 12px;
+  }
+
+  .chat-music-controls {
+    grid-template-columns: 36px 42px 36px minmax(82px, 1fr);
+  }
+
   .chat-messages {
     padding: 14px 12px;
   }
@@ -803,6 +1078,10 @@
   .chat-panel,
   .chat-bubble,
   .chat-header-btn,
+  .chat-music-search-btn,
+  .chat-music-control,
+  .chat-music-result,
+  .chat-music-queue-item,
   .chat-welcome-chip,
   .chat-input,
   .chat-send-btn,

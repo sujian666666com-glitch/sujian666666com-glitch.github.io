@@ -36,6 +36,9 @@
       <label class="chat-think-toggle" title="网络不稳或连接被重置时勾选：单次返回全文（非流式），可多试几次" aria-hidden="true">
         <input type="checkbox" id="chatCompatToggle">兼容
       </label>
+      <button class="chat-header-btn" id="chatMusicBtn" title="音乐播放器" aria-label="打开音乐播放器" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M12 3v11.55A4 4 0 1 0 14 18V7h6V3h-8zM8 20a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="currentColor"/></svg>
+      </button>
       <button class="chat-header-btn" id="chatClearBtn" title="清除对话">
         <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
       </button>
@@ -44,6 +47,41 @@
       </button>
     </div>
   </div>
+
+  <!-- Music Player -->
+  <section class="chat-music-panel" id="chatMusicPanel" aria-label="小 k 音乐播放器" hidden>
+    <form class="chat-music-search" id="chatMusicSearchForm" role="search">
+      <input class="chat-music-input" id="chatMusicSearchInput" type="search" placeholder="搜索歌曲或歌手" autocomplete="off" aria-label="搜索歌曲或歌手">
+      <button class="chat-music-search-btn" id="chatMusicSearchBtn" type="submit">搜索</button>
+    </form>
+    <div class="chat-music-status" id="chatMusicStatus" aria-live="polite">搜一首歌，或者让小 k 帮你挑。</div>
+    <div class="chat-music-now">
+      <img class="chat-music-cover" id="chatMusicCover" alt="" loading="lazy">
+      <div class="chat-music-main">
+        <div class="chat-music-title" id="chatMusicTitle">还没有歌曲</div>
+        <div class="chat-music-artist" id="chatMusicArtist">等待加入队列</div>
+        <input class="chat-music-progress" id="chatMusicProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="播放进度">
+        <div class="chat-music-time" id="chatMusicTime">0:00 / 0:00</div>
+      </div>
+    </div>
+    <div class="chat-music-controls">
+      <button class="chat-music-control" id="chatMusicPrevBtn" type="button" aria-label="上一首">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6V6zm3.5 6L18 6v12l-8.5-6z" fill="currentColor"/></svg>
+      </button>
+      <button class="chat-music-control chat-music-control--primary" id="chatMusicPlayBtn" type="button" aria-label="播放">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+      </button>
+      <button class="chat-music-control" id="chatMusicNextBtn" type="button" aria-label="下一首">
+        <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2V6zM6 18V6l8.5 6L6 18z" fill="currentColor"/></svg>
+      </button>
+      <label class="chat-music-volume">
+        <span>音量</span>
+        <input id="chatMusicVolume" type="range" min="0" max="1" step="0.05" value="0.75" aria-label="音量">
+      </label>
+    </div>
+    <div class="chat-music-results" id="chatMusicResults" aria-label="搜索结果"></div>
+    <div class="chat-music-queue" id="chatMusicQueue" aria-label="播放队列"></div>
+  </section>
 
   <!-- Messages Area -->
   <div class="chat-messages" id="chatMessages"></div>
@@ -77,4 +115,4 @@
   </div>
 </div>
 
-<script src="/chat-ui.js?v=xiao-k-server-config-20260616" defer></script>
+<script src="/chat-ui.js?v=xiao-k-music-player-20260616" defer></script>

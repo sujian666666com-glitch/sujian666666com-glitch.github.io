@@ -1,0 +1,22 @@
+[Unit]
+Description=My Blog Xiao K music API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/my-blog-music
+Environment=MUSIC_API_HOST=127.0.0.1
+Environment=MUSIC_API_PORT=8789
+Environment=MUSIC_API_UPSTREAM=http://127.0.0.1:3000
+EnvironmentFile=-/etc/my-blog-music.env
+ExecStart=/usr/bin/node /opt/my-blog-music/music-api.mjs
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

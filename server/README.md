@@ -75,3 +75,43 @@ curl -N http://127.0.0.1:18788/api/chat \
   -H 'Content-Type: application/json' \
   -d '{"model":"glm-5.1","stream":false,"enable_rag":false,"messages":[{"role":"user","content":"你好"}]}'
 ```
+
+## 小 k 音乐 API
+
+`music-api.mjs` 是小 k 音乐播放器的 VPS 本地代理。前端只请求 `/api/music/*`；服务端再转发到自管 `NeteaseCloudMusicApi` 上游，统一做响应标准化、短期内存缓存和错误降级。音乐服务异常时只影响播放器，不影响 `/api/chat`。
+
+环境变量：
+
+- `MUSIC_API_HOST`：默认 `127.0.0.1`
+- `MUSIC_API_PORT`：默认 `8789`
+- `MUSIC_API_UPSTREAM`：默认 `http://127.0.0.1:3000`，指向自管 `NeteaseCloudMusicApi`
+- `MUSIC_ALLOWED_ORIGINS`：允许访问音乐 API 的站点来源；未配置时复用聊天/留言墙默认白名单
+
+线上部署位置：
+
+- 服务代码：`/opt/my-blog-music/music-api.mjs`
+- systemd：`/etc/systemd/system/my-blog-music.service`
+- 环境文件：`/etc/my-blog-music.env`
+- Nginx：在站点 server 块内添加 `server/nginx-music-location.conf` 中的 `/api/music/` 反代
+
+`/etc/my-blog-music.env` 示例：
+
+```bash
+MUSIC_API_UPSTREAM=http://127.0.0.1:3000
+MUSIC_ALLOWED_ORIGINS=https://sujian.online,https://www.sujian.online
+```
+
+本地语法验证：
+
+```bash
+node --check server/music-api.mjs
+```
+
+本地接口验证：
+
+```bash
+MUSIC_API_PORT=18789 MUSIC_API_UPSTREAM=http://127.0.0.1:3000 node server/music-api.mjs
+curl http://127.0.0.1:18789/health
+curl 'http://127.0.0.1:18789/api/music/search?q=月光&limit=5'
+curl 'http://127.0.0.1:18789/api/music/url?id=有效歌曲id'
+```
