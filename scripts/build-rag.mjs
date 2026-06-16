@@ -103,9 +103,74 @@ function stripFrontMatter(raw) {
   return rest.slice(end + 4).replace(/^\r?\n/, '')
 }
 
+/**
+ * 从 YAML frontmatter 提取字段值（跳过 key 名与结构符号），拼成自然语言文本。
+ * 用于纯 frontmatter 页面（如 content/about/_index.md 无 markdown 正文）的 embedding。
+ */
+function extractFrontMatterValues(raw) {
+  if (!raw.startsWith('---')) return ''
+  const rest = raw.slice(3)
+  const end = rest.indexOf('\n---')
+  if (end === -1) return ''
+  const fm = rest.slice(0, end)
+  const values = []
+  for (const line of fm.split(/\r?\n/)) {
+    // 跳过空行、注释、文档分隔符
+    if (!line.trim() || line.trim().startsWith('#')) continue
+    // 数组项：`    - "value"` 或 `    - type: "x" tech: "y"` → 取所有值
+    const arrMatch = line.match(/^\s*-\s+(.*)$/)
+    if (arrMatch) {
+      // 单行可能含多个 `key: value`（如 techstack 数组对象），提取所有 value
+      collectInlineValues(arrMatch[1], values)
+      continue
+    }
+    // 标量：`key: value` → 取 value
+    const colonIdx = line.indexOf(':')
+    if (colonIdx > 0) {
+      const val = line.slice(colonIdx + 1).trim()
+      collectInlineValues(val, values)
+    }
+  }
+  return values.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
+}
+
+/** 去掉 YAML 标量的引号包裹，保留内部文本 */
+function stripYamlValue(s) {
+  let v = s.trim()
+  // 去掉引号包裹（"value" 或 'value'）
+  if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+    v = v.slice(1, -1).replace(/\\"/g, '"').replace(/\\'/g, "'")
+  }
+  return v.trim()
+}
+
+/**
+ * 从单行文本提取所有值（处理单行多 key: value 格式，如 `type: "编程语言" tech: "Python"`）。
+ * 把 key 名丢弃，只保留 value 文本。
+ */
+function collectInlineValues(text, out) {
+  // 匹配 `key: value` 中的 value 部分；value 可以是引号串或裸文本
+  const re = /[A-Za-z_][\w-]*:\s*("[^"]*"|'[^']*'|[^:]*?)(?=\s+[A-Za-z_][\w-]*:|$)/g
+  let hasKeyValue = false
+  let m
+  while ((m = re.exec(text)) !== null) {
+    hasKeyValue = true
+    const v = stripYamlValue(m[1])
+    if (v) out.push(v)
+  }
+  // 整行不含 key: value 结构（纯标量值）→ 直接整体取
+  if (!hasKeyValue) {
+    const v = stripYamlValue(text)
+    if (v) out.push(v)
+  }
+}
+
 function embeddingTextFromMarkdown(raw) {
   const body = stripMarkdownNoise(stripFrontMatter(raw))
   if (body.length >= MIN_CHUNK_LEN) return body
+  // 正文为空（如关于页纯 frontmatter）→ 提取 frontmatter 字段值作为文本
+  const fmValues = extractFrontMatterValues(raw)
+  if (fmValues.length >= MIN_CHUNK_LEN) return fmValues
   return stripMarkdownNoise(raw)
 }
 
@@ -264,7 +329,12 @@ async function main() {
   for (const file of files) {
     const raw = await readFile(file, 'utf8')
     const rel = relative(REPO_ROOT, file).replace(/\\/g, '/')
-    const hash = sha256(raw)
+
+    const title = extractTitleFromFrontMatter(raw)
+    const body = embeddingTextFromMarkdown(raw)
+    // contentHash 基于「提取后的 embedding 文本」而非原始文件内容，
+    // 这样切分/提取逻辑变化时（如 frontmatter 值提取），即使原文未改也会触发重 embed。
+    const hash = sha256(body)
 
     const old = oldMap.get(rel)
     if (old && old.hash === hash) {
@@ -272,8 +342,6 @@ async function main() {
       continue
     }
 
-    const title = extractTitleFromFrontMatter(raw)
-    const body = embeddingTextFromMarkdown(raw)
     const url = contentUrlFromRelative(rel, siteBase)
     for (const piece of chunkText(body)) {
       plainChunks.push({ source: rel, text: piece, title, url, contentHash: hash })

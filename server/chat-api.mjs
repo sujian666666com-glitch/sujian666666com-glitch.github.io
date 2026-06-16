@@ -715,9 +715,14 @@ async function handleChat(req, res) {
     console.warn('[RAG] enrich failed', err);
   }
 
-  // 兜底：无论 RAG 是否启用/是否成功，都确保 system 由后端权威注入。
-  // enrichMessagesWithRag 在 RAG 开启时已处理；这里覆盖 RAG 关闭/失败的情况。
-  body = ensureServerSystem(body);
+  // 兜底：仅当 RAG 未注入后端 system 时（RAG 关闭或失败），才由 ensureServerSystem 兜底注入人设。
+  // 若 enrichMessagesWithRag 已注入 system（含人设 + RAG 片段），则跳过，避免覆盖丢弃 RAG 片段。
+  const hasServerSystem = body.messages.some(
+    (m) => m && m.role === 'system' && typeof m.content === 'string' && m.content.trim(),
+  );
+  if (!hasServerSystem) {
+    body = ensureServerSystem(body);
+  }
 
   const wantStream = body.stream !== false;
   const { upstream, error } = await callAnthropicMessages(body, wantStream);
