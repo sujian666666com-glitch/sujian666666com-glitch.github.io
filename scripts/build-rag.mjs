@@ -36,7 +36,7 @@ const BASE_URL =
     : 'https://api.siliconflow.cn/v1')
 const CHUNK_SIZE = 900
 const CHUNK_OVERLAP = 120
-const MIN_CHUNK_LEN = 80
+const MIN_CHUNK_LEN = 20
 const EMBEDDING_BATCH_SIZE =
   Math.max(1, parseInt(String(process.env.RAG_EMBEDDING_BATCH_SIZE || '1'), 10) || 1)
 const CONTENT_ROOTS = [
