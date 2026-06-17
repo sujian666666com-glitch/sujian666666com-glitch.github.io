@@ -361,13 +361,7 @@
 
   // ── Music Player ────────────────────────────────────────
   function musicApiURL(endpoint, params) {
-    var base = window.location.origin;
-    if (PROXY_URL) {
-      try {
-        base = new URL(PROXY_URL, window.location.href).origin;
-      } catch (_) {}
-    }
-    var url = new URL('/api/music/' + endpoint, base);
+    var url = new URL('/api/music/' + endpoint, window.location.origin);
     Object.keys(params || {}).forEach(function (key) {
       var value = params[key];
       if (value !== undefined && value !== null && value !== '') {
