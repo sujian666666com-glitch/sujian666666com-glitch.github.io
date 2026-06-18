@@ -38,3 +38,6 @@ openspec/changes/*/.runs/
 
 # 本地私人笔记，不能发布到 Hugo 内容目录
 private-notes/
+
+# 本地核对草稿，不进入版本库
+docs/life-map-mermaid-review.md
