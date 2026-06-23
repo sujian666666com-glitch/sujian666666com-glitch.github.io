@@ -1521,6 +1521,21 @@ html {
   line-height: 1;
 }
 
+.daily-doc-header__cover {
+  width: clamp(128px, 16vw, 172px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--daily-rule);
+  background: var(--daily-soft);
+}
+
+.daily-doc-header__cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .daily-doc-toc a {
   display: block;
   padding: 6px 0;
@@ -1989,7 +2004,8 @@ html {
     grid-template-columns: 1fr;
   }
 
-  .daily-doc-header__date {
+  .daily-doc-header__date,
+  .daily-doc-header__cover {
     width: 112px;
   }
 

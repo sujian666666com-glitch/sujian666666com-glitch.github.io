@@ -1,6 +1,9 @@
 {{- define "main" }}
 
 {{- $dailyPages := (where site.RegularPages "Section" "daily").ByDate.Reverse -}}
+{{- $coverImage := .Params.cover.image -}}
+{{- $hideCover := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false -}}
+{{- $showHeaderCover := and $coverImage (.Params.cover.showInDailyHeader) (not $hideCover) -}}
 
 <article class="post-single daily-single daily-doc-layout">
   <aside class="daily-doc-sidebar daily-doc-sidebar--left">
@@ -27,10 +30,16 @@
           </span>
           {{- end }}
         </h1>
+        {{- if $showHeaderCover }}
+        <div class="daily-doc-header__cover">
+          <img src="{{ $coverImage | relURL }}" alt="{{ .Params.cover.alt | default .Title }}">
+        </div>
+        {{- else }}
         <div class="daily-doc-header__date" aria-hidden="true">
           <span>{{ .Date.Format "2006" }}</span>
           <strong>{{ .Date.Format "01.02" }}</strong>
         </div>
+        {{- end }}
       </div>
 
       {{- if .Description }}
