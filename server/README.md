@@ -115,3 +115,62 @@ curl http://127.0.0.1:18789/health
 curl 'http://127.0.0.1:18789/api/music/search?q=月光&limit=5'
 curl 'http://127.0.0.1:18789/api/music/url?id=有效歌曲id'
 ```
+
+## 计划追踪热力图 API
+
+`tracker-api.mjs` 是 `/tracker/` 页面的后端，用于记录多个计划（考研、健身等）的每日完成度、备注和贴图，并以 GitHub 风格热力图展示。使用 Node.js 内置 `node:sqlite`，无外部依赖。数据公开只读，写操作需鉴权（密码登录拿 JWT，或用长期 API Token）。
+
+### 环境变量
+
+- `TRACKER_API_HOST`：默认 `127.0.0.1`
+- `TRACKER_API_PORT`：默认 `8791`
+- `TRACKER_DB_PATH`：默认 `/var/lib/my-blog-tracker/tracker.db`
+- `TRACKER_JWT_SECRET`：JWT 签名密钥，必须在 `/etc/my-blog-tracker.env` 中配置
+- `TRACKER_PASSWORD_HASH` / `TRACKER_PASSWORD_SALT`：登录密码的 scrypt 校验值，必须配置
+- `TRACKER_API_TOKEN`：长期 API Token，给脚本/手机端写入用，可选但推荐
+- `TRACKER_JWT_TTL_MS`：JWT 有效期，默认 30 天
+- `TRACKER_ALLOWED_ORIGINS`：CORS 白名单，逗号分隔，默认 `sujian.online` 系列
+
+### 线上部署位置
+
+- 服务代码：`/opt/my-blog-tracker/tracker-api.mjs`
+- 数据库：`/var/lib/my-blog-tracker/tracker.db`
+- systemd：`/etc/systemd/system/my-blog-tracker.service`
+- 环境文件：`/etc/my-blog-tracker.env`（`chmod 600`）
+- Nginx：在站点 server 块内添加 `server/nginx-tracker-location.conf` 中的 `/api/tracker/` 反代
+
+### 生成密码校验值
+
+```bash
+# 1) 生成随机 salt 和密钥
+SALT=$(node -e "console.log(require('crypto').randomBytes(16).toString('base64'))")
+SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+# 2) 把“你的密码”和上面的 salt 代入，生成 hash
+HASH=$(node -e "console.log(require('crypto').scryptSync('你的密码','$SALT',64).toString('base64'))")
+# 3) 写入 /etc/my-blog-tracker.env
+cat >> /etc/my-blog-tracker.env <<EOF
+TRACKER_JWT_SECRET=$SECRET
+TRACKER_PASSWORD_SALT=$SALT
+TRACKER_PASSWORD_HASH=$HASH
+TRACKER_API_TOKEN=$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")
+EOF
+chmod 600 /etc/my-blog-tracker.env
+```
+
+### 本地验证
+
+```bash
+mkdir -p tmp
+TRACKER_DB_PATH=./tmp/tracker.db \
+TRACKER_JWT_SECRET=dev-secret \
+TRACKER_PASSWORD_SALT=$(node -e "console.log(require('crypto').randomBytes(16).toString('base64'))") \
+TRACKER_PASSWORD_HASH=$(node -e "console.log(require('crypto').scryptSync('devpass',process.env.TRACKER_PASSWORD_SALT,64).toString('base64'))" 2>/dev/null || true) \
+TRACKER_API_PORT=18791 \
+node server/tracker-api.mjs
+
+curl http://127.0.0.1:18791/health
+curl http://127.0.0.1:18791/api/tracker/plans
+curl -X POST http://127.0.0.1:18791/api/tracker/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"password":"devpass"}'
+```

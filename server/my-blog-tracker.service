@@ -1,0 +1,23 @@
+[Unit]
+Description=My Blog plan tracker heatmap API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/my-blog-tracker
+Environment=TRACKER_API_HOST=127.0.0.1
+Environment=TRACKER_API_PORT=8791
+Environment=TRACKER_DB_PATH=/var/lib/my-blog-tracker/tracker.db
+EnvironmentFile=-/etc/my-blog-tracker.env
+ExecStart=/usr/bin/node /opt/my-blog-tracker/tracker-api.mjs
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/my-blog-tracker
+
+[Install]
+WantedBy=multi-user.target
