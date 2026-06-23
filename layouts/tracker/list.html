@@ -6,41 +6,41 @@
       <h1 class="tracker-title">计划追踪</h1>
       <p class="tracker-subtitle">把每一天的努力，画成一张看得见的图</p>
     </div>
-    <div class="tracker-auth" data-tracker-auth>
-      <button class="tracker-btn tracker-btn--ghost" type="button" id="tracker-login-btn">登录</button>
-      <button class="tracker-btn tracker-btn--ghost" type="button" id="tracker-logout-btn" hidden>退出登录</button>
+    <div class="tracker-auth">
+      <button class="tracker-btn tracker-btn--ghost" type="button" id="tk-login-btn">登录</button>
+      <button class="tracker-btn tracker-btn--ghost" type="button" id="tk-logout-btn" hidden>退出登录</button>
     </div>
   </header>
 
-  <nav class="tracker-tabs" data-tracker-tabs aria-label="计划切换"></nav>
+  <nav class="tracker-tabs" id="tk-tabs" aria-label="计划切换"></nav>
 
-  <section class="tracker-summary" data-tracker-summary hidden>
+  <section class="tracker-summary" id="tk-summary" hidden>
     <div class="tracker-summary__item">
       <span class="tracker-summary__label">当前计划</span>
-      <span class="tracker-summary__value" data-tracker-plan-name>—</span>
+      <span class="tracker-summary__value" id="tk-plan-name">—</span>
     </div>
     <div class="tracker-summary__item">
       <span class="tracker-summary__label">区间</span>
-      <span class="tracker-summary__value" data-tracker-range>—</span>
+      <span class="tracker-summary__value" id="tk-range">—</span>
     </div>
     <div class="tracker-summary__item">
       <span class="tracker-summary__label">本年打卡</span>
-      <span class="tracker-summary__value" data-tracker-total-days>0 天</span>
+      <span class="tracker-summary__value" id="tk-total-days">0 天</span>
     </div>
     <div class="tracker-summary__item">
       <span class="tracker-summary__label">平均完成度</span>
-      <span class="tracker-summary__value" data-tracker-avg-progress>0%</span>
+      <span class="tracker-summary__value" id="tk-avg-progress">0%</span>
     </div>
     <div class="tracker-summary__item">
       <span class="tracker-summary__label">当前连胜</span>
-      <span class="tracker-summary__value" data-tracker-streak>0 天</span>
+      <span class="tracker-summary__value" id="tk-streak">0 天</span>
     </div>
   </section>
 
   <section class="tracker-heatmap-wrap">
     <div class="tracker-heatmap-scroll">
-      <div class="tracker-heatmap" data-tracker-heatmap>
-        <p class="tracker-empty" data-tracker-empty>暂无计划，登录后点击「新建计划」开始记录。</p>
+      <div class="tracker-heatmap" id="tk-heatmap">
+        <p class="tracker-empty" id="tk-empty">暂无计划，登录后点击「新建计划」开始记录。</p>
       </div>
     </div>
     <div class="tracker-legend">
@@ -59,48 +59,48 @@
   </section>
 
   <div class="tracker-toolbar">
-    <button class="tracker-btn" type="button" id="tracker-new-plan-btn" hidden>+ 新建计划</button>
-    <button class="tracker-btn tracker-btn--ghost" type="button" id="tracker-edit-plan-btn" hidden>编辑计划</button>
+    <button class="tracker-btn" type="button" id="tk-new-plan-btn" hidden>+ 新建计划</button>
+    <button class="tracker-btn tracker-btn--ghost" type="button" id="tk-edit-plan-btn" hidden>编辑计划</button>
   </div>
 </div>
 
 <!-- 每日详情/编辑 弹窗 -->
-<div class="tracker-dialog" data-tracker-dialog hidden>
-  <div class="tracker-dialog__backdrop" data-tracker-close></div>
-  <div class="tracker-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="trackerDialogTitle">
-    <button class="tracker-dialog__close" type="button" data-tracker-close aria-label="关闭">×</button>
-    <h2 class="tracker-dialog__title" id="trackerDialogTitle">每日详情</h2>
-    <form class="tracker-dialog__form" data-tracker-form>
-      <p class="tracker-dialog__date" data-tracker-dialog-date></p>
+<div class="tracker-dialog" id="tk-day-dialog" hidden>
+  <div class="tracker-dialog__backdrop" data-tk-close></div>
+  <div class="tracker-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="tkDialogTitle">
+    <button class="tracker-dialog__close" type="button" data-tk-close aria-label="关闭">×</button>
+    <h2 class="tracker-dialog__title" id="tkDialogTitle">每日详情</h2>
+    <form class="tracker-dialog__form" id="tk-day-form">
+      <p class="tracker-dialog__date" id="tk-dialog-date"></p>
 
       <label class="tracker-field">
-        <span class="tracker-field__label">完成度 <span data-tracker-progress-display>0</span>%</span>
-        <input type="range" name="progress" min="0" max="100" step="5" value="0" data-tracker-progress>
+        <span class="tracker-field__label">完成度 <span id="tk-progress-display">0</span>%</span>
+        <input type="range" name="progress" min="0" max="100" step="5" value="0" id="tk-progress">
       </label>
 
       <label class="tracker-field">
         <span class="tracker-field__label">备注（复盘/心得）</span>
-        <textarea name="note" rows="4" maxlength="2000" placeholder="今天做了什么？哪里做得好？明天怎么改进？" data-tracker-note></textarea>
+        <textarea name="note" rows="4" maxlength="2000" placeholder="今天做了什么？哪里做得好？明天怎么改进？" id="tk-note"></textarea>
       </label>
 
       <div class="tracker-field">
         <span class="tracker-field__label">图片（错题照/健身照等）</span>
-        <div class="tracker-attachment" data-tracker-attachment-wrap>
-          <img class="tracker-attachment__preview" data-tracker-attachment-preview alt="" hidden>
+        <div class="tracker-attachment">
+          <img class="tracker-attachment__preview" id="tk-attachment-preview" alt="" hidden>
           <div class="tracker-attachment__actions">
             <label class="tracker-btn tracker-btn--ghost">
               选择图片
-              <input type="file" accept="image/*" data-tracker-attachment-input hidden>
+              <input type="file" accept="image/*" id="tk-attachment-input" hidden>
             </label>
-            <button class="tracker-btn tracker-btn--ghost" type="button" data-tracker-attachment-clear hidden>清除</button>
+            <button class="tracker-btn tracker-btn--ghost" type="button" id="tk-attachment-clear" hidden>清除</button>
           </div>
           <p class="tracker-attachment__hint">建议压缩到 200KB 以内。存为 base64 写入数据库。</p>
         </div>
       </div>
 
-      <p class="tracker-dialog__error" data-tracker-error></p>
+      <p class="tracker-dialog__error" id="tk-day-error"></p>
       <div class="tracker-dialog__actions">
-        <button class="tracker-btn tracker-btn--danger" type="button" data-tracker-delete hidden>删除记录</button>
+        <button class="tracker-btn tracker-btn--danger" type="button" id="tk-delete-record" hidden>删除记录</button>
         <button class="tracker-btn" type="submit">保存</button>
       </div>
     </form>
@@ -108,12 +108,12 @@
 </div>
 
 <!-- 新建/编辑计划 弹窗 -->
-<div class="tracker-dialog" data-tracker-plan-dialog hidden>
-  <div class="tracker-dialog__backdrop" data-tracker-close></div>
-  <div class="tracker-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="trackerPlanDialogTitle">
-    <button class="tracker-dialog__close" type="button" data-tracker-close aria-label="关闭">×</button>
-    <h2 class="tracker-dialog__title" id="trackerPlanDialogTitle" data-tracker-plan-dialog-title>新建计划</h2>
-    <form class="tracker-dialog__form" data-tracker-plan-form>
+<div class="tracker-dialog" id="tk-plan-dialog" hidden>
+  <div class="tracker-dialog__backdrop" data-tk-close></div>
+  <div class="tracker-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="tkPlanDialogTitle">
+    <button class="tracker-dialog__close" type="button" data-tk-close aria-label="关闭">×</button>
+    <h2 class="tracker-dialog__title" id="tkPlanDialogTitle">新建计划</h2>
+    <form class="tracker-dialog__form" id="tk-plan-form">
       <label class="tracker-field">
         <span class="tracker-field__label">计划名称</span>
         <input type="text" name="name" maxlength="40" placeholder="如：考研复习" required>
@@ -134,9 +134,9 @@
         <span class="tracker-field__label">说明（可选）</span>
         <textarea name="description" rows="3" maxlength="500" placeholder="这个计划的目标是什么？"></textarea>
       </label>
-      <p class="tracker-dialog__error" data-tracker-plan-error></p>
+      <p class="tracker-dialog__error" id="tk-plan-error"></p>
       <div class="tracker-dialog__actions">
-        <button class="tracker-btn tracker-btn--danger" type="button" data-tracker-plan-delete hidden>删除计划</button>
+        <button class="tracker-btn tracker-btn--danger" type="button" id="tk-plan-delete" hidden>删除计划</button>
         <button class="tracker-btn" type="submit">保存</button>
       </div>
     </form>
@@ -144,23 +144,23 @@
 </div>
 
 <!-- 登录弹窗 -->
-<div class="tracker-dialog" data-tracker-login-dialog hidden>
-  <div class="tracker-dialog__backdrop" data-tracker-close></div>
-  <div class="tracker-dialog__panel tracker-dialog__panel--narrow" role="dialog" aria-modal="true" aria-labelledby="trackerLoginTitle">
-    <button class="tracker-dialog__close" type="button" data-tracker-close aria-label="关闭">×</button>
-    <h2 class="tracker-dialog__title" id="trackerLoginTitle">登录</h2>
-    <form class="tracker-dialog__form" data-tracker-login-form>
+<div class="tracker-dialog" id="tk-login-dialog" hidden>
+  <div class="tracker-dialog__backdrop" data-tk-close></div>
+  <div class="tracker-dialog__panel tracker-dialog__panel--narrow" role="dialog" aria-modal="true" aria-labelledby="tkLoginTitle">
+    <button class="tracker-dialog__close" type="button" data-tk-close aria-label="关闭">×</button>
+    <h2 class="tracker-dialog__title" id="tkLoginTitle">登录</h2>
+    <form class="tracker-dialog__form" id="tk-login-form">
       <label class="tracker-field">
         <span class="tracker-field__label">密码</span>
         <input type="password" name="password" placeholder="输入管理密码" required>
       </label>
-      <p class="tracker-dialog__error" data-tracker-login-error></p>
+      <p class="tracker-dialog__error" id="tk-login-error"></p>
       <button class="tracker-btn" type="submit">登录</button>
     </form>
   </div>
 </div>
 
-<div class="tracker-tooltip" data-tracker-tooltip hidden></div>
+<div class="tracker-tooltip" id="tk-tooltip" hidden></div>
 
 <script src="/tracker.js" defer></script>
 {{ end }}
