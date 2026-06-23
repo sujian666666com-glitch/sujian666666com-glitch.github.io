@@ -162,5 +162,6 @@
 
 <div class="tracker-tooltip" id="tk-tooltip" hidden></div>
 
-<script src="/tracker.js" defer></script>
+{{- $trackerJSVersion := readFile "static/tracker.js" | md5 -}}
+<script src="/tracker.js?v={{ $trackerJSVersion }}" defer></script>
 {{ end }}

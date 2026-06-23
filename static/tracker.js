@@ -2,9 +2,11 @@
   'use strict';
 
   var root = document.querySelector('.tracker-page');
-  if (!root) return;
+  if (!root) {
+    console.warn('[tracker] 未找到 .tracker-page，继续初始化基础交互');
+  }
 
-  var apiBase = (root.getAttribute('data-tracker-api') || '').replace(/\/$/, '');
+  var apiBase = (root ? root.getAttribute('data-tracker-api') || '' : '').replace(/\/$/, '');
   function apiURL(path) {
     return apiBase ? apiBase + path : path;
   }
@@ -13,6 +15,13 @@
   // DOM 引用（全部用 id，杜绝属性选择器歧义）
   // ---------------------------------------------------------------------------
   var $ = function (id) { return document.getElementById(id); };
+  function bind(el, eventName, handler, id) {
+    if (!el) {
+      console.error('[tracker] DOM 元素缺失，无法绑定事件：' + id);
+      return;
+    }
+    el.addEventListener(eventName, handler);
+  }
 
   var tabsEl = $('tk-tabs');
   var summaryEl = $('tk-summary');
@@ -389,11 +398,15 @@
   // 弹窗控制
   // ---------------------------------------------------------------------------
   function closeAllDialogs() {
-    dayDialog.hidden = true;
-    planDialog.hidden = true;
-    loginDialog.hidden = true;
+    if (dayDialog) dayDialog.hidden = true;
+    if (planDialog) planDialog.hidden = true;
+    if (loginDialog) loginDialog.hidden = true;
   }
-  function showDialog(d) { closeAllDialogs(); d.hidden = false; }
+  function showDialog(d) {
+    if (!d) return;
+    closeAllDialogs();
+    d.hidden = false;
+  }
 
   function openDayDialog(dateKey, record) {
     editingDate = dateKey;
@@ -424,9 +437,9 @@
   // ---------------------------------------------------------------------------
   // 每日详情表单
   // ---------------------------------------------------------------------------
-  progressInput.addEventListener('input', function () { progressDisplay.textContent = progressInput.value; });
+  bind(progressInput, 'input', function () { progressDisplay.textContent = progressInput.value; }, 'tk-progress');
 
-  attachmentInput.addEventListener('change', async function () {
+  bind(attachmentInput, 'change', async function () {
     var file = attachmentInput.files && attachmentInput.files[0];
     if (!file) return;
     try {
@@ -436,15 +449,15 @@
       attachmentPreview.hidden = false;
       attachmentClearBtn.hidden = false;
     } catch (err) { dayErrorEl.textContent = err.message; }
-  });
+  }, 'tk-attachment-input');
 
-  attachmentClearBtn.addEventListener('click', function () {
+  bind(attachmentClearBtn, 'click', function () {
     pendingAttachment = '';
     attachmentPreview.src = ''; attachmentPreview.hidden = true;
     attachmentClearBtn.hidden = true; attachmentInput.value = '';
-  });
+  }, 'tk-attachment-clear');
 
-  dayForm.addEventListener('submit', async function (e) {
+  bind(dayForm, 'submit', async function (e) {
     e.preventDefault();
     if (!isLoggedIn()) { dayErrorEl.textContent = '请先登录'; return; }
     if (!editingDate || !editingPlanId) return;
@@ -460,9 +473,9 @@
       dayErrorEl.textContent = err.message;
       if (err.status === 401) { token = ''; localStorage.removeItem(TOKEN_KEY); refreshAuthUI(); }
     }
-  });
+  }, 'tk-day-form');
 
-  deleteRecordBtn.addEventListener('click', async function () {
+  bind(deleteRecordBtn, 'click', async function () {
     if (!editingDate || !editingPlanId) return;
     if (!confirm('确定删除 ' + editingDate + ' 的记录？')) return;
     try {
@@ -472,12 +485,12 @@
       closeAllDialogs();
       await renderCurrentPlan();
     } catch (err) { dayErrorEl.textContent = err.message; }
-  });
+  }, 'tk-delete-record');
 
   // ---------------------------------------------------------------------------
   // 计划表单
   // ---------------------------------------------------------------------------
-  newPlanBtn.addEventListener('click', function () {
+  bind(newPlanBtn, 'click', function () {
     if (!isLoggedIn()) { openLoginDialog(); return; }
     editingPlanMode = 'create';
     planDialogTitle.textContent = '新建计划';
@@ -486,9 +499,9 @@
     planDeleteBtn.hidden = true;
     planErrorEl.textContent = '';
     showDialog(planDialog);
-  });
+  }, 'tk-new-plan-btn');
 
-  editPlanBtn.addEventListener('click', function () {
+  bind(editPlanBtn, 'click', function () {
     if (!currentPlanId) return;
     var plan = plans.find(function (p) { return p.id === currentPlanId; });
     if (!plan) return;
@@ -502,9 +515,9 @@
     planDeleteBtn.hidden = false;
     planErrorEl.textContent = '';
     showDialog(planDialog);
-  });
+  }, 'tk-edit-plan-btn');
 
-  planForm.addEventListener('submit', async function (e) {
+  bind(planForm, 'submit', async function (e) {
     e.preventDefault();
     planErrorEl.textContent = '';
     var body = {
@@ -527,9 +540,9 @@
       planErrorEl.textContent = err.message;
       if (err.status === 401) { token = ''; localStorage.removeItem(TOKEN_KEY); refreshAuthUI(); }
     }
-  });
+  }, 'tk-plan-form');
 
-  planDeleteBtn.addEventListener('click', async function () {
+  bind(planDeleteBtn, 'click', async function () {
     if (!currentPlanId) return;
     if (!confirm('确定删除这个计划及其所有记录？此操作不可恢复。')) return;
     try {
@@ -538,23 +551,25 @@
       closeAllDialogs();
       await loadPlans();
     } catch (err) { planErrorEl.textContent = err.message; }
-  });
+  }, 'tk-plan-delete');
 
   // ---------------------------------------------------------------------------
   // 登录
   // ---------------------------------------------------------------------------
   function openLoginDialog() {
-    loginForm.reset();
-    loginErrorEl.textContent = '';
+    if (loginForm) loginForm.reset();
+    if (loginErrorEl) loginErrorEl.textContent = '';
     showDialog(loginDialog);
   }
 
-  loginBtn.addEventListener('click', openLoginDialog);
-  logoutBtn.addEventListener('click', function () {
-    token = ''; localStorage.removeItem(TOKEN_KEY); refreshAuthUI();
-  });
+  window.__trackerOpenLogin = openLoginDialog;
 
-  loginForm.addEventListener('submit', async function (e) {
+  bind(loginBtn, 'click', openLoginDialog, 'tk-login-btn');
+  bind(logoutBtn, 'click', function () {
+    token = ''; localStorage.removeItem(TOKEN_KEY); refreshAuthUI();
+  }, 'tk-logout-btn');
+
+  bind(loginForm, 'submit', async function (e) {
     e.preventDefault();
     loginErrorEl.textContent = '';
     var password = loginForm.elements['password'].value;
@@ -565,7 +580,7 @@
       closeAllDialogs();
       refreshAuthUI();
     } catch (err) { loginErrorEl.textContent = err.message; }
-  });
+  }, 'tk-login-form');
 
   // ---------------------------------------------------------------------------
   // 关闭按钮
