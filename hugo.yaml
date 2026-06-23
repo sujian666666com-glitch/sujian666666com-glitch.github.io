@@ -117,6 +117,10 @@ params:
   messageWall:
     apiURL: "https://sujian.online" # GitHub Pages 无动态 API，留言墙统一请求 VPS；也可用 HUGO_WALL_API_URL 覆盖
 
+  # 计划追踪热力图
+  tracker:
+    apiURL: "https://sujian.online" # 公开只读，写操作需登录；也可用 HUGO_TRACKER_API_URL 覆盖
+
 menu:
   main:
     - name: 首页
@@ -147,6 +151,10 @@ menu:
       url: /gallery/
       weight: 30
       identifier: gallery
+    - name: 计划
+      url: /tracker/
+      weight: 32
+      identifier: tracker
     - name: 关于
       url: /about/
       weight: 35
