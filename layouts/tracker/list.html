@@ -2,8 +2,14 @@
 {{- $trackerApiURL := getenv "HUGO_TRACKER_API_URL" | default site.Params.tracker.apiURL | default "" -}}
 <div class="tracker-page" data-tracker-api="{{ $trackerApiURL }}">
   <header class="tracker-header">
-    <h1 class="tracker-title">计划追踪</h1>
-    <p class="tracker-subtitle">把每一天的努力，画成一张看得见的图</p>
+    <div class="tracker-header__text">
+      <h1 class="tracker-title">计划追踪</h1>
+      <p class="tracker-subtitle">把每一天的努力，画成一张看得见的图</p>
+    </div>
+    <div class="tracker-auth" data-tracker-auth>
+      <button class="tracker-btn tracker-btn--ghost" type="button" data-tracker-login hidden>登录</button>
+      <button class="tracker-btn tracker-btn--ghost" type="button" data-tracker-logout hidden>退出登录</button>
+    </div>
   </header>
 
   <nav class="tracker-tabs" data-tracker-tabs aria-label="计划切换"></nav>
@@ -53,8 +59,6 @@
   </section>
 
   <div class="tracker-toolbar">
-    <button class="tracker-btn tracker-btn--ghost" type="button" data-tracker-login hidden>登录</button>
-    <button class="tracker-btn tracker-btn--ghost" type="button" data-tracker-logout hidden>退出登录</button>
     <button class="tracker-btn" type="button" data-tracker-new-plan hidden>+ 新建计划</button>
     <button class="tracker-btn tracker-btn--ghost" type="button" data-tracker-edit-plan hidden>编辑计划</button>
   </div>

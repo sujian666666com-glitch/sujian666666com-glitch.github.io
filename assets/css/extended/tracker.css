@@ -7,8 +7,21 @@
 }
 
 .tracker-header {
-  text-align: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.tracker-header__text {
+  flex: 1;
+}
+
+.tracker-auth {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .tracker-title {
