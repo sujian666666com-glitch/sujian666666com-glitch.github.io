@@ -21,10 +21,10 @@
   var avgProgressEl = root.querySelector('[data-tracker-avg-progress]');
   var streakEl = root.querySelector('[data-tracker-streak]');
 
-  var loginBtn = root.querySelector('[data-tracker-login]');
-  var logoutBtn = root.querySelector('[data-tracker-logout]');
-  var newPlanBtn = root.querySelector('[data-tracker-new-plan]');
-  var editPlanBtn = root.querySelector('[data-tracker-edit-plan]');
+  var loginBtn = document.getElementById('tracker-login-btn');
+  var logoutBtn = document.getElementById('tracker-logout-btn');
+  var newPlanBtn = document.getElementById('tracker-new-plan-btn');
+  var editPlanBtn = document.getElementById('tracker-edit-plan-btn');
 
   var dialog = root.querySelector('[data-tracker-dialog]');
   var dialogDateEl = root.querySelector('[data-tracker-dialog-date]');
