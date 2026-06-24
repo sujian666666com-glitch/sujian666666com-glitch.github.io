@@ -2110,6 +2110,16 @@ html {
   z-index: 1010;
 }
 
+#menu .nav-trigger {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 /* 下拉箭头 */
 .menu-arrow {
   margin-left: 4px;
@@ -2118,8 +2128,10 @@ html {
 }
 
 /* 悬停时箭头旋转 */
-.menu-item:hover .menu-arrow,
-.menu-item:focus-within .menu-arrow {
+.menu-item:hover > a .menu-arrow,
+.menu-item:hover > .nav-trigger .menu-arrow,
+.menu-item:focus-within > a .menu-arrow,
+.menu-item:focus-within > .nav-trigger .menu-arrow {
   transform: rotate(180deg);
 }
 
@@ -2154,11 +2166,24 @@ html {
 }
 
 /* 显示子菜单 */
-.menu-item:hover .sub-menu,
-.menu-item:focus-within .sub-menu {
+.menu-item:hover > .sub-menu,
+.menu-item:focus-within > .sub-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+}
+
+.sub-menu .sub-menu--nested {
+  top: 0;
+  left: calc(100% + 10px);
+  min-width: 11rem;
+  margin: 0;
+  transform: translate(-6px, 0);
+}
+
+.menu-item:hover > .sub-menu--nested,
+.menu-item:focus-within > .sub-menu--nested {
+  transform: translate(0, 0);
 }
 
 /*
@@ -2235,9 +2260,19 @@ html {
     backdrop-filter: none;
   }
 
-  .menu-item-has-children:hover .sub-menu,
-  .menu-item-has-children.active .sub-menu {
+  .menu-item-has-children:hover > .sub-menu,
+  .menu-item-has-children:focus-within > .sub-menu,
+  .menu-item-has-children.active > .sub-menu {
     display: block;
+  }
+
+  .sub-menu .sub-menu--nested {
+    display: block;
+    margin: 0 0 8px 18px;
+    padding: 0 0 0 12px;
+    border-left: 1px solid rgba(148, 163, 184, 0.32);
+    background: transparent;
+    transform: none;
   }
 
   .sub-menu li a {

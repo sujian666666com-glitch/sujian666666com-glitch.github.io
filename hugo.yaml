@@ -147,10 +147,6 @@ menu:
       url: /posts/思考/
       weight: 23
       parent: posts
-    - name: 小纸条
-      url: /gallery/
-      weight: 30
-      identifier: gallery
     - name: 计划
       url: /tracker/
       weight: 32
@@ -159,15 +155,24 @@ menu:
       url: /about/
       weight: 35
       identifier: about
+    - name: 更多
+      weight: 40
+      identifier: more
+    - name: 小纸条
+      url: /gallery/
+      weight: 41
+      identifier: gallery
+      parent: more
     - name: 小虾
       url: /shrimp-diary/
-      weight: 40
+      weight: 42
       identifier: shrimp-diary
+      parent: more
     - name: 周记
       url: /shrimp-diary/weekly/
-      weight: 41
+      weight: 43
       parent: shrimp-diary
     - name: 日记
       url: /shrimp-diary/daily/
-      weight: 42
+      weight: 44
       parent: shrimp-diary

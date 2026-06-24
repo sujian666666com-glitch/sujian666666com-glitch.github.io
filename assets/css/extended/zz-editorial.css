@@ -183,11 +183,14 @@ a {
   margin-inline-start: 0;
 }
 
-.masthead__nav #menu a {
+.masthead__nav #menu a,
+.masthead__nav #menu .nav-trigger {
   display: inline-flex;
   align-items: center;
   min-height: 28px;
   padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--masthead-ink);
   font-family: var(--font-body);
   font-size: clamp(0.9rem, 1vw, 1.08rem);
@@ -195,34 +198,43 @@ a {
   letter-spacing: 0.16em;
   line-height: 1;
   box-shadow: none;
+  cursor: pointer;
   white-space: nowrap;
 }
 
 .masthead__nav #menu a:hover,
 .masthead__nav #menu a:focus-visible,
+.masthead__nav #menu .nav-trigger:hover,
+.masthead__nav #menu .nav-trigger:focus-visible,
 .masthead__nav #menu .active {
   color: var(--masthead-ink);
   text-decoration: none;
 }
 
 .masthead__nav #menu > .menu-item > a:hover > span > span:first-child,
-.masthead__nav #menu > .menu-item > a:focus-visible > span > span:first-child {
+.masthead__nav #menu > .menu-item > a:focus-visible > span > span:first-child,
+.masthead__nav #menu > .menu-item > .nav-trigger:hover > span > span:first-child,
+.masthead__nav #menu > .menu-item > .nav-trigger:focus-visible > span > span:first-child {
   border-bottom-color: currentColor;
 }
 
 .masthead__nav #menu > .menu-item > a > span > span:first-child,
-.masthead__nav #menu > .menu-item > a > .active {
+.masthead__nav #menu > .menu-item > a > .active,
+.masthead__nav #menu > .menu-item > .nav-trigger > span > span:first-child,
+.masthead__nav #menu > .menu-item > .nav-trigger > .active {
   display: inline-flex;
   align-items: center;
   min-height: 1.55em;
   border-bottom: 2px solid transparent;
 }
 
-.masthead__nav #menu > .menu-item > a > .active {
+.masthead__nav #menu > .menu-item > a > .active,
+.masthead__nav #menu > .menu-item > .nav-trigger > .active {
   border-bottom-color: currentColor;
 }
 
 .masthead__nav #menu a:focus-visible,
+.masthead__nav #menu .nav-trigger:focus-visible,
 .dispatch-cta:focus-visible,
 .dispatch-proof__read:focus-visible,
 .letter-close a:focus-visible {
@@ -270,12 +282,26 @@ a {
   content: none;
 }
 
-.masthead .menu-item:hover .sub-menu,
-.masthead .menu-item:focus-within .sub-menu {
+.masthead .menu-item:hover > .sub-menu,
+.masthead .menu-item:focus-within > .sub-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   transform: translate(-50%, 0);
+}
+
+.masthead .sub-menu .sub-menu--nested {
+  top: 0;
+  left: calc(100% + 16px);
+  width: min(84vw, 280px);
+  min-width: min(84vw, 240px);
+  padding-top: 12px;
+  transform: translate(-6px, 0);
+}
+
+.masthead .sub-menu .menu-item:hover > .sub-menu--nested,
+.masthead .sub-menu .menu-item:focus-within > .sub-menu--nested {
+  transform: translate(0, 0);
 }
 
 .masthead .sub-menu li {
@@ -327,6 +353,20 @@ a {
   height: 28px;
   object-fit: contain;
   filter: sepia(0.16) saturate(0.9);
+}
+
+.nav-card-link__glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: var(--rule-hair) solid rgba(42, 28, 22, 0.3);
+  border-radius: 50%;
+  color: var(--masthead-ink);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .nav-card-link__copy {
@@ -695,7 +735,8 @@ a {
     white-space: normal !important;
   }
 
-  .masthead__nav #menu a {
+  .masthead__nav #menu a,
+  .masthead__nav #menu .nav-trigger {
     display: inline-flex !important;
     min-height: 32px;
     padding: 0 !important;
@@ -720,10 +761,30 @@ a {
     transform: none;
   }
 
-  .masthead .menu-item-has-children:hover .sub-menu,
-  .masthead .menu-item-has-children:focus-within .sub-menu {
+  .masthead .menu-item-has-children:hover > .sub-menu,
+  .masthead .menu-item-has-children:focus-within > .sub-menu {
     display: block;
     transform: none;
+  }
+
+  .masthead .sub-menu .sub-menu--nested {
+    position: static;
+    display: block;
+    width: auto;
+    min-width: 0;
+    margin: 0 0 var(--space-xs) 46px;
+    padding: 0 0 0 12px;
+    border: 0;
+    border-left: var(--rule-hair) solid rgba(42, 28, 22, 0.22);
+    background: transparent;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .masthead .sub-menu .sub-menu--nested li + li {
+    border-top-color: rgba(42, 28, 22, 0.14);
   }
 
   .masthead .sub-menu li a,

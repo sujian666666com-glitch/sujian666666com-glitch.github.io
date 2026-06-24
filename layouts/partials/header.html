@@ -22,41 +22,86 @@
             <ul id="menu">
                 {{- range site.Menus.main }}
                 {{- if not .Parent }}
-                {{- $menuItemURL := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL)) | absLangURL }}
                 {{- $pageURL := $currentPage.Permalink | absLangURL }}
                 {{- $isSearch := eq .Identifier "search" }}
                 {{- $hasChildren := gt (len .Children) 0 }}
+                {{- $hasURL := ne .URL "" }}
+                {{- $menuItemURL := "" }}
+                {{- $isActive := false }}
+                {{- if $hasURL }}
+                {{- $menuItemURL = (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL)) | absLangURL }}
+                {{- $isActive = eq $menuItemURL $pageURL }}
+                {{- end }}
+                {{- if $hasChildren }}
+                {{- range .Children }}
+                {{- $childHasURL := ne .URL "" }}
+                {{- if $childHasURL }}
+                {{- $childURL := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL)) | absLangURL }}
+                {{- if eq $childURL $pageURL }}{{- $isActive = true }}{{- end }}
+                {{- end }}
+                {{- range .Children }}
+                {{- $grandchildHasURL := ne .URL "" }}
+                {{- if $grandchildHasURL }}
+                {{- $grandchildURL := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL)) | absLangURL }}
+                {{- if eq $grandchildURL $pageURL }}{{- $isActive = true }}{{- end }}
+                {{- end }}
+                {{- end }}
+                {{- end }}
+                {{- end }}
                 <li class="menu-item{{ if $hasChildren }} menu-item-has-children{{ end }}">
+                    {{- if $hasURL }}
                     <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}{{ cond $isSearch " (Alt + /)" "" }}"
                     {{- cond $isSearch (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr) }}>
-                        <span {{- if eq $menuItemURL $pageURL }} class="active" {{- end }}>
+                        <span {{- if $isActive }} class="active" {{- end }}>
                             {{- .Pre }}
                             <span>{{- .Name -}}</span>
                             {{ .Post -}}
                             {{- if $hasChildren }}<span class="menu-arrow" aria-hidden="true">⌄</span>{{- end }}
                         </span>
                     </a>
+                    {{- else }}
+                    <button class="nav-trigger" type="button" title="{{ .Title | default .Name }}" aria-haspopup="true">
+                        <span {{- if $isActive }} class="active" {{- end }}>
+                            {{- .Pre }}
+                            <span>{{- .Name -}}</span>
+                            {{ .Post -}}
+                            {{- if $hasChildren }}<span class="menu-arrow" aria-hidden="true">⌄</span>{{- end }}
+                        </span>
+                    </button>
+                    {{- end }}
                     {{- if $hasChildren }}
                     <ul class="sub-menu">
                         {{- range .Children }}
                         {{- $childIcon := "" -}}
+                        {{- $childGlyph := "" -}}
                         {{- if eq .Name "技术" }}{{- $childIcon = "/images/nav-tabs/icon-tech.png" -}}{{- end -}}
                         {{- if eq .Name "生活" }}{{- $childIcon = "/images/nav-tabs/icon-life.png" -}}{{- end -}}
                         {{- if eq .Name "思考" }}{{- $childIcon = "/images/nav-tabs/icon-thinking.png" -}}{{- end -}}
                         {{- if eq .Name "周记" }}{{- $childIcon = "/images/nav-tabs/icon-weekly.png" -}}{{- end -}}
                         {{- if eq .Name "日记" }}{{- $childIcon = "/images/nav-tabs/icon-daily.png" -}}{{- end -}}
+                        {{- if eq .Name "小纸条" }}{{- $childGlyph = "纸" -}}{{- end -}}
+                        {{- if eq .Name "小虾" }}{{- $childGlyph = "虾" -}}{{- end -}}
                         {{- $childDescriptionZh := "" -}}
+                        {{- if eq .Name "小纸条" -}}
+                        {{- $childDescriptionZh = "路过时留下一句话" -}}
+                        {{- end -}}
+                        {{- if eq .Name "小虾" -}}
+                        {{- $childDescriptionZh = "养虾日记与周记" -}}
+                        {{- end -}}
                         {{- if eq .Name "周记" -}}
                         {{- $childDescriptionZh = "记录每周生活碎片" -}}
                         {{- end -}}
                         {{- if eq .Name "日记" -}}
                         {{- $childDescriptionZh = "私密日常与想法" -}}
                         {{- end -}}
-                        <li>
+                        {{- $childHasChildren := gt (len .Children) 0 }}
+                        <li class="nav-card-item{{ if $childHasChildren }} menu-item menu-item-has-children nav-card-item-has-children{{ end }}">
                             <a class="nav-card-link" href="{{ .URL | absLangURL }}">
                                 <span class="nav-card-link__icon" aria-hidden="true">
                                     {{- with $childIcon -}}
                                     <img src="{{ . | relURL }}" alt="" width="48" height="48">
+                                    {{- else -}}
+                                    {{- with $childGlyph -}}<span class="nav-card-link__glyph">{{ . }}</span>{{- end -}}
                                     {{- end -}}
                                 </span>
                                 <span class="nav-card-link__copy">
@@ -71,6 +116,42 @@
                                 </span>
                                 <span class="nav-card-link__arrow" aria-hidden="true">›</span>
                             </a>
+                            {{- if $childHasChildren }}
+                            <ul class="sub-menu sub-menu--nested">
+                                {{- range .Children }}
+                                {{- $grandchildIcon := "" -}}
+                                {{- if eq .Name "周记" }}{{- $grandchildIcon = "/images/nav-tabs/icon-weekly.png" -}}{{- end -}}
+                                {{- if eq .Name "日记" }}{{- $grandchildIcon = "/images/nav-tabs/icon-daily.png" -}}{{- end -}}
+                                {{- $grandchildDescriptionZh := "" -}}
+                                {{- if eq .Name "周记" -}}
+                                {{- $grandchildDescriptionZh = "记录每周生活碎片" -}}
+                                {{- end -}}
+                                {{- if eq .Name "日记" -}}
+                                {{- $grandchildDescriptionZh = "私密日常与想法" -}}
+                                {{- end -}}
+                                <li class="nav-card-item">
+                                    <a class="nav-card-link" href="{{ .URL | absLangURL }}">
+                                        <span class="nav-card-link__icon" aria-hidden="true">
+                                            {{- with $grandchildIcon -}}
+                                            <img src="{{ . | relURL }}" alt="" width="48" height="48">
+                                            {{- end -}}
+                                        </span>
+                                        <span class="nav-card-link__copy">
+                                            <span class="nav-card-link__title">
+                                                <span>{{ .Name }}</span>
+                                            </span>
+                                            {{- if $grandchildDescriptionZh }}
+                                            <span class="nav-card-link__description">
+                                                <span>{{ $grandchildDescriptionZh }}</span>
+                                            </span>
+                                            {{- end }}
+                                        </span>
+                                        <span class="nav-card-link__arrow" aria-hidden="true">›</span>
+                                    </a>
+                                </li>
+                                {{- end }}
+                            </ul>
+                            {{- end }}
                         </li>
                         {{- end }}
                     </ul>
