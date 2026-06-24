@@ -415,3 +415,90 @@
   .tracker-summary { grid-template-columns: repeat(2, 1fr); }
   .tracker-dialog__panel { padding: 1.25rem 1rem 1.5rem; }
 }
+
+/* 备注上下分栏：textarea（源码）+ 预览区（渲染结果） */
+.tracker-note-preview {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--border, #d1d5db);
+  border-radius: 8px;
+  background: var(--code-bg, #f6f8fa);
+  min-height: 3rem;
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.tracker-note-preview--empty {
+  display: flex;
+  align-items: center;
+}
+
+.tracker-note-preview-empty {
+  color: var(--secondary, #9ca3af);
+  font-size: 0.82rem;
+}
+
+/* 备注内 Markdown 渲染样式 */
+.tracker-note-md p { margin: 0 0 0.5rem; }
+.tracker-note-md p:last-child { margin-bottom: 0; }
+.tracker-note-md strong { font-weight: 600; }
+.tracker-note-md em { font-style: italic; }
+.tracker-note-md code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+.tracker-note-md a {
+  color: var(--link-color, #30a14e);
+  text-decoration: underline;
+  word-break: break-all;
+}
+.tracker-note-md .chat-code-block {
+  margin: 0.4rem 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border, #e5e7eb);
+}
+.tracker-note-md .chat-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.04);
+  font-size: 0.75rem;
+}
+.tracker-note-md .chat-code-copy { display: none; } /* 预览区隐藏复制按钮 */
+.tracker-note-md pre {
+  margin: 0;
+  padding: 0.5rem 0.65rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* 操作区：退出登录靠左，删除/保存靠右 */
+.tracker-dialog__actions {
+  justify-content: space-between;
+  align-items: center;
+}
+.tracker-dialog__actions-right {
+  display: flex;
+  gap: 0.6rem;
+}
+.tracker-btn--logout {
+  font-size: 0.82rem;
+  padding: 0.35rem 0.8rem;
+  opacity: 0.7;
+}
+.tracker-btn--logout:hover { opacity: 1; }
+
+/* header 去掉登录区后居中（单列） */
+.tracker-header {
+  justify-content: center;
+  text-align: center;
+}
+.tracker-header__text { flex: initial; }

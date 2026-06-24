@@ -166,100 +166,19 @@
   // ── SVG Helpers ──────────────────────────────────────────
   var CHEVRON_SVG = '<svg class="chat-thinking-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
 
-  // ── Markdown Renderer ────────────────────────────────────
-  var CB = '\u0000'; // placeholder sentinel
-  var RE_FENCED = new RegExp('```(\\w*)\\n([\\s\\S]*?)```', 'g');
-  var RE_TRIM_NL = new RegExp('\\n$');
-  var RE_CB_TEST = new RegExp('^' + CB + 'CODEBLOCK\\d+' + CB + '$');
-  var RE_CB_RESTORE = new RegExp(CB + 'CODEBLOCK(\\d+)' + CB, 'g');
-  var RE_BOLD = new RegExp('\\*\\*(.+?)\\*\\*', 'g');
-  var RE_ITALIC = new RegExp('(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)', 'g');
-  var RE_INLINE_CODE = new RegExp('`([^`]+)`', 'g');
-  var RE_LINK_MD = new RegExp('\\[([^\\]]+)\\]\\(([^)]+)\\)', 'g');
-  var RE_BARE_URL = new RegExp('(^|[^">])(https?:\\/\\/[^\\s<]+)', 'g');
-  var RE_URL_TRAIL = new RegExp('[\u3002\uff0c\u3001\uff01\uff1f;\uff1b:\uff1a\uff09\\]\u300d\u3015\u2019\u201d\u00b4\u2018]+$');
+  // ── Markdown Renderer（已抽取到公共 static/md.js）────────
+  // escapeHtml / renderMarkdown 由 md.js 提供，挂在 window 上。
+  // 这里保留同名本地引用，避免改动下方所有调用点。
+  var escapeHtml = window.mdEscapeHtml || function (str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(str == null ? '' : str)));
+    return d.innerHTML;
+  };
+  var renderMarkdown = window.renderMarkdown || escapeHtml;
+
+  // 音乐播放标记（不属于通用 MD，保留在 chat-ui）
   var RE_PLAY_MARKER = new RegExp('\\{\\{play:([^|{}\\n]{1,80})\\|([^{}\\n]{1,80})\\}\\}');
   var RE_PLAY_MARKER_ALL = new RegExp('\\{\\{play:([^|{}\\n]{1,80})\\|([^{}\\n]{1,80})\\}\\}', 'g');
-
-  function escapeHtml(str) {
-    var d = document.createElement('div');
-    d.appendChild(document.createTextNode(str));
-    return d.innerHTML;
-  }
-
-  function renderMarkdown(raw) {
-    if (!raw) return '';
-    var src = String(raw);
-
-    // 1. Extract fenced code blocks to protect them from inline processing
-    var codeBlocks = [];
-    src = src.replace(RE_FENCED, function (_, lang, code) {
-      var idx = codeBlocks.length;
-      codeBlocks.push({ lang: lang || '', code: code.replace(RE_TRIM_NL, '') });
-      return CB + 'CODEBLOCK' + idx + CB;
-    });
-
-    // 2. Split into lines for paragraph processing
-    var lines = src.split('\n');
-    var out = '';
-    var inParagraph = false;
-
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
-
-      if (RE_CB_TEST.test(line)) {
-        if (inParagraph) { out += '</p>'; inParagraph = false; }
-        out += line;
-        continue;
-      }
-
-      if (line.trim() === '') {
-        if (inParagraph) { out += '</p>'; inParagraph = false; }
-        continue;
-      }
-
-      if (!inParagraph) {
-        out += '<p>';
-        inParagraph = true;
-      } else {
-        out += '<br>';
-      }
-
-      out += processInline(line);
-    }
-    if (inParagraph) out += '</p>';
-
-    // 3. Restore code blocks as HTML
-    out = out.replace(RE_CB_RESTORE, function (_, idxStr) {
-      var block = codeBlocks[parseInt(idxStr, 10)];
-      var langLabel = block.lang ? block.lang : 'code';
-      var escapedCode = escapeHtml(block.code);
-      return '<div class="chat-code-block">' +
-        '<div class="chat-code-header">' +
-        '<span class="chat-code-lang">' + escapeHtml(langLabel) + '</span>' +
-        '<button class="chat-code-copy" data-copy>复制</button>' +
-        '</div>' +
-        '<pre><code>' + escapedCode + '</code></pre>' +
-        '</div>';
-    });
-
-    // 4. Auto-detect bare URLs
-    out = out.replace(RE_BARE_URL, function (match, prefix, url) {
-      var clean = url.replace(RE_URL_TRAIL, '');
-      return prefix + '<a href="' + escapeHtml(clean) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(clean) + '</a>';
-    });
-
-    return out;
-  }
-
-  function processInline(line) {
-    var s = escapeHtml(line);
-    s = s.replace(RE_BOLD, '<strong>$1</strong>');
-    s = s.replace(RE_ITALIC, '<em>$1</em>');
-    s = s.replace(RE_INLINE_CODE, '<code>$1</code>');
-    s = s.replace(RE_LINK_MD, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    return s;
-  }
 
   function extractPlayMarker(raw) {
     var match = String(raw || '').match(RE_PLAY_MARKER);

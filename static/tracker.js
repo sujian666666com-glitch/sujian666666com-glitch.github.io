@@ -46,6 +46,7 @@
   var progressInput = $('tk-progress');
   var progressDisplay = $('tk-progress-display');
   var noteInput = $('tk-note');
+  var notePreviewEl = $('tk-note-preview');
   var attachmentInput = $('tk-attachment-input');
   var attachmentPreview = $('tk-attachment-preview');
   var attachmentClearBtn = $('tk-attachment-clear');
@@ -153,15 +154,31 @@
     });
   }
 
+  // 备注实时 Markdown 渲染（复用公共 md.js）
+  function renderNotePreview() {
+    if (!notePreviewEl) return;
+    var raw = noteInput.value;
+    if (!raw.trim()) {
+      notePreviewEl.innerHTML = '<span class="tracker-note-preview-empty">预览区（输入 Markdown 后实时渲染）</span>';
+      notePreviewEl.classList.add('tracker-note-preview--empty');
+      return;
+    }
+    notePreviewEl.classList.remove('tracker-note-preview--empty');
+    var html = window.renderMarkdown ? window.renderMarkdown(raw) : escapeHTML(raw).replace(/\n/g, '<br>');
+    notePreviewEl.innerHTML = '<div class="tracker-note-md">' + html + '</div>';
+  }
+
   // ---------------------------------------------------------------------------
-  // 登录态 UI
+  // 登录态 UI（登录入口已改为懒触发：修改时才弹密码框）
+  // 「新建/编辑计划」按钮始终可见（点击时若未登录会弹密码框）
+  // 「退出登录」放在每日详情弹窗内，仅登录后可见
   // ---------------------------------------------------------------------------
   function refreshAuthUI() {
     var loggedIn = isLoggedIn();
-    if (loginBtn) loginBtn.hidden = loggedIn;
     if (logoutBtn) logoutBtn.hidden = !loggedIn;
-    if (newPlanBtn) newPlanBtn.hidden = !loggedIn;
-    if (editPlanBtn) editPlanBtn.hidden = !loggedIn || !currentPlanId;
+    // newPlanBtn / editPlanBtn 始终可见，由点击时的 ensureLoggedIn 兜底
+    if (newPlanBtn) newPlanBtn.hidden = !plans.length && false; // 保留可见
+    if (editPlanBtn) editPlanBtn.hidden = !currentPlanId;
   }
 
   // ---------------------------------------------------------------------------
@@ -416,6 +433,7 @@
     progressDisplay.textContent = progressInput.value;
     noteInput.value = record && record.note ? record.note : '';
     dayErrorEl.textContent = '';
+    renderNotePreview();
     pendingAttachment = '';
     if (record && record.hasAttachment) {
       request('GET', '/api/tracker/plans/' + encodeURIComponent(currentPlanId) + '/records/' + encodeURIComponent(dateKey))
@@ -430,7 +448,7 @@
     } else {
       attachmentPreview.src = ''; attachmentPreview.hidden = true; attachmentClearBtn.hidden = true;
     }
-    deleteRecordBtn.hidden = !isLoggedIn() || !record;
+    deleteRecordBtn.hidden = !record;
     showDialog(dayDialog);
   }
 
@@ -438,6 +456,8 @@
   // 每日详情表单
   // ---------------------------------------------------------------------------
   bind(progressInput, 'input', function () { progressDisplay.textContent = progressInput.value; }, 'tk-progress');
+
+  bind(noteInput, 'input', renderNotePreview, 'tk-note');
 
   bind(attachmentInput, 'change', async function () {
     var file = attachmentInput.files && attachmentInput.files[0];
@@ -459,8 +479,13 @@
 
   bind(dayForm, 'submit', async function (e) {
     e.preventDefault();
-    if (!isLoggedIn()) { dayErrorEl.textContent = '请先登录'; return; }
     if (!editingDate || !editingPlanId) return;
+    if (!isLoggedIn()) {
+      // 懒触发：弹密码框，登录成功后重新触发本次提交
+      var formEl = dayForm;
+      ensureLoggedIn(function () { formEl.requestSubmit(); });
+      return;
+    }
     dayErrorEl.textContent = '';
     try {
       await request('PUT',
@@ -477,6 +502,10 @@
 
   bind(deleteRecordBtn, 'click', async function () {
     if (!editingDate || !editingPlanId) return;
+    if (!isLoggedIn()) {
+      ensureLoggedIn(function () { deleteRecordBtn.click(); });
+      return;
+    }
     if (!confirm('确定删除 ' + editingDate + ' 的记录？')) return;
     try {
       await request('DELETE',
@@ -491,7 +520,10 @@
   // 计划表单
   // ---------------------------------------------------------------------------
   bind(newPlanBtn, 'click', function () {
-    if (!isLoggedIn()) { openLoginDialog(); return; }
+    if (!isLoggedIn()) {
+      ensureLoggedIn(function () { newPlanBtn.click(); });
+      return;
+    }
     editingPlanMode = 'create';
     planDialogTitle.textContent = '新建计划';
     planForm.reset();
@@ -503,6 +535,10 @@
 
   bind(editPlanBtn, 'click', function () {
     if (!currentPlanId) return;
+    if (!isLoggedIn()) {
+      ensureLoggedIn(function () { editPlanBtn.click(); });
+      return;
+    }
     var plan = plans.find(function (p) { return p.id === currentPlanId; });
     if (!plan) return;
     editingPlanMode = 'edit';
@@ -544,6 +580,10 @@
 
   bind(planDeleteBtn, 'click', async function () {
     if (!currentPlanId) return;
+    if (!isLoggedIn()) {
+      ensureLoggedIn(function () { planDeleteBtn.click(); });
+      return;
+    }
     if (!confirm('确定删除这个计划及其所有记录？此操作不可恢复。')) return;
     try {
       await request('DELETE', '/api/tracker/plans/' + encodeURIComponent(currentPlanId));
@@ -562,9 +602,17 @@
     showDialog(loginDialog);
   }
 
+  // 懒触发鉴权：未登录时弹密码框，登录成功后继续执行 action；取消则不执行
+  function ensureLoggedIn(action) {
+    if (isLoggedIn()) { action(); return; }
+    // 记下待执行动作，登录成功后触发
+    pendingAction = action;
+    openLoginDialog();
+  }
+  var pendingAction = null;
+
   window.__trackerOpenLogin = openLoginDialog;
 
-  bind(loginBtn, 'click', openLoginDialog, 'tk-login-btn');
   bind(logoutBtn, 'click', function () {
     token = ''; localStorage.removeItem(TOKEN_KEY); refreshAuthUI();
   }, 'tk-logout-btn');
@@ -579,6 +627,12 @@
       localStorage.setItem(TOKEN_KEY, token);
       closeAllDialogs();
       refreshAuthUI();
+      // 若有等待登录的修改动作，登录成功后立即执行
+      if (pendingAction) {
+        var action = pendingAction;
+        pendingAction = null;
+        try { action(); } catch (err) { console.error('[tracker] 登录后续动作失败', err); }
+      }
     } catch (err) { loginErrorEl.textContent = err.message; }
   }, 'tk-login-form');
 

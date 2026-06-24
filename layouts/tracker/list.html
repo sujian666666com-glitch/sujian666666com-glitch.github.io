@@ -6,10 +6,6 @@
       <h1 class="tracker-title">计划追踪</h1>
       <p class="tracker-subtitle">把每一天的努力，画成一张看得见的图</p>
     </div>
-    <div class="tracker-auth">
-      <button class="tracker-btn tracker-btn--ghost" type="button" id="tk-login-btn">登录</button>
-      <button class="tracker-btn tracker-btn--ghost" type="button" id="tk-logout-btn" hidden>退出登录</button>
-    </div>
   </header>
 
   <nav class="tracker-tabs" id="tk-tabs" aria-label="计划切换"></nav>
@@ -78,10 +74,11 @@
         <input type="range" name="progress" min="0" max="100" step="5" value="0" id="tk-progress">
       </label>
 
-      <label class="tracker-field">
-        <span class="tracker-field__label">备注（复盘/心得）</span>
-        <textarea name="note" rows="4" maxlength="2000" placeholder="今天做了什么？哪里做得好？明天怎么改进？" id="tk-note"></textarea>
-      </label>
+      <div class="tracker-field">
+        <span class="tracker-field__label">备注（复盘/心得，支持 Markdown）</span>
+        <textarea name="note" rows="4" maxlength="2000" placeholder="今天做了什么？哪里做得好？明天怎么改进？&#10;支持 **加粗**、`代码`、[链接](url) 等 Markdown 语法" id="tk-note"></textarea>
+        <div class="tracker-note-preview" id="tk-note-preview" aria-label="备注预览"></div>
+      </div>
 
       <div class="tracker-field">
         <span class="tracker-field__label">图片（错题照/健身照等）</span>
@@ -100,8 +97,11 @@
 
       <p class="tracker-dialog__error" id="tk-day-error"></p>
       <div class="tracker-dialog__actions">
-        <button class="tracker-btn tracker-btn--danger" type="button" id="tk-delete-record" hidden>删除记录</button>
-        <button class="tracker-btn" type="submit">保存</button>
+        <button class="tracker-btn tracker-btn--ghost tracker-btn--logout" type="button" id="tk-logout-btn" hidden>退出登录</button>
+        <span class="tracker-dialog__actions-right">
+          <button class="tracker-btn tracker-btn--danger" type="button" id="tk-delete-record" hidden>删除记录</button>
+          <button class="tracker-btn" type="submit">保存</button>
+        </span>
       </div>
     </form>
   </div>
@@ -162,6 +162,8 @@
 
 <div class="tracker-tooltip" id="tk-tooltip" hidden></div>
 
+{{- $mdJSVersion := readFile "static/md.js" | md5 -}}
+<script src="/md.js?v={{ $mdJSVersion }}" defer></script>
 {{- $trackerJSVersion := readFile "static/tracker.js" | md5 -}}
 <script src="/tracker.js?v={{ $trackerJSVersion }}" defer></script>
 {{ end }}
