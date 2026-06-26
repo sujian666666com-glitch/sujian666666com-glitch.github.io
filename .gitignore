@@ -41,3 +41,9 @@ private-notes/
 
 # 本地核对草稿，不进入版本库
 docs/life-map-mermaid-review.md
+
+# 整理暂存区（待人工确认后删除）
+.trash/
+
+# wall:dev 运行时目录
+tmp/

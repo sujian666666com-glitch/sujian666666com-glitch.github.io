@@ -33,6 +33,8 @@
 | 生活随笔 | 生活记录与分享 | `/posts/生活/` |
 | 思考笔记 | 个人思考与感悟 | `/posts/思考/` |
 | 相册 | 图片收藏与分享 | `/gallery/` |
+| 我在哪里 | 3D 地球记录到过的地方 | `/where/` |
+| 人生地图 | Next.js 子应用，人生轨迹地图（密码访问） | `/about/life-map` |
 | 小虾日记 | 养虾日记与周记（36 天 / 12 周） | `/shrimp-diary/` |
 
 ## 技术栈
@@ -41,6 +43,8 @@
 - **主题**: PaperMod（Profile Mode）
 - **AI 聊天**: VPS Node.js API + 智谱 Coding Plan / Claude API 兼容口（SSE 流式响应）
 - **RAG 检索**: 博客内容向量索引 + SiliconFlow Qwen3 embedding 语义检索
+- **音乐点歌**: VPS Node.js API 反代网易云 API，聊天侧边栏搜歌/播放
+- **人生地图**: 独立 Next.js 子应用，挂载到 `/about/life-map`
 - **留言墙**: VPS Node.js API + SQLite
 - **部署**: 自有服务器 + Nginx + systemd
 - **语言**: 中文
@@ -90,6 +94,22 @@
 - **RAG 构建**: `scripts/build-rag.mjs` — 从博客内容生成向量索引
 - **模型配置**: `data/chat.yaml` — 模型列表与系统提示词
 
+### 音乐点歌
+
+聊天侧边栏内置音乐面板，读者可搜索歌曲并试听。前端只请求站内 `/api/music/*`，由服务器本地 Node 服务反代到网易云 API，不暴露上游地址，也不会把第三方凭据带到前端。
+
+- 站内 `/api/music/search|url|song`，线上由 `server/music-api.mjs` 提供
+- 反代上游网易云 API（默认 `http://127.0.0.1:3000`）
+- 搜索结果缓存 60s、播放地址缓存 10min
+- 仅放行 `GET/OPTIONS`，按 `MUSIC_ALLOWED_ORIGINS` 做跨域白名单
+- 前端逻辑：`static/chat-ui.js`
+
+### 人生地图
+
+独立的 Next.js 子应用（源码在 `apps/life-map/`），构建后由 systemd 常驻运行，挂载到 `/about/life-map`，记录人生轨迹地图。访问 `/api/life-map/verify` 做密码验证，建议在 Nginx 侧对该路径按 IP 限速。
+
+> 注：「我在哪里」（`/where/`）是 Hugo 静态 3D 地球页（`static/where-globe.js`），与 Next.js 人生地图是两个独立页面。
+
 ### 匿名留言墙
 
 相册页带有匿名留言墙，前端请求站内 `/api/wall/`，线上由 `server/wall-api.mjs` 提供本地 API，并使用 SQLite 保存留言数据。后台管理页使用 `WALL_ADMIN_TOKEN` 做轻量管理鉴权。
@@ -134,6 +154,12 @@ npm run wall:dev
 
 # 本地启动聊天 API（聊天需要 BIGMODEL_API_KEY；RAG 需要 SILICONFLOW_API_KEY）
 BIGMODEL_API_KEY=your_zhipu_api_key SILICONFLOW_API_KEY=your_siliconflow_api_key npm run chat:dev
+
+# 本地启动音乐 API（需先在 MUSIC_API_UPSTREAM 起一个网易云 API 服务）
+MUSIC_API_UPSTREAM=http://127.0.0.1:3000 node server/music-api.mjs
+
+# 本地启动人生地图 Next 子应用（在 apps/life-map 下）
+cd apps/life-map && npm run dev
 ```
 
 ### 每日新闻正文格式
@@ -191,6 +217,36 @@ SILICONFLOW_API_KEY=your_siliconflow_api_key npm run build:rag
 - 环境文件：`/etc/my-blog-chat.env`
 - Nginx：`server/nginx-chat-location.conf`
 
+### 音乐 API
+
+| 配置项 | 说明 |
+|--------|------|
+| `MUSIC_API_HOST` | 默认 `127.0.0.1` |
+| `MUSIC_API_PORT` | 默认 `8789` |
+| `MUSIC_API_UPSTREAM` | 网易云 API 上游，默认 `http://127.0.0.1:3000` |
+| `MUSIC_ALLOWED_ORIGINS` | 跨域白名单，逗号分隔，缺省回退到聊天/留言墙白名单 |
+
+线上文件位置：
+
+- 服务代码：`/opt/my-blog-music/music-api.mjs`
+- systemd：`/etc/systemd/system/my-blog-music.service`
+- 环境文件：`/etc/my-blog-music.env`
+- Nginx：`server/nginx-music-location.conf`
+
+### 人生地图 API（Next.js 子应用）
+
+| 配置项 | 说明 |
+|--------|------|
+| `PORT` | 默认 `8790`，仅监听 `127.0.0.1` |
+| `NODE_ENV` | `production` |
+
+线上文件位置：
+
+- 应用目录：`/opt/my-blog-life-map/`（`npm run start`）
+- systemd：`/etc/systemd/system/my-blog-life-map.service`
+- 环境文件：`/etc/my-blog-life-map.env`
+- Nginx：`server/nginx-life-map-location.conf`（挂载 `/about/life-map`、`/_next/`、`/api/life-map/`）
+
 ### 留言墙 API
 
 | 配置项 | 说明 |
@@ -218,6 +274,8 @@ SILICONFLOW_API_KEY=your_siliconflow_api_key npm run build:rag
 ```text
 my-blog/
 ├── archetypes/                   # 文章模板
+├── apps/
+│   └── life-map/                 # 人生地图 Next.js 子应用（挂载到 /about/life-map）
 ├── assets/css/extended/
 │   ├── custom.css                # 自定义样式（布局宽度等）
 │   └── chat-widget.css           # 聊天组件样式
@@ -229,6 +287,7 @@ my-blog/
 │   │   ├── 技术/                 # 技术分类
 │   │   ├── 生活/                 # 生活分类
 │   │   └── 思考/                 # 思考分类
+│   ├── where/                    # 我在哪里（3D 地球页）
 │   └── shrimp-diary/             # 小虾日记
 │       ├── daily/                # 每日记录
 │       └── weekly/               # 周记
@@ -246,14 +305,20 @@ my-blog/
 │   └── update-rag.sh             # RAG 更新 Shell 脚本
 ├── server/
 │   ├── chat-api.mjs              # VPS 本地聊天 API
+│   ├── music-api.mjs             # VPS 本地音乐 API（反代网易云）
 │   ├── wall-api.mjs              # VPS 本地留言墙 API
 │   ├── my-blog-chat.service      # 聊天 API systemd 示例
+│   ├── my-blog-music.service     # 音乐 API systemd 示例
+│   ├── my-blog-life-map.service  # 人生地图 systemd 示例
 │   ├── my-blog-wall.service      # 留言墙 API systemd 示例
 │   ├── nginx-chat-location.conf  # /api/chat 反代配置
+│   ├── nginx-music-location.conf # /api/music/ 反代配置
+│   ├── nginx-life-map-location.conf # /about/life-map 反代配置
 │   └── nginx-wall-location.conf  # /api/wall/ 反代配置
 ├── static/
-│   ├── chat-ui.js                # 聊天组件交互逻辑
+│   ├── chat-ui.js                # 聊天组件交互逻辑（含音乐面板）
 │   ├── message-wall.js           # 留言墙交互逻辑
+│   ├── where-globe.js            # 我在哪里 3D 地球逻辑
 │   ├── rag-vectors.json          # 博客内容向量索引
 │   └── images/                   # 图片资源
 ├── themes/

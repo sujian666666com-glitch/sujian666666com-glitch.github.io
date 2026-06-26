@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1780304630581,
+  "lastScanned": 1782201179000,
   "projectRoot": "/Users/ik/clawd/my-blog",
   "techStack": {
     "languages": [
@@ -13,7 +13,18 @@
         ]
       }
     ],
-    "frameworks": [],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.2.7",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.7",
+        "category": "frontend"
+      }
+    ],
     "packageManager": "npm",
     "runtime": null
   },
@@ -42,6 +53,7 @@
     "workspaces": [],
     "mainDirectories": [
       "assets",
+      "docs",
       "public",
       "scripts",
       "static"
@@ -53,11 +65,18 @@
   },
   "customNotes": [],
   "directoryMap": {
+    "apps": {
+      "path": "apps",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1782201178987,
+      "keyFiles": []
+    },
     "archetypes": {
       "path": "archetypes",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1780304630400,
+      "lastAccessed": 1782201178991,
       "keyFiles": [
         "default.md"
       ]
@@ -65,45 +84,64 @@
     "assets": {
       "path": "assets",
       "purpose": "Static assets",
-      "fileCount": 0,
-      "lastAccessed": 1780304630400,
-      "keyFiles": []
+      "fileCount": 1,
+      "lastAccessed": 1782201178991,
+      "keyFiles": [
+        "jsconfig.json"
+      ]
     },
     "content": {
       "path": "content",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1780304630401,
+      "lastAccessed": 1782201178992,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 1,
-      "lastAccessed": 1780304630407,
+      "lastAccessed": 1782201178992,
       "keyFiles": [
         "chat.yaml"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1782201178992,
+      "keyFiles": [
+        "design.md",
+        "life-map-mermaid-review.md"
       ]
     },
     "i18n": {
       "path": "i18n",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1780304630535,
+      "lastAccessed": 1782201178993,
+      "keyFiles": []
+    },
+    "image": {
+      "path": "image",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1782201178993,
       "keyFiles": []
     },
     "layouts": {
       "path": "layouts",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1780304630537,
+      "lastAccessed": 1782201178993,
       "keyFiles": []
     },
     "migrations": {
       "path": "migrations",
       "purpose": "Database migrations",
       "fileCount": 1,
-      "lastAccessed": 1780304630538,
+      "lastAccessed": 1782201178994,
       "keyFiles": [
         "0001_create_wall_messages.sql"
       ]
@@ -112,16 +150,25 @@
       "path": "openspec",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1780304630547,
+      "lastAccessed": 1782201178994,
       "keyFiles": [
         "config.yaml"
+      ]
+    },
+    "private-notes": {
+      "path": "private-notes",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1782201178994,
+      "keyFiles": [
+        "my-life-story.md"
       ]
     },
     "public": {
       "path": "public",
       "purpose": "Public files",
       "fileCount": 17,
-      "lastAccessed": 1780304630567,
+      "lastAccessed": 1782201178995,
       "keyFiles": [
         "404.html",
         "avatar.png",
@@ -134,14 +181,14 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1780304630568,
+      "lastAccessed": 1782201178995,
       "keyFiles": []
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 4,
-      "lastAccessed": 1780304630570,
+      "lastAccessed": 1782201178995,
       "keyFiles": [
         "build-rag.mjs",
         "daily-cover-prompt.py",
@@ -152,211 +199,85 @@
     "server": {
       "path": "server",
       "purpose": null,
-      "fileCount": 7,
-      "lastAccessed": 1780304630574,
+      "fileCount": 14,
+      "lastAccessed": 1782201178995,
       "keyFiles": [
         "README.md",
         "chat-api.mjs",
-        "my-blog-chat.service",
-        "my-blog-wall.service",
-        "nginx-chat-location.conf"
+        "chat-meta.json",
+        "music-api.mjs",
+        "my-blog-chat.service"
       ]
     },
     "static": {
       "path": "static",
       "purpose": "Static files",
-      "fileCount": 12,
-      "lastAccessed": 1780304630575,
+      "fileCount": 11,
+      "lastAccessed": 1782201178995,
       "keyFiles": [
         "avatar.png",
-        "chat-redesign-preview.html",
         "chat-ui.js",
         "chat-worker.js",
-        "favicon-16x16.png"
+        "favicon-16x16.png",
+        "favicon-32x32.png"
       ]
     },
     "themes": {
       "path": "themes",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1780304630576,
+      "lastAccessed": 1782201178996,
       "keyFiles": []
     },
     "public/assets": {
       "path": "public/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1780304630580,
+      "lastAccessed": 1782201178997,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "content/posts/生活/my-life-story.md",
-      "accessCount": 4,
-      "lastAccessed": 1780313942650,
+      "path": "README.md",
+      "accessCount": 7,
+      "lastAccessed": 1782097124666,
       "type": "file"
     },
     {
-      "path": "apps/life-map/components/LifeMap/LifeMapNode.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1780313929293,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/LifeMapPanel.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1780313930317,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/lib/life-map-utils.ts",
-      "accessCount": 3,
-      "lastAccessed": 1780313930356,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/types/life-map.ts",
-      "accessCount": 3,
-      "lastAccessed": 1780313930375,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/index.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1780313931853,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/LifeMapCanvas.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1780313932751,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/lib/life-map-store.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313930631,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/data/life-map-data.server.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313931492,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/LifeMapFilter.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313932824,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/LifeMapLegend.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313932949,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/LifeMapTimeline.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313933417,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/UnlockPanel.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313933613,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/app/globals.css",
-      "accessCount": 2,
-      "lastAccessed": 1780313933948,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/app/about/life-map/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313934262,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/app/api/life-map/data/route.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313934661,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/app/api/life-map/verify/route.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313935023,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/lib/export-map.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313935354,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/lib/life-map-token.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313935585,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/package.json",
-      "accessCount": 2,
-      "lastAccessed": 1780313936720,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/components/LifeMap/ExportButton.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313943684,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/app/layout.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1780313943769,
-      "type": "file"
-    },
-    {
-      "path": "apps/life-map/tailwind.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1780313943822,
-      "type": "file"
-    },
-    {
-      "path": "content/posts/my-life-story.md",
+      "path": "server/music-api.mjs",
       "accessCount": 1,
-      "lastAccessed": 1780304742536,
+      "lastAccessed": 1782097011123,
       "type": "file"
     },
     {
-      "path": "content/posts/生活/kan-wan-shenmi-fusu-ganxiang.md",
+      "path": "server/my-blog-music.service",
       "accessCount": 1,
-      "lastAccessed": 1780304774089,
+      "lastAccessed": 1782097011182,
       "type": "file"
     },
     {
-      "path": "content/posts/技术/2026-03-13-ai-coding-tools-selection.md",
+      "path": "server/nginx-music-location.conf",
       "accessCount": 1,
-      "lastAccessed": 1780304775165,
+      "lastAccessed": 1782097011370,
       "type": "file"
     },
     {
-      "path": "apps/life-map/.env.example",
+      "path": "server/my-blog-life-map.service",
       "accessCount": 1,
-      "lastAccessed": 1780313936736,
+      "lastAccessed": 1782097011431,
       "type": "file"
     },
     {
-      "path": "apps/life-map/next.config.mjs",
+      "path": "server/nginx-life-map-location.conf",
       "accessCount": 1,
-      "lastAccessed": 1780313943993,
+      "lastAccessed": 1782097011873,
+      "type": "file"
+    },
+    {
+      "path": "content/posts/生活/niko-major-yingjiao.md",
+      "accessCount": 1,
+      "lastAccessed": 1782201260851,
       "type": "file"
     }
   ],
